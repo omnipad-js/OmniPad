@@ -16,10 +16,11 @@ export default defineConfig({
     },
     rollupOptions: {
       // 确保外部化 Vue，不打包进库
-      external: ['vue'],
+      external: ['vue', '@omnipad/core'],
       output: {
         globals: {
           vue: 'Vue',
+          '@omnipad/core': 'OmniPadCore'
         },
       },
     },

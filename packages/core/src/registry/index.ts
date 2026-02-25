@@ -1,4 +1,3 @@
-import { BaseEntity } from '../entities/BaseEntity';
 import { IRegistry } from '../types/registry';
 import { ICoreEntity } from '../types/traits';
 
@@ -89,9 +88,10 @@ export class Registry implements IRegistry {
     const parentMap = new Map<string, ICoreEntity[]>();
 
     all.forEach((entity) => {
-      // 只有继承自 BaseEntity 的才有 getConfig，安全起见做个检查
-      if (entity instanceof BaseEntity) {
-        const config = entity.getConfig();
+      const e = entity as any;
+      // 检查是否有 getConfig 方法
+      if (typeof e.getConfig === 'function') {
+        const config = e.getConfig();
         if (config.parentId) {
           if (!parentMap.has(config.parentId)) {
             parentMap.set(config.parentId, []);
