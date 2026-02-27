@@ -1,5 +1,5 @@
 import { Registry } from '../registry';
-import { ACTION_TYPES, InputActionSignal, TYPES } from '../types';
+import { ACTION_TYPES, InputActionSignal, CMP_TYPES } from '../types';
 import { KeyboardButtonConfig } from '../types/configs';
 import { KeyboardButtonState } from '../types/state';
 import { ICoreEntity, IPointerHandler, ISignalReceiver } from '../types/traits';
@@ -30,7 +30,7 @@ export class KeyboardButtonCore
    * @param config - The flat configuration object for the button.
    */
   constructor(uid: string, config: KeyboardButtonConfig) {
-    super(uid, TYPES.KEYBOARD_BUTTON, config, INITIAL_STATE);
+    super(uid, CMP_TYPES.KEYBOARD_BUTTON, config, INITIAL_STATE);
   }
 
   // --- IPointerHandler Implementation ---

@@ -1,4 +1,4 @@
-import { AnchorPoint, FlexibleLength, TYPES, Vec2 } from '.';
+import { AnchorPoint, FlexibleLength, CMP_TYPES, Vec2 } from '.';
 import { KeyMapping } from './keys';
 
 /**
@@ -51,7 +51,7 @@ export interface BaseConfig {
  * Configuration for a virtual keyboard button.
  */
 export interface KeyboardButtonConfig extends BaseConfig {
-  type: typeof TYPES.KEYBOARD_BUTTON;
+  type: typeof CMP_TYPES.KEYBOARD_BUTTON;
   /** Visual text displayed on the button. */
   label: string;
   /** Keyboard event metadata to be emitted when triggered. */
@@ -66,7 +66,7 @@ export interface KeyboardButtonConfig extends BaseConfig {
  * Mouse Button Configuration
  */
 export interface MouseButtonConfig extends BaseConfig {
-  type: typeof TYPES.MOUSE_BUTTON;
+  type: typeof CMP_TYPES.MOUSE_BUTTON;
   /** Label displayed on the button */
   label: string;
   /**
@@ -84,7 +84,7 @@ export interface MouseButtonConfig extends BaseConfig {
 }
 
 export interface TrackpadConfig extends BaseConfig {
-  type: typeof TYPES.TRACKPAD;
+  type: typeof CMP_TYPES.TRACKPAD;
   /** Label displayed on the trackpad */
   label: string;
   /** Simulation sensitivity, e.g. 0.5 - 2.0 */
@@ -98,7 +98,7 @@ export interface TrackpadConfig extends BaseConfig {
  * Input Zones act as containers and can handle dynamic (floating) widgets.
  */
 export interface InputZoneConfig extends BaseConfig {
-  type: typeof TYPES.INPUT_ZONE;
+  type: typeof CMP_TYPES.INPUT_ZONE;
   /** If true, attempts to regain focus for the target stage when touched. */
   preventFocusLoss?: boolean;
   /**
@@ -112,7 +112,7 @@ export interface InputZoneConfig extends BaseConfig {
  * Acts as the bridge between virtual signals and the actual game/app DOM.
  */
 export interface TargetZoneConfig extends BaseConfig {
-  type: typeof TYPES.TARGET_ZONE;
+  type: typeof CMP_TYPES.TARGET_ZONE;
   /** Whether to render a visual virtual cursor. */
   cursorEnabled?: boolean;
   /** Time in milliseconds before the cursor auto-hides after inactivity. 0 to disable. */

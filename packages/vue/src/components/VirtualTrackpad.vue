@@ -5,7 +5,7 @@ import {
   type TrackpadConfig,
   TrackpadCore,
   type TrackpadState,
-  TYPES,
+  CMP_TYPES,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
@@ -33,7 +33,7 @@ interface VirtualTrackpadProps {
 
 const props = defineProps<VirtualTrackpadProps>();
 
-const { uid, config } = useWidgetConfig<TrackpadConfig>(TYPES.TRACKPAD, props, {
+const { uid, config } = useWidgetConfig<TrackpadConfig>(CMP_TYPES.TRACKPAD, props, {
   label: 'TRACKPAD',
   sensitivity: 1.0,
 });

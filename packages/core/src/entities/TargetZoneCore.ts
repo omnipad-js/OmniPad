@@ -1,4 +1,4 @@
-import { ACTION_TYPES, InputActionSignal, Vec2, TYPES } from '../types';
+import { ACTION_TYPES, InputActionSignal, Vec2, CMP_TYPES } from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
 import { IPointerHandler, ISignalReceiver } from '../types/traits';
@@ -32,7 +32,7 @@ export class TargetZoneCore
   private throttledPointerMove: (e: PointerEvent) => void;
 
   constructor(uid: string, config: TargetZoneConfig) {
-    super(uid, TYPES.TARGET_ZONE, config, INITIAL_STATE);
+    super(uid, CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
 
     this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
       this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);

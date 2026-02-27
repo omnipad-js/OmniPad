@@ -7,7 +7,7 @@ import {
   InputZoneState,
   LayoutBox,
   resolveLayoutStyle,
-  TYPES,
+  CMP_TYPES,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { getComponent } from '../utils/componentRegistry';
@@ -39,7 +39,7 @@ const slots = useSlots() as {
 const dynamicWidgetRef = ref<any>(null);
 
 // 整合配置
-const { uid, config } = useWidgetConfig<InputZoneConfig>(TYPES.INPUT_ZONE, props);
+const { uid, config } = useWidgetConfig<InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props);
 const { core, state, elementRef } = useCoreEntity<InputZoneCore, InputZoneState>(
   () => new InputZoneCore(uid.value, config.value),
 );

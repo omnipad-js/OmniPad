@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler } from '../types/traits';
 import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
-import { Vec2, TYPES } from '../types';
+import { Vec2, CMP_TYPES } from '../types';
 import { pxToPercent } from '../utils/math';
 
 const INITIAL_STATE: InputZoneState = {
@@ -22,7 +22,7 @@ export class InputZoneCore
   implements IPointerHandler
 {
   constructor(uid: string, config: InputZoneConfig) {
-    super(uid, TYPES.INPUT_ZONE, config, INITIAL_STATE);
+    super(uid, CMP_TYPES.INPUT_ZONE, config, INITIAL_STATE);
   }
 
   public onPointerDown(e: PointerEvent): void {

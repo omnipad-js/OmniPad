@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ConfigTreeNode, RootLayerCore, BaseConfig, TYPES } from '@omnipad/core';
+import { ConfigTreeNode, RootLayerCore, BaseConfig, CMP_TYPES } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
 import VirtualLayerBase from './VirtualLayerBase.vue';
@@ -12,7 +12,7 @@ const props = defineProps<{
   widgetId?: string;
 }>();
 
-const { uid, config } = useWidgetConfig<BaseConfig>(TYPES.ROOT_LAYER, props);
+const { uid, config } = useWidgetConfig<BaseConfig>(CMP_TYPES.ROOT_LAYER, props);
 
 const { elementRef } = useCoreEntity(() => new RootLayerCore(uid.value, config.value));
 </script>

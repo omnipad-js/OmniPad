@@ -8,7 +8,7 @@
 /**
  * Core entity types supported by the library.
  */
-export const TYPES = {
+export const CMP_TYPES = {
   // --- Zones ---
   /** Area responsible for capturing touches and spawning dynamic widgets */
   INPUT_ZONE: 'input-zone',
@@ -74,19 +74,19 @@ export type WidgetId = string;
 export type ZoneId = string;
 
 /** Union type of all built-in entity values */
-export type AnyEntityType = (typeof TYPES)[keyof typeof TYPES];
+export type AnyEntityType = (typeof CMP_TYPES)[keyof typeof CMP_TYPES];
 
 /** Supported Widget type strings, allowing for custom string extensions */
 export type WidgetType =
-  | typeof TYPES.KEYBOARD_BUTTON
-  | typeof TYPES.MOUSE_BUTTON
-  | typeof TYPES.ANALOG_STICK
-  | typeof TYPES.D_PAD
-  | typeof TYPES.TRACKPAD
+  | typeof CMP_TYPES.KEYBOARD_BUTTON
+  | typeof CMP_TYPES.MOUSE_BUTTON
+  | typeof CMP_TYPES.ANALOG_STICK
+  | typeof CMP_TYPES.D_PAD
+  | typeof CMP_TYPES.TRACKPAD
   | (string & {});
 
 /** Supported Zone type strings, allowing for custom string extensions */
-export type ZoneType = typeof TYPES.INPUT_ZONE | typeof TYPES.TARGET_ZONE | (string & {});
+export type ZoneType = typeof CMP_TYPES.INPUT_ZONE | typeof CMP_TYPES.TARGET_ZONE | (string & {});
 
 /** General node type identifier for ConfigTreeNode or Registry lookups */
 export type EntityType = AnyEntityType | (string & {});

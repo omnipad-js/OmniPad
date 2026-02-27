@@ -1,4 +1,4 @@
-import { CONTEXT, KEYS, TYPES } from './types';
+import { CONTEXT, KEYS, CMP_TYPES, ACTION_TYPES } from './types';
 
 export * from './types';
 export * from './utils';
@@ -15,7 +15,8 @@ export { TargetZoneCore } from './entities/TargetZoneCore';
 export { TrackpadCore } from './entities/TrackpadCore';
 
 export const OmniPad = {
+  ActionTypes: ACTION_TYPES,
   Context: CONTEXT,
   Keys: KEYS,
-  Types: TYPES,
+  Types: CMP_TYPES,
 };

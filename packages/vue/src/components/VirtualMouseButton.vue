@@ -5,7 +5,7 @@ import {
   MouseButtonCore,
   type MouseButtonState, // 假设复用基础的 ButtonState
   type LayoutBox,
-  TYPES,
+  CMP_TYPES,
   Vec2,
 } from '@omnipad/core'; // 注意你的包名
 import { useCoreEntity } from '../composables/useCoreEntity';
@@ -45,7 +45,11 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<MouseButtonConfig>(TYPES.MOUSE_BUTTON, props, defaultProps);
+const { uid, config } = useWidgetConfig<MouseButtonConfig>(
+  CMP_TYPES.MOUSE_BUTTON,
+  props,
+  defaultProps,
+);
 
 const { core, state, elementRef } = useCoreEntity<MouseButtonCore, MouseButtonState>(
   () => new MouseButtonCore(uid.value, config.value),

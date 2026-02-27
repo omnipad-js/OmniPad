@@ -5,7 +5,7 @@ import {
   KeyboardButtonCore,
   type KeyboardButtonState,
   type LayoutBox,
-  TYPES,
+  CMP_TYPES,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
@@ -40,7 +40,7 @@ const defaultProps = {
 
 // 整合配置
 const { uid, config } = useWidgetConfig<KeyboardButtonConfig>(
-  TYPES.KEYBOARD_BUTTON,
+  CMP_TYPES.KEYBOARD_BUTTON,
   props,
   defaultProps,
 );

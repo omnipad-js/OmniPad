@@ -6,7 +6,7 @@ import {
   LayoutBox,
   TargetZoneConfig,
   TargetZoneCore,
-  TYPES,
+  CMP_TYPES,
   resolveLayoutStyle,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
@@ -34,7 +34,11 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<TargetZoneConfig>(TYPES.TARGET_ZONE, props, defaultProps);
+const { uid, config } = useWidgetConfig<TargetZoneConfig>(
+  CMP_TYPES.TARGET_ZONE,
+  props,
+  defaultProps,
+);
 const { core, state, elementRef } = useCoreEntity<TargetZoneCore, CursorState>(
   () => new TargetZoneCore(uid.value, config.value),
 );

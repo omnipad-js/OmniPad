@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { ICoreEntity, IPointerHandler, ISignalReceiver } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
-import { ACTION_TYPES, TYPES } from '../types';
+import { ACTION_TYPES, CMP_TYPES } from '../types';
 import { Registry } from '../registry';
 import { createRafThrottler } from '../utils/performance';
 
@@ -49,7 +49,7 @@ export class TrackpadCore
    * @param config - Configuration for the trackpad.
    */
   constructor(uid: string, config: TrackpadConfig) {
-    super(uid, TYPES.TRACKPAD, config, INITIAL_STATE);
+    super(uid, CMP_TYPES.TRACKPAD, config, INITIAL_STATE);
 
     // 初始化节流器以优化移动事件处理 / Initialize throttler to optimize movement processing
     this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {

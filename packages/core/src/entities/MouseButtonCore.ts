@@ -1,5 +1,5 @@
 import { Registry } from '../registry';
-import { ACTION_TYPES, InputActionSignal, TYPES } from '../types';
+import { ACTION_TYPES, InputActionSignal, CMP_TYPES } from '../types';
 import { MouseButtonConfig } from '../types/configs';
 import { MouseButtonState } from '../types/state';
 import { ICoreEntity, IPointerHandler, ISignalReceiver } from '../types/traits';
@@ -21,7 +21,7 @@ export class MouseButtonCore
   implements IPointerHandler
 {
   constructor(uid: string, config: MouseButtonConfig) {
-    super(uid, TYPES.MOUSE_BUTTON, config, INITIAL_STATE);
+    super(uid, CMP_TYPES.MOUSE_BUTTON, config, INITIAL_STATE);
   }
 
   // --- IPointerHandler Implementation ---
