@@ -1,9 +1,10 @@
 import { ACTION_TYPES, InputActionSignal, Vec2, TYPES } from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
-import { ISignalReceiver } from '../types/traits';
+import { IPointerHandler, ISignalReceiver } from '../types/traits';
 import * as DOM from '../utils/dom';
 import { percentToPx, pxToPercent } from '../utils/math';
+import { createRafThrottler } from '../utils/performance';
 import { BaseEntity } from './BaseEntity';
 
 /**
@@ -24,26 +25,40 @@ const INITIAL_STATE: CursorState = {
  */
 export class TargetZoneCore
   extends BaseEntity<TargetZoneConfig, CursorState>
-  implements ISignalReceiver
+  implements IPointerHandler, ISignalReceiver
 {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
   private focusFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
+  private throttledPointerMove: (e: PointerEvent) => void;
 
   constructor(uid: string, config: TargetZoneConfig) {
     super(uid, TYPES.TARGET_ZONE, config, INITIAL_STATE);
+
+    this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
+      this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
+    });
   }
 
   // --- IPointerHandler Implementation ---
 
   public onPointerDown(e: PointerEvent): void {
+    if (e.cancelable) e.preventDefault();
+    e.stopPropagation();
+
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEDOWN);
   }
 
   public onPointerMove(e: PointerEvent): void {
-    this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
+    if (e.cancelable) e.preventDefault();
+    e.stopPropagation();
+
+    // Asynchronously execute throttle logic
+    this.throttledPointerMove(e);
   }
 
   public onPointerUp(e: PointerEvent): void {
+    if (e.cancelable) e.preventDefault();
+
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEUP);
     // Physical clicks also require reissuing "click"
     this.processPhysicalEvent(e, ACTION_TYPES.CLICK);
@@ -57,9 +72,6 @@ export class TargetZoneCore
    * Convert physical DOM events into internal signals
    */
   private processPhysicalEvent(e: PointerEvent, type: string) {
-    if (e.cancelable) e.preventDefault();
-    e.stopPropagation();
-
     if (!this.rect) return;
 
     // Physical coord -> percent coord

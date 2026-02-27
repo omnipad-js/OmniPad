@@ -1,4 +1,5 @@
 import { Registry } from '../registry';
+import { createRafThrottler } from '../utils/performance';
 
 /**
  * Unique symbol key for the global InputManager instance.
@@ -14,8 +15,14 @@ const INPUT_MANAGER_KEY = Symbol.for('omnipad.input_manager.instance');
 export class InputManager {
   /** Internal flag to prevent multiple event registrations */
   private _isListening = false;
+  /** A throttled version of the reset logic */
+  private throttledReset: (e: any) => void;
 
-  private constructor() {}
+  private constructor() {
+    this.throttledReset = createRafThrottler(() => {
+      this.handleGlobalReset();
+    });
+  }
 
   /**
    * Retrieves the global instance of the InputManager.
@@ -32,34 +39,6 @@ export class InputManager {
   }
 
   /**
-   * Initializes global safety listeners.
-   * Should be called once at the root component lifecycle (e.g., VirtualLayer).
-   */
-  public init(): void {
-    // If already listening, return to prevent redundant registrations
-    if (this._isListening) return;
-
-    // 1. Monitor window resize (e.g., orientation change on mobile)
-    window.addEventListener('resize', this.handleGlobalReset);
-
-    // 2. Monitor window focus loss (e.g., clicking address bar, switching apps)
-    window.addEventListener('blur', this.handleGlobalReset);
-
-    // 3. Monitor page visibility (e.g., switching browser tabs)
-    // document.addEventListener('visibilitychange', () => {
-    //   if (document.visibilityState === 'hidden') {
-    //     this.handleGlobalReset();
-    //   }
-    // });
-
-    this._isListening = true;
-
-    if (import.meta.env?.DEV) {
-      console.log('[OmniPad-Core] Global InputManager monitoring started.');
-    }
-  }
-
-  /**
    * Manually triggers a system-wide input reset via Registry.
    */
   private handleGlobalReset = (): void => {
@@ -68,6 +47,44 @@ export class InputManager {
     }
     Registry.getInstance().resetAll();
   };
+
+  private handleResizeReset = (): void => {
+    this.throttledReset(null);
+  };
+
+  private handleBlurReset = (): void => {
+    this.handleGlobalReset();
+  };
+
+  private handleVisibilityChangeReset = (): void => {
+    if (document.visibilityState === 'hidden') {
+      this.handleGlobalReset();
+    }
+  };
+
+  /**
+   * Initializes global safety listeners.
+   * Should be called once at the root component lifecycle (e.g., VirtualLayer).
+   */
+  public init(): void {
+    // If already listening, return to prevent redundant registrations
+    if (this._isListening) return;
+
+    // 1. Monitor window resize (e.g., orientation change on mobile)
+    window.addEventListener('resize', this.handleResizeReset);
+
+    // 2. Monitor window focus loss (e.g., clicking address bar, switching apps)
+    window.addEventListener('blur', this.handleBlurReset);
+
+    // 3. Monitor page visibility (e.g., switching browser tabs)
+    document.addEventListener('visibilitychange', this.handleVisibilityChangeReset);
+
+    this._isListening = true;
+
+    if (import.meta.env?.DEV) {
+      console.log('[OmniPad-Core] Global InputManager monitoring started.');
+    }
+  }
 
   /**
    * Toggle full-screen state of the page.
@@ -104,8 +121,9 @@ export class InputManager {
    * Detaches all global listeners.
    */
   public destroy(): void {
-    window.removeEventListener('resize', this.handleGlobalReset);
-    window.removeEventListener('blur', this.handleGlobalReset);
+    window.removeEventListener('resize', this.handleResizeReset);
+    window.removeEventListener('blur', this.handleBlurReset);
+    window.removeEventListener('visibilitychange', this.handleVisibilityChangeReset);
     this._isListening = false;
   }
 }
