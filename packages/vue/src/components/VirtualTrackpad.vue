@@ -52,6 +52,7 @@ const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
 defineExpose({
   uid,
   onPointerDown,
+  onPointerMove,
   onPointerUp,
   onPointerCancel,
 });
