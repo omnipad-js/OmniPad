@@ -107,19 +107,17 @@
     },
     {
       "id": "node_6",
-      "type": "keyboard-button",
       "parentId": "node_2",
+      "type": "trackpad",
       "config": {
-        "label": "SPACE",
+        "label": "TRACKPAD",
+        "sensitivity": 1,
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": " ",
-          "code": "Space",
-          "keyCode": 32
-        },
         "layout": {
-          "width": "80px",
-          "height": "80px",
+          "left": "80%",
+          "top": "80%",
+          "width": "200px",
+          "height": "200px",
           "anchor": "center"
         }
       }

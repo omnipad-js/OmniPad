@@ -8,6 +8,7 @@ import {
   LayoutBox,
   resolveLayoutStyle,
   CMP_TYPES,
+  remap,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { getComponent } from '../utils/componentRegistry';
@@ -105,13 +106,24 @@ watch(
 // 样式计算
 const containerStyle = computed(() => resolveLayoutStyle(config.value.layout));
 
-const dynamicWrapperStyle = computed(() => {
-  if (!state.value?.isDynamicActive) return { display: 'none' };
+const dynamicPositionPx = computed(() => {
+  const rect = core?.value?.getRect();
+  const pos = state?.value?.dynamicPosition;
   return {
-    position: 'absolute' as const,
-    left: `${state.value.dynamicPosition.x}%`,
-    top: `${state.value.dynamicPosition.y}%`,
+    x: remap(pos?.x || 0, 0, 100, 0, rect?.width || 0),
+    y: remap(pos?.y || 0, 0, 100, 0, rect?.height || 0),
+  };
+});
+
+const dynamicWrapperStyle = computed(() => {
+  if (!state.value) return { display: 'none' };
+  if (!state.value?.isDynamicActive) return { visibility: 'hidden' as const, opacity: 0 };
+  return {
     zIndex: 100,
+    '--dynamic-widget-mount-x': `${dynamicPositionPx.value.x}px`,
+    '--dynamic-widget-mount-y': `${dynamicPositionPx.value.y}px`,
+    visibility: 'visible' as const,
+    opacity: 1,
     pointerEvents: 'auto' as const,
   };
 });
@@ -234,6 +246,15 @@ const onPointerCancel = (e: PointerEvent) => {
 }
 
 .dynamic-widget-mount {
+  position: absolute;
+  left: 0;
+  top: 0;
   pointer-events: none;
+  will-change: transform;
+
+  transform: translate3d(var(--dynamic-widget-mount-x, 0px), var(--dynamic-widget-mount-y, 0px), 0);
+
+  --dynamic-widget-mount-x: 0px;
+  --dynamic-widget-mount-y: 0px;
 }
 </style>
