@@ -80,6 +80,7 @@
 .omnipad-default-cursor-dot {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   border-width: var(--omnipad-default-cursor-dot-border-width);
   border-style: var(--omnipad-default-cursor-dot-border-style);
   border-color: var(--omnipad-default-cursor-dot-border-color);

@@ -77,18 +77,6 @@ onMounted(() => {
         :layout="stageLayout"
         class="player-overlay"
       >
-        <template #focus-feedback="{ isReturning, cursorPos }">
-          <Transition name="pulse">
-            <div
-              v-if="isReturning"
-              class="focus-feedback-ring"
-              :style="{
-                '--x': `${cursorPos?.x}px`,
-                '--y': `${cursorPos?.y}px`,
-              }"
-            ></div>
-          </Transition>
-        </template>
         <template #cursor="{ isDown }">
           <div class="cursor-dot" :class="{ 'is-down': isDown }"></div>
         </template>
@@ -138,48 +126,12 @@ onMounted(() => {
   border: 2px solid white;
   border-radius: 50%;
   background: #ffba4380;
+  box-sizing: border-box;
 }
 
 .cursor-dot.is-down {
   transform: scale(0.8);
   background: #ffba43;
-}
-
-/* 自定义焦点唤回样式 */
-.focus-feedback-ring {
-  width: 60px;
-  height: 60px;
-  border: 2px solid #ffba43;
-  border-radius: 50%;
-
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translate3d(var(--x), var(--y), 0) translate(-50%, -50%);
-
-  will-change: transform;
-  pointer-events: none;
-  z-index: 5;
-
-  --x: 0px;
-  --y: 0px;
-}
-
-/* 波纹动画 */
-.pulse-enter-active {
-  animation: ripple-out 0.5s ease-out forwards;
-}
-
-@keyframes ripple-out {
-  0% {
-    transform: translate3d(var(--x), var(--y), 0) translate(-50%, -50%) scale(0.2);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translate3d(var(--x), var(--y), 0) translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
 }
 
 .omnipad-virtual-cursor {

@@ -20,7 +20,7 @@ const INITIAL_STATE: TrackpadState = {
 
 /**
  * Core logic implementation for a trackpad widget.
- * 
+ *
  * Translates pointer gestures into relative mouse movements and click actions.
  * Supports:
  * - Single Tap: Dispatches a 'click' signal.
@@ -56,16 +56,16 @@ export class TrackpadCore
     this.gesture = new GestureRecognizer({
       // Requirement: Single tap -> Click / 需求：轻点 -> 点击
       onTap: () => this.sendSignal(ACTION_TYPES.CLICK),
-      
+
       // Requirement: Double tap -> Click (Optional enhancement) / 需求：双击 -> 点击
       onDoubleTap: () => this.sendSignal(ACTION_TYPES.CLICK),
-      
+
       // Requirement: Double-tap & Hold -> Drag / 需求：双击并按住 -> 拖拽开始
       onDoubleTapHoldStart: () => {
         this.setState({ isPressed: true });
         this.sendSignal(ACTION_TYPES.MOUSEDOWN);
       },
-      
+
       onDoubleTapHoldEnd: () => {
         this.setState({ isPressed: false });
         this.sendSignal(ACTION_TYPES.MOUSEUP);
@@ -135,7 +135,7 @@ export class TrackpadCore
 
   public onPointerUp(e: PointerEvent): void {
     if (this.state.pointerId !== e.pointerId) return;
-    
+
     // Resolve gesture results (Tap, DoubleTap, etc.) / 结算手势判定结果
     this.gesture.onPointerUp(e.clientX, e.clientY);
 
@@ -173,7 +173,7 @@ export class TrackpadCore
 
   /**
    * Dispatches the signal to the target receiver.
-   * 
+   *
    * @param type - Action type from ACTION_TYPES.
    * @param extraPayload - Data payload like 'delta' for movement or 'button' for clicks.
    */
@@ -188,7 +188,7 @@ export class TrackpadCore
         targetStageId: targetId,
         type,
         payload: {
-          button: 0, 
+          button: 0,
           ...extraPayload,
         },
       });

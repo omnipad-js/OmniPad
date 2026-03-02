@@ -9,6 +9,7 @@ import {
   CMP_TYPES,
   resolveLayoutStyle,
   remap,
+  supportsContainerQueries,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
@@ -34,6 +35,9 @@ const defaultProps = {
   cursorAutoDelay: 2500,
 };
 
+// Whether browser supports Container Queries
+const canUseNativeCQ = supportsContainerQueries();
+
 // 整合配置
 const { uid, config } = useWidgetConfig<TargetZoneConfig>(
   CMP_TYPES.TARGET_ZONE,
@@ -46,24 +50,28 @@ const { core, state, elementRef } = useCoreEntity<TargetZoneCore, CursorState>(
 
 const containerStyle = computed(() => resolveLayoutStyle(config.value.layout));
 
-// 光标位置
-const cursorPositionPx = computed(() => {
-  const rect = core?.value?.getRect();
-  const pos = state?.value?.position;
-  return {
-    x: remap(pos?.x || 0, 0, 100, 0, rect?.width || 0),
-    y: remap(pos?.y || 0, 0, 100, 0, rect?.height || 0),
-  };
-});
-
 // 光标位置样式
 const cursorStyle = computed(() => {
   if (!state.value) return { display: 'none' };
-  return {
-    '--omnipad-virtual-cursor-x': `${cursorPositionPx.value.x}px`,
-    '--omnipad-virtual-cursor-y': `${cursorPositionPx.value.y}px`,
-    opacity: state.value.isVisible ? 1 : 0,
-  };
+  if (canUseNativeCQ) {
+    return {
+      '--omnipad-virtual-cursor-x': `${state?.value?.position.x}cqw`,
+      '--omnipad-virtual-cursor-y': `${state?.value?.position.y}cqh`,
+      opacity: state.value.isVisible ? 1 : 0,
+    };
+  } else {
+    const rect = core?.value?.getRect();
+    const pos = state?.value?.position;
+    const cursorPositionPx = {
+      x: remap(pos?.x || 0, 0, 100, 0, rect?.width || 0),
+      y: remap(pos?.y || 0, 0, 100, 0, rect?.height || 0),
+    };
+    return {
+      '--omnipad-virtual-cursor-x': `${cursorPositionPx.x}px`,
+      '--omnipad-virtual-cursor-y': `${cursorPositionPx.y}px`,
+      opacity: state.value.isVisible ? 1 : 0,
+    };
+  }
 });
 
 const onPointerDown = (e: PointerEvent) => core.value?.onPointerDown(e);
@@ -89,7 +97,7 @@ const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
       name="focus-feedback"
       :state="state"
       :is-returning="state?.isFocusReturning"
-      :cursor-pos="cursorPositionPx"
+      :cursor-pos="state?.position"
     >
       <Transition name="omnipad-default-focus-fade">
         <!-- 默认反馈：一个与容器同大的边框层 -->
@@ -102,12 +110,31 @@ const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
         name="cursor"
         :state="state"
         :is-down="state?.isPointerDown"
-        :cursor-pos="cursorPositionPx"
+        :is-returning="state?.isFocusReturning"
+        :cursor-pos="state?.position"
       >
         <!-- 默认红色准星 -->
         <div class="omnipad-default-cursor-dot" :class="{ 'is-down': state?.isPointerDown }"></div>
       </slot>
     </div>
+    <!-- Slot: 自定义虚拟光标跟随物渲染 -->
+    <div v-if="config.cursorEnabled" class="omnipad-virtual-cursor" :style="cursorStyle">
+      <slot
+        name="with-cursor"
+        :state="state"
+        :is-down="state?.isPointerDown"
+        :is-returning="state?.isFocusReturning"
+        :cursor-pos="state?.position"
+      >
+      </slot>
+    </div>
+    <!-- Slot: 其他定制化内容 -->
+    <slot
+      :state="state"
+      :is-down="state?.isPointerDown"
+      :is-returning="state?.isFocusReturning"
+      :cursor-pos="state?.position"
+    ></slot>
   </div>
 </template>
 
@@ -117,6 +144,9 @@ const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
   touch-action: none;
   pointer-events: auto;
   overflow: hidden;
+
+  /* for Container Queries */
+  container-type: size;
 }
 
 .omnipad-virtual-cursor {

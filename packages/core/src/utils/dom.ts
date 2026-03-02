@@ -167,3 +167,15 @@ export const getAnchorPosition = (rect: DOMRect, anchor: AnchorPoint): Vec2 => {
 
   return map[anchor] || map['center'];
 };
+
+// --- 4. Compatibility ---
+let _isContainerQueriesSupported: boolean | undefined;
+
+export const supportsContainerQueries = (): boolean => {
+  if (_isContainerQueriesSupported !== undefined) return _isContainerQueriesSupported;
+
+  _isContainerQueriesSupported =
+    typeof window !== 'undefined' && !!window.CSS?.supports?.('width: 1cqw');
+
+  return _isContainerQueriesSupported;
+};
