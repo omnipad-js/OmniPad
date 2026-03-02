@@ -23,6 +23,15 @@ export interface ButtonLogicState {
 }
 
 /**
+ * Logic-level state for axis-type or joystick widgets.
+ * Represents the normalized directional input.
+ */
+export interface AxisLogicState {
+  /** Normalized direction vector where x and y range from -1.0 to 1.0. */
+  vector: { x: number; y: number };
+}
+
+/**
  * Logic-level state for joystick-type widgets.
  * Provides directional data calculated from the stick movement.
  */
@@ -81,6 +90,11 @@ export interface MouseButtonState extends InteractionState, ButtonLogicState {}
  * Combined state for Trackpad components.
  */
 export interface TrackpadState extends InteractionState, ButtonLogicState {}
+
+/**
+ * Combined state for D-pad components.
+ */
+export interface DPadState extends InteractionState, AxisLogicState {}
 
 /**
  * Combined state for Analog Stick components.

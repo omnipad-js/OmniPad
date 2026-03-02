@@ -63,7 +63,7 @@ export interface KeyboardButtonConfig extends BaseConfig {
 }
 
 /**
- * Mouse Button Configuration
+ * Configuration for a virtual mouse button.
  */
 export interface MouseButtonConfig extends BaseConfig {
   type: typeof CMP_TYPES.MOUSE_BUTTON;
@@ -83,6 +83,9 @@ export interface MouseButtonConfig extends BaseConfig {
   fixedPoint?: Vec2;
 }
 
+/**
+ * Configuration for a virtual trackpad.
+ */
 export interface TrackpadConfig extends BaseConfig {
   type: typeof CMP_TYPES.TRACKPAD;
   /** Label displayed on the trackpad */
@@ -91,6 +94,30 @@ export interface TrackpadConfig extends BaseConfig {
   sensitivity: number;
   /** CID of the target Stage to receive clicks */
   targetStageId?: string;
+}
+
+/**
+ * Configuration for a virtual d-pad.
+ */
+export interface DPadConfig extends BaseConfig {
+  type: typeof CMP_TYPES.D_PAD;
+  /** CID of the target Stage to receive clicks */
+  targetStageId?: string;
+  /** Defines the specific actions or key signals emitted for each cardinal direction. */
+  mapping: {
+    up: KeyMapping;
+    down: KeyMapping;
+    left: KeyMapping;
+    right: KeyMapping;
+  };
+  /** Determines the minimum travel distance required to trigger a direction. */
+  threshold?: number;
+  /** * Controls the visibility of the internal floating feedback handle (stick).
+   * * When true, an indicator will move within the D-pad area to provide
+   * visual feedback of the current input position.
+   * * @defaultValue false
+   */
+  showStick?: boolean;
 }
 
 /**

@@ -5,6 +5,7 @@ import { registerComponent } from './utils/componentRegistry';
 import InputZone from './components/InputZone.vue';
 import RootLayer from './components/RootLayer.vue';
 import TargetZone from './components/TargetZone.vue';
+import VirtualDPad from './components/VirtualDPad.vue';
 import VirtualKeyboardButton from './components/VirtualKeyboardButton.vue';
 import VirtualMouseButton from './components/VirtualMouseButton.vue';
 import VirtualTrackpad from './components/VirtualTrackpad.vue';
@@ -20,6 +21,7 @@ export {
   InputZone,
   RootLayer,
   TargetZone,
+  VirtualDPad,
   VirtualKeyboardButton,
   VirtualMouseButton,
   VirtualTrackpad,
