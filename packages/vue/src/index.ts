@@ -16,13 +16,6 @@ registerComponent(CMP_TYPES.TARGET_ZONE, TargetZone);
 registerComponent(CMP_TYPES.TRACKPAD, VirtualTrackpad);
 registerComponent(CMP_TYPES.D_PAD, VirtualDPad);
 
-export {
-  InputZone,
-  RootLayer,
-  TargetZone,
-  VirtualButton,
-  VirtualDPad,
-  VirtualTrackpad,
-};
+export { InputZone, RootLayer, TargetZone, VirtualButton, VirtualDPad, VirtualTrackpad };
 
 export { registerComponent };

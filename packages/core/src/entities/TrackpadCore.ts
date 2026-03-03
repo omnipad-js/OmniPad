@@ -1,12 +1,13 @@
 import { BaseEntity } from './BaseEntity';
-import { ICoreEntity, IPointerHandler, ISignalReceiver } from '../types/traits';
+import { IPointerHandler } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
-import { ACTION_TYPES, CMP_TYPES } from '../types';
-import { Registry } from '../registry';
+import { CMP_TYPES } from '../types';
 import { createRafThrottler } from '../utils/performance';
 import { GestureRecognizer } from '../utils/gesture';
 import { isVec2Equal } from '../utils';
+import { ActionEmitter } from '../utils/action';
+import * as DOM from '../utils/dom';
 
 /**
  * Initial state for the trackpad.
@@ -36,6 +37,7 @@ export class TrackpadCore
 
   private throttledPointerMove: (e: PointerEvent) => void;
   private gesture: GestureRecognizer;
+  private emitter: ActionEmitter;
 
   /**
    * Creates an instance of TrackpadCore.
@@ -46,6 +48,10 @@ export class TrackpadCore
   constructor(uid: string, config: TrackpadConfig) {
     super(uid, CMP_TYPES.TRACKPAD, config, INITIAL_STATE);
 
+    // 初始化动作发射器：默认模拟鼠标左键 / Initialize emitter, default to Left Mouse Button
+    const mouseAction = config.action || { type: 'mouse', button: 0 };
+    this.emitter = new ActionEmitter(config.targetStageId, mouseAction);
+
     // Initialize throttler to align signal emission with screen refresh rate
     // 初始化节流器，使信号发送频率与屏幕刷新率对齐
     this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
@@ -55,20 +61,20 @@ export class TrackpadCore
     // Configure the gesture state machine / 配置手势状态机
     this.gesture = new GestureRecognizer({
       // Requirement: Single tap -> Click / 需求：轻点 -> 点击
-      onTap: () => this.sendSignal(ACTION_TYPES.CLICK),
-
-      // Requirement: Double tap -> Click (Optional enhancement) / 需求：双击 -> 点击
-      onDoubleTap: () => this.sendSignal(ACTION_TYPES.CLICK),
+      onTap: () => {
+        this.emitter.press();
+        this.emitter.release(true);
+      },
 
       // Requirement: Double-tap & Hold -> Drag / 需求：双击并按住 -> 拖拽开始
       onDoubleTapHoldStart: () => {
         this.setState({ isPressed: true });
-        this.sendSignal(ACTION_TYPES.MOUSEDOWN);
+        this.emitter.press();
       },
 
       onDoubleTapHoldEnd: () => {
         this.setState({ isPressed: false });
-        this.sendSignal(ACTION_TYPES.MOUSEUP);
+        this.emitter.release(false);
       },
     });
   }
@@ -79,9 +85,7 @@ export class TrackpadCore
     if (e.cancelable) e.preventDefault();
     e.stopPropagation();
 
-    // Set pointer capture to maintain control even if the finger leaves the area
-    // 设置指针捕获，即使手指离开区域也能保持控制
-    (e.target as Element).setPointerCapture(e.pointerId);
+    DOM.safeSetCapture(e.target, e.pointerId);
 
     // Important: lastPointerPos must be updated immediately to prevent jump on first move
     // 关键：必须立即更新最后记录坐标，防止第一次移动时产生巨大的瞬间跳变
@@ -126,7 +130,7 @@ export class TrackpadCore
     // Emit signal only if there is a measurable change
     // 仅在存在有效位移时发送信号
     if (!isVec2Equal(delta, { x: 0, y: 0 })) {
-      this.sendSignal(ACTION_TYPES.MOUSEMOVE, { delta });
+      this.emitter.move({ delta });
     }
 
     // Update coordinates for the next frame / 更新下一次计算的基准点
@@ -152,6 +156,7 @@ export class TrackpadCore
     // Reset gesture state to prevent stuck "drag" modes
     // 重置手势状态，防止因重置导致的“拖拽模式”粘连
     this.gesture.reset();
+    this.emitter.reset();
     this.setState(INITIAL_STATE);
   }
 
@@ -161,37 +166,7 @@ export class TrackpadCore
    * Clean up pointer capture and reset interaction state.
    */
   private handleRelease(e: PointerEvent) {
-    if ((e.target as Element).hasPointerCapture(e.pointerId)) {
-      try {
-        (e.target as Element).releasePointerCapture(e.pointerId);
-      } catch (err) {
-        /* Ignore common pointer release errors */
-      }
-    }
+    DOM.safeReleaseCapture(e.target, e.pointerId);
     this.setState(INITIAL_STATE);
-  }
-
-  /**
-   * Dispatches the signal to the target receiver.
-   *
-   * @param type - Action type from ACTION_TYPES.
-   * @param extraPayload - Data payload like 'delta' for movement or 'button' for clicks.
-   */
-  private sendSignal(type: string, extraPayload: any = {}) {
-    const targetId = this.config.targetStageId;
-    if (!targetId) return;
-
-    const target = Registry.getInstance().getEntity<ICoreEntity & ISignalReceiver>(targetId);
-
-    if (target && typeof target.handleSignal === 'function') {
-      target.handleSignal({
-        targetStageId: targetId,
-        type,
-        payload: {
-          button: 0,
-          ...extraPayload,
-        },
-      });
-    }
   }
 }

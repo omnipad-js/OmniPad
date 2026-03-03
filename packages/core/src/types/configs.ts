@@ -56,7 +56,7 @@ export interface ButtonConfig extends BaseConfig {
   label: string;
   /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
-  /** Keyboard event metadata to be emitted when triggered. */
+  /** Keyboard or mouse event metadata to be emitted when triggered. */
   action: ActionMapping;
 }
 
@@ -71,6 +71,8 @@ export interface TrackpadConfig extends BaseConfig {
   sensitivity: number;
   /** CID of the target Stage to receive clicks */
   targetStageId?: string;
+  /** Optional: Mouse or keyboard event metadata to be emitted when triggered. */
+  action?: ActionMapping;
 }
 
 /**
@@ -126,7 +128,13 @@ export interface TargetZoneConfig extends BaseConfig {
 /**
  * Union type representing any valid component configuration.
  */
-export type AnyConfig = ButtonConfig | InputZoneConfig | TargetZoneConfig | TrackpadConfig | DPadConfig | any;
+export type AnyConfig =
+  | ButtonConfig
+  | InputZoneConfig
+  | TargetZoneConfig
+  | TrackpadConfig
+  | DPadConfig
+  | any;
 
 /**
  * Representation of a single item in a flattened configuration profile.
