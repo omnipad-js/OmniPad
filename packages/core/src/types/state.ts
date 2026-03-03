@@ -77,6 +77,11 @@ export interface LayerState {
 }
 
 /**
+ * Combined state for Button components.
+ */
+export interface ButtonState extends InteractionState, ButtonLogicState {}
+
+/**
  * Combined state for Keyboard Button components.
  */
 export interface KeyboardButtonState extends InteractionState, ButtonLogicState {}

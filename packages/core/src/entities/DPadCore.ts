@@ -142,7 +142,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
   }
 
   private sendSignal(type: string, dir: Direction) {
-    if(!this.config.mapping[dir]) return;
+    if (!this.config.mapping[dir]) return;
 
     const targetId = this.config.targetStageId;
     if (!targetId) return;

@@ -1,5 +1,5 @@
 import { AnchorPoint, FlexibleLength, CMP_TYPES, Vec2 } from '.';
-import { KeyMapping } from './keys';
+import { ActionMapping, KeyMapping } from './keys';
 
 /**
  * Defines the spatial properties of a component.
@@ -45,6 +45,19 @@ export interface BaseConfig {
   parentId?: string;
   /** Spatial layout settings. */
   layout: LayoutBox;
+}
+
+/**
+ * Configuration for a virtual keyboard/mouse button.
+ */
+export interface ButtonConfig extends BaseConfig {
+  type: typeof CMP_TYPES.BUTTON;
+  /** Visual text displayed on the button. */
+  label: string;
+  /** CID of the TargetZone where signals should be dispatched. */
+  targetStageId?: string;
+  /** Keyboard event metadata to be emitted when triggered. */
+  action: ActionMapping;
 }
 
 /**

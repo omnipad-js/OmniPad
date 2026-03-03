@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import {
-  RootLayer,
-  InputZone,
-  VirtualKeyboardButton,
-  VirtualMouseButton,
-  VirtualTrackpad,
-} from '@omnipad/vue';
+import { RootLayer, VirtualButton } from '@omnipad/vue';
 import {
   exportProfile,
   InputManager,
@@ -103,39 +97,19 @@ const toggleFullscreen = () => {
 
     <div class="main-root-layer">
       <RootLayer widget-id="$managed-root" :tree-node="treeRoot" />
-      <!-- <RootLayer widget-id="$managed-root"> -->
-      <!-- <InputZone :layout="{ left: 0, bottom: 0, width: '30%', height: '70%' }">
-          <VirtualKeyboardButton
-            label="LEFT"
-            target-stage-id="$ruffle-player"
-            :mapping="OmniPad.Keys.ArrowLeft"
-            :layout="{ left: '30%', top: '70%', width: '80px', height: '80px', anchor: 'center' }"
-          ></VirtualKeyboardButton>
-          <VirtualKeyboardButton
-            label="RIGHT"
-            target-stage-id="$ruffle-player"
-            :mapping="OmniPad.Keys.ArrowRight"
-            :layout="{ left: '55%', top: '70%', width: '80px', height: '80px', anchor: 'center' }"
-          ></VirtualKeyboardButton>
-        </InputZone>
-
-        <InputZone :layout="{ right: 0, bottom: 0, width: '30%', height: '70%' }">
-          <VirtualKeyboardButton
-            label="UP"
-            target-stage-id="$ruffle-player"
-            :mapping="OmniPad.Keys.ArrowUp"
-            :layout="{ left: '70%', top: '70%', width: '80px', height: '80px', anchor: 'center' }"
-          ></VirtualKeyboardButton>
-          <template #dynamicWidget>
-            <VirtualKeyboardButton
-              label="SPACE"
-              target-stage-id="$ruffle-player"
-              :mapping="OmniPad.Keys.Space"
-              :layout="{ width: '80px', height: '80px', anchor: 'center' }"
-            ></VirtualKeyboardButton>
-          </template>
-        </InputZone> -->
-      <!-- </RootLayer> -->
+      <!-- <RootLayer widget-id="$managed-root">
+        <VirtualButton
+          label="UP"
+          target-stage-id="$ruffle-player"
+          :action="{
+            type: 'keyboard',
+            button: 0,
+            fixedPoint: { x: 90, y: 10 },
+            ...OmniPad.Keys.ArrowUp,
+          }"
+          :layout="{ left: '30%', top: '70%', width: '80px', height: '80px', anchor: 'center' }"
+        ></VirtualButton>
+      </RootLayer> -->
     </div>
 
     <ConfigConsole

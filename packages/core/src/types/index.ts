@@ -16,6 +16,7 @@ export const CMP_TYPES = {
   TARGET_ZONE: 'target-zone',
 
   // --- Widgets ---
+  BUTTON: 'button',
   /** Simulates a physical keyboard key press */
   KEYBOARD_BUTTON: 'keyboard-button',
   /** Simulates a mouse button click/hold */
@@ -78,6 +79,7 @@ export type AnyEntityType = (typeof CMP_TYPES)[keyof typeof CMP_TYPES];
 
 /** Supported Widget type strings, allowing for custom string extensions */
 export type WidgetType =
+  | typeof CMP_TYPES.BUTTON
   | typeof CMP_TYPES.KEYBOARD_BUTTON
   | typeof CMP_TYPES.MOUSE_BUTTON
   | typeof CMP_TYPES.ANALOG_STICK

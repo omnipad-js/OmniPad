@@ -7,6 +7,7 @@ export { InputManager } from './imputManager';
 export { Registry } from './registry';
 
 export { BaseEntity } from './entities/BaseEntity';
+export { ButtonCore } from './entities/ButtonCore';
 export { DPadCore } from './entities/DPadCore';
 export { InputZoneCore } from './entities/InputZoneCore';
 export { KeyboardButtonCore } from './entities/KeyboardButtonCore';
