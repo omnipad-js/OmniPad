@@ -1,33 +1,44 @@
 import { BaseEntity } from './BaseEntity';
-import { ICoreEntity, IPointerHandler, ISignalReceiver } from '../types/traits';
+import { IPointerHandler } from '../types/traits';
 import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
-import { ACTION_TYPES, CMP_TYPES } from '../types';
-import { Registry } from '../registry';
-import { createRafThrottler } from '../utils/performance';
-import { clamp } from '../utils';
-
-type Direction = 'up' | 'down' | 'left' | 'right';
+import { CMP_TYPES } from '../types';
+import { ActionEmitter } from '../utils/action';
+import { clamp } from '../utils/math';
+import * as DOM from '../utils/dom';
 
 const INITIAL_STATE: DPadState = {
   isActive: false,
   pointerId: null,
-  vector: { x: 0, y: 0 },
+  vector: { x: 0, y: 0 }
 };
 
+/**
+ * Core logic for a virtual D-Pad widget.
+ * 
+ * Acts as a spatial distributor that maps a single touch point to 4 independent ActionEmitters.
+ * Supports 8-way input by allowing simultaneous activation of orthogonal directions.
+ */
 export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPointerHandler {
-  // 记录当前处于激活状态的方向，用于 Diff 对比 / Tracks active directions for diffing
-  private activeDirs = new Set<Direction>();
-
-  // 节流优化的指针移动处理 / Throttled pointer move handler
-  private throttledMove: (e: PointerEvent) => void;
+  // 维护四个独立的动作发射器 / Maintain four independent action emitters
+  private emitters: {
+    up: ActionEmitter;
+    down: ActionEmitter;
+    left: ActionEmitter;
+    right: ActionEmitter;
+  };
 
   constructor(uid: string, config: DPadConfig) {
     super(uid, CMP_TYPES.D_PAD, config, INITIAL_STATE);
 
-    this.throttledMove = createRafThrottler<PointerEvent>((e) => {
-      this.processPointerMove(e.clientX, e.clientY);
-    });
+    // 为每个方向初始化发射器 / Initialize emitters for each direction
+    const target = config.targetStageId;
+    this.emitters = {
+      up:    new ActionEmitter(target, config.mapping?.up),
+      down:  new ActionEmitter(target, config.mapping?.down),
+      left:  new ActionEmitter(target, config.mapping?.left),
+      right: new ActionEmitter(target, config.mapping?.right)
+    };
   }
 
   // --- IPointerHandler Implementation ---
@@ -36,20 +47,21 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
     if (e.cancelable) e.preventDefault();
     e.stopPropagation();
 
-    (e.target as Element).setPointerCapture(e.pointerId);
+    DOM.safeSetCapture(e.target, e.pointerId);
 
     this.setState({ isActive: true, pointerId: e.pointerId });
-    this.processPointerMove(e.clientX, e.clientY);
+    this.processInput(e);
   }
 
   public onPointerMove(e: PointerEvent): void {
-    if (this.state.pointerId !== e.pointerId) return;
     if (e.cancelable) e.preventDefault();
+    if (this.state.pointerId !== e.pointerId) return;
 
-    this.throttledMove(e);
+    this.processInput(e);
   }
 
   public onPointerUp(e: PointerEvent): void {
+    if (e.cancelable) e.preventDefault();
     this.handleRelease(e);
   }
 
@@ -57,107 +69,80 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
     this.handleRelease(e);
   }
 
-  // --- Core Logic ---
+  // --- Internal Logic ---
 
   /**
-   * 处理物理坐标输入，转化为轴向逻辑状态
-   * Process physical coordinates into axial logic states
+   * Evaluates the touch position and updates the 4 emitters accordingly.
+   * 使用轴向分割逻辑处理 8 方向输入
    */
-  private processPointerMove(clientX: number, clientY: number) {
+  private processInput(e: PointerEvent) {
     const rect = this.getRect();
     if (!rect) return;
 
+    // 1. 计算归一化向量 [-1, 1] / Calculate normalized vector
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const radiusX = rect.width / 2;
-    const radiusY = rect.height / 2;
+    const radius = rect.width / 2;
 
-    // 1. 计算归一化坐标 (-1.0 to 1.0) / Calculate normalized coordinates
-    let normX = clamp((clientX - centerX) / radiusX, -1, 1);
-    let normY = clamp((clientY - centerY) / radiusY, -1, 1);
+    const normX = clamp((e.clientX - centerX) / radius, -1, 1);
+    const normY = clamp((e.clientY - centerY) / radius, -1, 1);
 
-    // UI 显示限制：确保摇杆头不会飞出圆形底座边界 (这部分三角函数仅服务于 UI，不影响按键逻辑)
-    const dist = Math.hypot(normX, normY);
-    if (dist > 1) {
-      normX /= dist;
-      normY /= dist;
+    // 更新内部 vector 状态供适配层渲染浮标 / Update vector for floating stick rendering
+    this.setState({ vector: { x: normX, y: normY } });
+
+    // 2. 轴向阈值判定 / Axial threshold check
+    const threshold = this.config.threshold ?? 0.3;
+
+    // 3. 驱动 4 个发射器。由于 ActionEmitter 内部有防抖，这里直接调用是安全的
+    // Drive emitters. Internal deduplication in ActionEmitter makes this safe.
+    
+    // Y 轴处理
+    if (normY < -threshold) {
+      this.emitters.up.press();
+      this.emitters.down.release();
+    } else if (normY > threshold) {
+      this.emitters.down.press();
+      this.emitters.up.release();
+    } else {
+      this.emitters.up.release();
+      this.emitters.down.release();
     }
 
-    // 2. 轴向死区判断 (纯布尔逻辑，性能极高) / Axial deadzone checks
-    const threshold = this.config.threshold ?? 0.2;
-
-    const isUp = normY < -threshold;
-    const isDown = normY > threshold;
-    const isLeft = normX < -threshold;
-    const isRight = normX > threshold;
-
-    // 3. 更新按键状态并触发信号 / Update keys and trigger signals
-    this.updateDirection('up', isUp);
-    this.updateDirection('down', isDown);
-    this.updateDirection('left', isLeft);
-    this.updateDirection('right', isRight);
-
-    // 4. 同步 UI 状态 / Sync UI state
-    this.setState({ vector: { x: normX, y: normY } });
-  }
-
-  /**
-   * 状态 Diff 发射器
-   * 只有当某方向的布尔值发生翻转时，才发送 Keydown/Keyup
-   */
-  private updateDirection(dir: Direction, isPressed: boolean) {
-    const wasPressed = this.activeDirs.has(dir);
-
-    if (isPressed && !wasPressed) {
-      this.activeDirs.add(dir);
-      this.sendSignal(ACTION_TYPES.KEYDOWN, dir);
-    } else if (!isPressed && wasPressed) {
-      this.activeDirs.delete(dir);
-      this.sendSignal(ACTION_TYPES.KEYUP, dir);
+    // X 轴处理
+    if (normX < -threshold) {
+      this.emitters.left.press();
+      this.emitters.right.release();
+    } else if (normX > threshold) {
+      this.emitters.right.press();
+      this.emitters.left.release();
+    } else {
+      this.emitters.left.release();
+      this.emitters.right.release();
     }
   }
 
   private handleRelease(e: PointerEvent) {
     if (this.state.pointerId !== e.pointerId) return;
 
-    try {
-      if ((e.target as Element).hasPointerCapture(e.pointerId)) {
-        (e.target as Element).releasePointerCapture(e.pointerId);
-      }
-    } catch (err) {
-      /* Ignore common pointer release errors */
-    }
-
+    DOM.safeReleaseCapture(e.target, e.pointerId);
+    
+    // 释放所有发射器并重置状态 / Release all emitters and reset state
     this.reset();
   }
 
+  // --- IResettable Implementation ---
+
   public reset(): void {
-    // 释放所有依然处于激活状态的按键 / Release all active keys
-    this.activeDirs.forEach((dir) => {
-      this.sendSignal(ACTION_TYPES.KEYUP, dir);
+    // 强制按顺序切断所有信号 / Forcefully cut off all signals in sequence
+    this.emitters.up.reset();
+    this.emitters.down.reset();
+    this.emitters.left.reset();
+    this.emitters.right.reset();
+
+    this.setState({ 
+      isActive: false, 
+      pointerId: null, 
+      vector: { x: 0, y: 0 } 
     });
-    this.activeDirs.clear();
-
-    this.setState(INITIAL_STATE);
-  }
-
-  private sendSignal(type: string, dir: Direction) {
-    if (!this.config.mapping[dir]) return;
-
-    const targetId = this.config.targetStageId;
-    if (!targetId) return;
-
-    const target = Registry.getInstance().getEntity<ICoreEntity & ISignalReceiver>(targetId);
-    if (target && target.handleSignal) {
-      target.handleSignal({
-        targetStageId: targetId,
-        type: type,
-        payload: {
-          key: this.config.mapping[dir].key,
-          code: this.config.mapping[dir].code,
-          keyCode: this.config.mapping[dir].keyCode,
-        },
-      });
-    }
   }
 }

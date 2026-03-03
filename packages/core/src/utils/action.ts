@@ -13,13 +13,14 @@ export class ActionEmitter {
 
   constructor(
     private targetId: string | undefined,
-    private action: ActionMapping,
+    private action?: ActionMapping,
   ) {}
 
   /**
    * 触发按下 (Mousedown / Keydown)
    */
   public press() {
+    if (!this.action) return;
     if (this.isPressed) return;
     this.isPressed = true;
 
@@ -41,6 +42,7 @@ export class ActionEmitter {
    * 触发抬起 (Mouseup+Click / Keyup)
    */
   public release(isNormalRelease: boolean = true) {
+    if (!this.action) return;
     if (!this.isPressed) return;
     this.isPressed = false;
 
@@ -69,6 +71,7 @@ export class ActionEmitter {
    * 触发连续位移 (MouseMove) - 专供摇杆/触摸板调用
    */
   public move(deltaOrPoint: { delta?: Vec2; point?: Vec2 }) {
+    if (!this.action) return;
     if (this.action.type === 'mouse') {
       this.send(ACTION_TYPES.MOUSEMOVE, { ...deltaOrPoint, button: this.action.button });
     }
@@ -86,6 +89,7 @@ export class ActionEmitter {
    * [私有] 发送信号到注册表中的目标
    */
   private send(type: string, payload: any) {
+    if (!this.action) return;
     if (!this.targetId) return;
     const target = Registry.getInstance().getEntity<ICoreEntity & ISignalReceiver>(this.targetId);
 

@@ -50,11 +50,13 @@
       "config": {
         "mapping": {
           "left": {
+            "type": "keyboard",
             "key": "ArrowLeft",
             "code": "ArrowLeft",
             "keyCode": 37
           },
           "right": {
+            "type": "keyboard",
             "key": "ArrowRight",
             "code": "ArrowRight",
             "keyCode": 39

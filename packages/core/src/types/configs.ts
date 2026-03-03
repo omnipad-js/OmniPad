@@ -1,5 +1,5 @@
 import { AnchorPoint, FlexibleLength, CMP_TYPES } from '.';
-import { ActionMapping, KeyMapping } from './keys';
+import { ActionMapping } from './keys';
 
 /**
  * Defines the spatial properties of a component.
@@ -84,10 +84,10 @@ export interface DPadConfig extends BaseConfig {
   targetStageId?: string;
   /** Defines the specific actions or key signals emitted for each cardinal direction. */
   mapping: {
-    up: KeyMapping;
-    down: KeyMapping;
-    left: KeyMapping;
-    right: KeyMapping;
+    up: ActionMapping;
+    down: ActionMapping;
+    left: ActionMapping;
+    right: ActionMapping;
   };
   /** Determines the minimum travel distance required to trigger a direction. */
   threshold?: number;
