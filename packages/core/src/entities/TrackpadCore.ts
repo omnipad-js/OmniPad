@@ -138,8 +138,6 @@ export class TrackpadCore
   }
 
   public onPointerUp(e: PointerEvent): void {
-    if (this.state.pointerId !== e.pointerId) return;
-
     // Resolve gesture results (Tap, DoubleTap, etc.) / 结算手势判定结果
     this.gesture.onPointerUp(e.clientX, e.clientY);
 
@@ -166,6 +164,8 @@ export class TrackpadCore
    * Clean up pointer capture and reset interaction state.
    */
   private handleRelease(e: PointerEvent) {
+    if (this.state.pointerId !== e.pointerId) return;
+
     DOM.safeReleaseCapture(e.target, e.pointerId);
     this.setState(INITIAL_STATE);
   }
