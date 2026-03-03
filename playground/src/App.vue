@@ -66,7 +66,7 @@ const saveConfig = () => {
   console.log('[Playground] Profile Serialized from Registry.');
 };
 
-import demoRaw from './profiles/skywire.json';
+import demoRaw from './profiles/platformer.json';
 onMounted(() => {
   InputManager.getInstance().init();
   jsonText.value = JSON.stringify(demoRaw, null, 2);

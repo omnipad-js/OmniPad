@@ -16,6 +16,7 @@ registerComponent(CMP_TYPES.TARGET_ZONE, TargetZone);
 registerComponent(CMP_TYPES.KEYBOARD_BUTTON, VirtualKeyboardButton);
 registerComponent(CMP_TYPES.MOUSE_BUTTON, VirtualMouseButton);
 registerComponent(CMP_TYPES.TRACKPAD, VirtualTrackpad);
+registerComponent(CMP_TYPES.D_PAD, VirtualDPad);
 
 export {
   InputZone,

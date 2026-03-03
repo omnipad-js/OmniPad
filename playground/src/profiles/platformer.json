@@ -28,7 +28,7 @@
       }
     },
     {
-      "id": "node_2",
+      "id": "node_3",
       "type": "input-zone",
       "parentId": "$managed-root",
       "config": {
@@ -38,48 +38,45 @@
           "width": "30%",
           "height": "70%"
         },
-        "dynamicWidgetId": "node_6",
+        "dynamicWidgetId": "node_2",
         "preventFocusLoss": false
       }
     },
     {
-      "id": "node_3",
-      "type": "keyboard-button",
-      "parentId": "node_1",
-      "config": {
-        "label": "LEFT",
-        "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": "ArrowLeft",
-          "code": "ArrowLeft",
-          "keyCode": 37
-        },
-        "layout": {
-          "left": "30%",
-          "top": "70%",
-          "width": "80px",
-          "height": "80px",
-          "anchor": "center"
-        }
-      }
-    },
-    {
       "id": "node_4",
-      "type": "keyboard-button",
+      "type": "d-pad",
       "parentId": "node_1",
       "config": {
-        "label": "RIGHT",
-        "targetStageId": "$ruffle-player",
         "mapping": {
-          "key": "ArrowRight",
-          "code": "ArrowRight",
-          "keyCode": 39
+          "up": {
+            "key": "ArrowUp",
+            "code": "ArrowUp",
+            "keyCode": 38
+          },
+          "down": {
+            "key": "ArrowDown",
+            "code": "ArrowDown",
+            "keyCode": 40
+          },
+          "left": {
+            "key": "ArrowLeft",
+            "code": "ArrowLeft",
+            "keyCode": 37
+          },
+          "right": {
+            "key": "ArrowRight",
+            "code": "ArrowRight",
+            "keyCode": 39
+          }
         },
+        "showStick": true,
+        "threshold": 0.3,
+        "targetStageId": "$ruffle-player",
         "layout": {
-          "left": "55%",
+          "left": "50%",
           "top": "70%",
-          "width": "80px",
-          "height": "80px",
+          "width": "180px",
+          "height": "180px",
           "anchor": "center"
         }
       }
@@ -87,7 +84,7 @@
     {
       "id": "node_5",
       "type": "keyboard-button",
-      "parentId": "node_2",
+      "parentId": "node_3",
       "config": {
         "label": "UP",
         "targetStageId": "$ruffle-player",
@@ -106,9 +103,9 @@
       }
     },
     {
-      "id": "node_6",
-      "parentId": "node_2",
+      "id": "node_2",
       "type": "trackpad",
+      "parentId": "node_3",
       "config": {
         "label": "TRACKPAD",
         "sensitivity": 1,
