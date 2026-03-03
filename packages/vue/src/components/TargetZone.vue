@@ -158,11 +158,10 @@ const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
   z-index: 10;
 
   transform: translate3d(
-      var(--omnipad-virtual-cursor-x, 0px),
-      var(--omnipad-virtual-cursor-y, 0px),
-      0
-    )
-    translate(-50%, -50%);
+    calc(-50% + var(--omnipad-virtual-cursor-x, 0px)),
+    calc(-50% + var(--omnipad-virtual-cursor-y, 0px)),
+    0
+  );
 
   --omnipad-virtual-cursor-x: 0px;
   --omnipad-virtual-cursor-y: 0px;

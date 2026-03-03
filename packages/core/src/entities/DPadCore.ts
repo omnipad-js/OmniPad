@@ -85,7 +85,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
 
     // 2. 轴向死区判断 (纯布尔逻辑，性能极高) / Axial deadzone checks
     const threshold = this.config.threshold ?? 0.2;
-    
+
     const isUp = normY < -threshold;
     const isDown = normY > threshold;
     const isLeft = normX < -threshold;

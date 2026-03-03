@@ -8,6 +8,7 @@ import {
   type LayoutBox,
   CMP_TYPES,
   KEYS,
+  supportsContainerQueries,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
@@ -43,17 +44,20 @@ const { core, state, elementRef } = useCoreEntity<DPadCore, DPadState>(
   () => new DPadCore(uid.value, config.value),
 );
 
-// [关键计算]：实时提供 baseRadius 给基座
+const canUseNativeCQ = supportsContainerQueries();
+
+// 兼容：实时提供 baseRadius 给基座
 const baseRadius = ref({ x: 0, y: 0 });
 // 监听元素尺寸变化并更新半径
-watchEffect(() => {
-  // 假设 elementRef.value 被 useCoreBridge 内置的 ResizeObserver 追踪，或者依赖 Vue 响应式。
-  // 最稳妥的方法是，从 Core 那里拿到实时的 Rect。
+const stopBaseRect = watchEffect(() => {
   const rect = core.value?.getRect();
   if (rect) {
     baseRadius.value = { x: rect.width / 2, y: rect.height / 2 };
   }
 });
+
+// 如果浏览器支持 ContainerQueries，直接结束 baseRadius 实时获取
+if (canUseNativeCQ) stopBaseRect();
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => core.value?.onPointerDown(e);
@@ -111,7 +115,7 @@ defineExpose({
   border-radius: 50%;
   /* 一个微弱的底圆指示触控范围 */
   background: rgba(255, 255, 255, 0.05);
-  
+
   pointer-events: auto;
 }
 

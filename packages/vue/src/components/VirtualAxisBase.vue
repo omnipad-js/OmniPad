@@ -1,20 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { LayoutBox, resolveLayoutStyle, Vec2 } from '@omnipad/core';
+import { LayoutBox, resolveLayoutStyle, supportsContainerQueries, Vec2 } from '@omnipad/core';
 
 const props = defineProps<{
   layout?: LayoutBox;
   isActive?: boolean;
   vector?: Vec2;
   showStick?: boolean;
-  baseRadius?: Vec2; // 核心：由父组件传进来的绝对像素半径
+  baseRadius?: Vec2; // 兼容：由父组件传进来的绝对像素半径
 }>();
 
 const containerStyle = computed(() => {
   return props.layout ? resolveLayoutStyle(props.layout) : {};
 });
 
-// 革命性的动态渲染方式：完全基于 GPU 加速的 translate3d
+const canUseNativeCQ = supportsContainerQueries();
+
+// 杆头位置样式
 const stickStyle = computed(() => {
   const vx = props.vector?.x || 0;
   const vy = props.vector?.y || 0;
@@ -22,12 +24,12 @@ const stickStyle = computed(() => {
   const ry = props.baseRadius?.y || 0;
 
   // 物理偏移像素
-  const tx = vx * rx;
-  const ty = vy * ry;
+  const tx = canUseNativeCQ ? `${vx * 50}cqw` : `${vx * rx}px`;
+  const ty = canUseNativeCQ ? `${vy * 50}cqh` : `${vy * ry}px`;
 
   return {
-    // calc(-50% + Xpx) 完美解决了“自身居中偏移”和“相对父级位移”的结合
-    transform: `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0)`,
+    '--omnipad-axis-stick-container-x': tx,
+    '--omnipad-axis-stick-container-y': ty,
     // 松手时加一点回弹过渡，活动时取消过渡保证绝对跟手
     transition: props.isActive ? 'none' : 'transform 0.1s ease-out',
   };
@@ -63,6 +65,9 @@ const stickStyle = computed(() => {
   touch-action: none;
   outline: none;
   -webkit-tap-highlight-color: transparent;
+
+  /* for Container Queries */
+  container-type: size;
 }
 
 .omnipad-axis-bg {
@@ -77,7 +82,15 @@ const stickStyle = computed(() => {
   left: 50%;
   top: 50%;
   pointer-events: none;
-  /* transform 将被内联样式覆盖 */
+
+  transform: translate3d(
+    calc(-50% + var(--omnipad-axis-stick-container-x, 0px)),
+    calc(-50% + var(--omnipad-axis-stick-container-y, 0px)),
+    0
+  );
+
+  --omnipad-axis-stick-container-x: 0px;
+  --omnipad-axis-stick-container-y: 0px;
 }
 
 .omnipad-default-stick {
