@@ -41,8 +41,8 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
       down: new ActionEmitter(target, config.mapping?.down),
       left: new ActionEmitter(target, config.mapping?.left),
       right: new ActionEmitter(target, config.mapping?.right),
-    };    
-    
+    };
+
     this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
       this.processInput(e);
     });

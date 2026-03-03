@@ -1,105 +1,149 @@
 import { Registry } from '../registry';
-import { ActionMapping } from '../types/keys';
-import { ACTION_TYPES, InputActionSignal, Vec2 } from '../types';
+import { ActionMapping, ACTION_TYPES } from '../types';
 import { ICoreEntity, ISignalReceiver } from '../types/traits';
+import { KEYS } from '../types/keys';
 
 /**
- * 动作发射器
- * 负责将抽象的 ActionMapping 转化为具体的信号，并发送给目标 Stage。
- * 内部维护按下状态，确保安全重置 (Reset)。
+ * Action Emitter Utility.
+ *
+ * Responsible for translating abstract action definitions into concrete signals.
+ * Now supports configuration hot-reloading and automatic mapping hydration.
  */
 export class ActionEmitter {
   private isPressed = false;
+  private mapping?: ActionMapping;
+  private targetId?: string;
 
-  constructor(
-    private targetId: string | undefined,
-    private action?: ActionMapping,
-  ) {}
-
-  /**
-   * 触发按下 (Mousedown / Keydown)
-   */
-  public press() {
-    if (!this.action) return;
-    if (this.isPressed) return;
-    this.isPressed = true;
-
-    if (this.action.type === 'keyboard') {
-      this.send(ACTION_TYPES.KEYDOWN, {
-        key: this.action.key,
-        code: this.action.code,
-        keyCode: this.action.keyCode,
-      });
-    } else if (this.action.type === 'mouse') {
-      this.send(ACTION_TYPES.MOUSEDOWN, {
-        button: this.action.button,
-        point: this.action.fixedPoint,
-      });
-    }
+  constructor(targetId?: string, action?: ActionMapping) {
+    this.update(targetId, action);
   }
 
   /**
-   * 触发抬起 (Mouseup+Click / Keyup)
+   * Reloads the emitter with new configuration.
+   * Ensures active signals are cut off before switching configurations.
+   *
+   * @param targetId - New target stage ID.
+   * @param mapping - New action mapping definition.
    */
-  public release(isNormalRelease: boolean = true) {
-    if (!this.action) return;
-    if (!this.isPressed) return;
-    this.isPressed = false;
+  public update(targetId?: string, mapping?: ActionMapping): void {
+    // 1. 如果当前正处于按下状态，在重载前必须先安全释放旧动作
+    // If currently pressed, release the old action safely before reloading
+    if (this.isPressed) {
+      this.reset();
+    }
 
-    if (this.action.type === 'keyboard') {
-      this.send(ACTION_TYPES.KEYUP, {
-        key: this.action.key,
-        code: this.action.code,
-        keyCode: this.action.keyCode,
-      });
-    } else if (this.action.type === 'mouse') {
-      this.send(ACTION_TYPES.MOUSEUP, {
-        button: this.action.button,
-        point: this.action.fixedPoint,
-      });
-      // 正常的鼠标抬起还会伴随一次 click
-      if (isNormalRelease) {
-        this.send(ACTION_TYPES.CLICK, {
-          button: this.action.button,
-          point: this.action.fixedPoint,
-        });
+    this.targetId = targetId;
+    this.mapping = this.hydrate(mapping);
+  }
+
+  /**
+   * Hydrates partial mapping data into a full ActionMapping.
+   * Handles mouse defaults and keyboard auto-completion via STANDARD_KEYS.
+   */
+  private hydrate(action?: ActionMapping): ActionMapping | undefined {
+    if (!action) return undefined;
+
+    // 浅拷贝一份，避免修改原始配置对象 / Shallow copy to avoid mutating source config
+    const hydrated = { ...action };
+
+    // --- 鼠标映射补全 (Mouse Hydration) ---
+    if (hydrated.type === 'mouse') {
+      hydrated.button = hydrated.button ?? 0;
+      return hydrated;
+    }
+
+    // --- 键盘映射补全 (Keyboard Hydration) ---
+    // 逻辑：如果未显式声明为鼠标，且具备键盘特征，则尝试通过码表补全
+    const { key, code, keyCode } = hydrated;
+    if (key || code || keyCode) {
+      hydrated.type = 'keyboard';
+
+      // 在标准库中寻找匹配项 / Find matching entry in KEYS
+      const standard = Object.values(KEYS).find(
+        (s) => s.code === code || s.key === key || s.keyCode === keyCode,
+      );
+
+      if (standard) {
+        hydrated.key = key ?? standard.key;
+        hydrated.code = code ?? standard.code;
+        hydrated.keyCode = keyCode ?? standard.keyCode;
       }
     }
+
+    return hydrated;
   }
 
   /**
-   * 触发连续位移 (MouseMove) - 专供摇杆/触摸板调用
+   * Triggers the 'down' phase of the action.
    */
-  public move(deltaOrPoint: { delta?: Vec2; point?: Vec2 }) {
-    if (!this.action) return;
-    if (this.action.type === 'mouse') {
-      this.send(ACTION_TYPES.MOUSEMOVE, { ...deltaOrPoint, button: this.action.button });
+  public press(): void {
+    if (!this.mapping || this.isPressed) return;
+    this.isPressed = true;
+
+    const type = this.mapping.type === 'keyboard' ? ACTION_TYPES.KEYDOWN : ACTION_TYPES.MOUSEDOWN;
+    this.emitSignal(type);
+  }
+
+  /**
+   * Triggers the 'up' phase of the action.
+   * @param isNormalRelease - If false, 'click' signals for mouse actions are suppressed.
+   */
+  public release(isNormalRelease: boolean = true): void {
+    if (!this.mapping || !this.isPressed) return;
+    this.isPressed = false;
+
+    const type = this.mapping.type === 'keyboard' ? ACTION_TYPES.KEYUP : ACTION_TYPES.MOUSEUP;
+    this.emitSignal(type);
+
+    if (this.mapping.type === 'mouse' && isNormalRelease) {
+      this.emitSignal(ACTION_TYPES.CLICK);
     }
   }
 
   /**
-   * 重置：用于组件销毁或切屏时的强制状态清理
+   * Triggers a continuous movement signal (primarily for mouse).
    */
-  public reset() {
-    // 强制传 false，不触发 Click
-    this.release(false);
+  public move(payload: {
+    delta?: { x: number; y: number };
+    point?: { x: number; y: number };
+  }): void {
+    if (this.mapping?.type === 'mouse') {
+      this.emitSignal(ACTION_TYPES.MOUSEMOVE, payload);
+    }
   }
 
   /**
-   * [私有] 发送信号到注册表中的目标
+   * Forcefully resets the emitter state and cuts off active signals.
    */
-  private send(type: string, payload: any) {
-    if (!this.action) return;
-    if (!this.targetId) return;
+  public reset(): void {
+    if (this.isPressed) {
+      this.release(false);
+    }
+  }
+
+  /**
+   * Internal signal dispatcher.
+   */
+  private emitSignal(signalType: string, extraPayload: any = {}): void {
+    if (!this.targetId || !this.mapping) return;
+
     const target = Registry.getInstance().getEntity<ICoreEntity & ISignalReceiver>(this.targetId);
+    if (!target) return;
 
-    if (target && typeof target.handleSignal === 'function') {
-      const signal: InputActionSignal = {
-        targetStageId: this.targetId,
-        type,
-        payload,
-      };
-      target.handleSignal(signal);
-    }
+    target.handleSignal({
+      targetStageId: this.targetId,
+      type: signalType,
+      payload: {
+        // 键盘字段
+        key: this.mapping.key,
+        code: this.mapping.code,
+        keyCode: this.mapping.keyCode,
+        // 鼠标字段
+        button: this.mapping.button,
+        point: this.mapping.fixedPoint,
+        // 额外透传 (如 delta)
+        ...extraPayload,
+      },
+    });
   }
 }
