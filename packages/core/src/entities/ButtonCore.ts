@@ -4,6 +4,7 @@ import { IPointerHandler } from '../types/traits';
 import { BaseEntity } from './BaseEntity';
 import { ActionEmitter } from '../utils/action';
 import { CMP_TYPES } from '../types';
+import * as DOM from '../utils/dom';
 
 const INITIAL_STATE: ButtonState = {
   isActive: false,
@@ -39,8 +40,7 @@ export class ButtonCore extends BaseEntity<ButtonConfig, ButtonState> implements
     if (e.cancelable) e.preventDefault();
     e.stopPropagation();
 
-    // 锁定指针捕获，确保手指移出按钮范围时事件依然能被触发 / Set pointer capture to ensure events trigger even if the finger moves outside
-    (e.target as Element).setPointerCapture(e.pointerId);
+    DOM.safeSetCapture(e.target, e.pointerId);
 
     // 更新内部交互状态 / Update internal interaction state
     this.setState({ isActive: true, isPressed: true, pointerId: e.pointerId });
@@ -71,14 +71,7 @@ export class ButtonCore extends BaseEntity<ButtonConfig, ButtonState> implements
     // 验证 pointerId 匹配，防止多指操作冲突 / Validate pointerId to prevent multi-touch conflicts
     if (this.state.pointerId !== e.pointerId) return;
 
-    // 显式释放指针捕获 / Explicitly release pointer capture
-    if ((e.target as Element).hasPointerCapture(e.pointerId)) {
-      try {
-        (e.target as Element).releasePointerCapture(e.pointerId);
-      } catch (err) {
-        //
-      }
-    }
+    DOM.safeReleaseCapture(e.target, e.pointerId);
 
     // 重置为初始状态 / Reset to initial state
     this.setState(INITIAL_STATE);
