@@ -46,7 +46,7 @@ const canUseNativeCQ = supportsContainerQueries();
 const baseRadius = ref({ x: 0, y: 0 });
 // 监听元素尺寸变化并更新半径
 const stopBaseRect = watchEffect(() => {
-  const rect = core.value?.getRect();
+  const rect = core.value?.rect;
   if (rect) {
     baseRadius.value = { x: rect.width / 2, y: rect.height / 2 };
   }

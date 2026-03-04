@@ -74,15 +74,12 @@ export abstract class BaseEntity<TConfig, TState>
 
   public abstract reset(): void;
 
-  public bindRectProvider(provider: () => AbstractRect): void {
-    this.rectProvider = provider;
+  public get rect(): AbstractRect | null {
+    return this.rectProvider ? this.rectProvider() : null;
   }
 
-  /**
-   * Called when triggering interactions, this subclass fetches the latest boundaries in real time.
-   */
-  public getRect(): AbstractRect | null {
-    return this.rectProvider ? this.rectProvider() : null;
+  public bindRectProvider(provider: () => AbstractRect): void {
+    this.rectProvider = provider;
   }
 
   public updateConfig(newConfig: Partial<TConfig>): void {

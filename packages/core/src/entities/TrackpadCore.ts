@@ -117,7 +117,7 @@ export class TrackpadCore
     const dx = e.clientX - this.lastPointerPos.x;
     const dy = e.clientY - this.lastPointerPos.y;
 
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     // Convert pixel delta to percentage delta relative to target stage size

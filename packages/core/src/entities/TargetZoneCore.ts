@@ -72,7 +72,7 @@ export class TargetZoneCore
    * Convert physical DOM events into internal signals
    */
   private processPhysicalEvent(e: PointerEvent, type: string) {
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     // Physical coord -> percent coord
@@ -141,7 +141,7 @@ export class TargetZoneCore
    */
   private executeMouseAction(pointerType: string, payload: any) {
     // 若适配层尚未汇报 DOM 尺寸，则无法进行坐标换算 / Skip if DOM rect is not reported yet
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     // 更新本地按下状态记录 / Update local pointer down state for visual feedback
@@ -168,7 +168,7 @@ export class TargetZoneCore
    * Checks if the target element under the virtual cursor has focus, and reclaims it if lost.
    */
   private ensureFocus() {
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     // 换算当前光标所在的绝对像素点 / Calculate absolute pixel point of current cursor
@@ -211,7 +211,7 @@ export class TargetZoneCore
   private updateCursorPositionByDelta(delta: Vec2) {
     if (isVec2Equal(delta, { x: 0, y: 0 })) return;
 
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     const dxPercent = pxToPercent(delta.x, rect.width);

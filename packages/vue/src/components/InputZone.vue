@@ -119,7 +119,7 @@ const dynamicWrapperStyle = computed(() => {
     cursorX = `${pos.x}cqw`;
     cursorY = `${pos.y}cqh`;
   } else {
-    const rect = core?.value?.getRect();
+    const rect = core?.value?.rect;
     cursorX = `${remap(pos?.x || 0, 0, 100, 0, rect?.width || 0)}px`;
     cursorY = `${remap(pos?.y || 0, 0, 100, 0, rect?.height || 0)}px`;
   }

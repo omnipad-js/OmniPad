@@ -95,7 +95,7 @@ export class InputZoneCore
    * Converts viewport pixels to percentage coordinates relative to the zone.
    */
   private calculateRelativePosition(clientX: number, clientY: number): Vec2 {
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return { x: 0, y: 0 };
 
     return {

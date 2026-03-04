@@ -83,7 +83,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
    * 使用轴向分割逻辑处理 8 方向输入
    */
   private processInput(e: PointerEvent) {
-    const rect = this.getRect();
+    const rect = this.rect;
     if (!rect) return;
 
     // 1. 计算归一化向量 [-1, 1] / Calculate normalized vector

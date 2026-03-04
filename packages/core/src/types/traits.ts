@@ -28,6 +28,8 @@ export interface ICoreEntity extends IIdentifiable, ILifecycle {}
  * Trait: Enables spatial awareness for DOM/UI-related components.
  */
 export interface ISpatial {
+  readonly rect: AbstractRect | null;
+
   /**
    * Dynamically obtain dimensions and position to ensure the most precise real-time screen coordinates are obtained during each interaction.
    */
