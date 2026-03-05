@@ -55,7 +55,9 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
 
   public onPointerDown(e: AbstractPointerEvent): void {
     this.setState({ isActive: true, pointerId: e.pointerId });
-    this.processInput(e);
+
+    // 需要验证触发点是否位于缓存 Rect 的边界内 / Verify whether the trigger point is within the cached Rect's bounds.
+    this.processInput(e, true);
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
@@ -76,24 +78,30 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
    * Evaluates the touch position and updates the 4 emitters accordingly.
    * 使用轴向分割逻辑处理 8 方向输入
    */
-  private processInput(e: AbstractPointerEvent) {
+  private processInput(e: AbstractPointerEvent, validate: boolean = false) {
     // 状态锁保护，防止节流产生的异常信号 / State lock protection prevents abnormal signals caused by throttling.
     if (!this.state.isActive) return;
 
     const rect = this.rect;
     if (!rect) return;
 
-    // 1. 计算归一化向量 [-1, 1] / Calculate normalized vector
+    // 1. 计算归一化向量 / Calculate normalized vector
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     const radiusX = rect.width / 2;
     const radiusY = rect.height / 2;
 
-    const normX = clamp((e.clientX - centerX) / radiusX, -1, 1);
-    const normY = clamp((e.clientY - centerY) / radiusY, -1, 1);
+    let normX = (e.clientX - centerX) / radiusX;
+    let normY = (e.clientY - centerY) / radiusY;
+
+    // 验证触发点位置；若超出边界，则重置触发点位置 / Verify the trigger point location; if it is out of bounds, reset it.
+    if (validate) {
+      if (normX != clamp(normX, -1, 1)) normX = 0;
+      if (normY != clamp(normY, -1, 1)) normY = 0;
+    }
 
     // 更新内部 vector 状态供适配层渲染浮标 / Update vector for floating stick rendering
-    this.setState({ vector: { x: normX, y: normY } });
+    this.setState({ vector: { x: clamp(normX, -1, 1), y: clamp(normY, -1, 1) } });
 
     // 2. 轴向阈值判定 / Axial threshold check
     const threshold = this.config.threshold ?? 0.3;
