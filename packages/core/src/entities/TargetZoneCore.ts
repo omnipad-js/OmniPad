@@ -1,11 +1,20 @@
-import { ACTION_TYPES, InputActionSignal, Vec2, CMP_TYPES } from '../types';
+import { ACTION_TYPES, InputActionSignal, Vec2, CMP_TYPES, AnyFunction } from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
-import { IPointerHandler, ISignalReceiver } from '../types/traits';
-import * as DOM from '../utils/dom';
+import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/traits';
 import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
 import { createRafThrottler } from '../utils/performance';
 import { BaseEntity } from './BaseEntity';
+
+/**
+ * Interface for delegating DOM operations within a target zone.
+ * Provides an abstraction layer for event dispatching and focus management.
+ */
+interface TargetZoneDelegates {
+  dispatchKeyboardEvent: (type: string, payload: any) => void;
+  dispatchPointerEventAtPos: (type: string, x: number, y: number, opts: any) => void;
+  reclaimFocusAtPos: (x: number, y: number, callback: () => void) => void;
+}
 
 /**
  * Initial state for the virtual cursor and focus feedback.
@@ -25,24 +34,16 @@ const INITIAL_STATE: CursorState = {
  */
 export class TargetZoneCore
   extends BaseEntity<TargetZoneConfig, CursorState>
-  implements IPointerHandler, ISignalReceiver
+  implements IPointerHandler, ISignalReceiver, IDependencyBindable
 {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
   private focusFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
   private throttledPointerMove: (e: PointerEvent) => void;
 
-  private delegates = {
-    dispatchKeyboardEvent: (
-      type: string,
-      payload: { key: string; code: string; keyCode: number },
-    ) => DOM.dispatchKeyboardEvent(type, payload as any),
-    dispatchPointerEventAtPos: (
-      type: string,
-      x: number,
-      y: number,
-      opts: { button: number; buttons: number; pressure: number },
-    ) => DOM.dispatchPointerEventAtPos(type, x, y, opts),
-    reclaimFocusAtPos: (x: number, y: number) => DOM.reclaimFocusAtPos(x, y),
+  private delegates: TargetZoneDelegates = {
+    dispatchKeyboardEvent: () => {},
+    dispatchPointerEventAtPos: () => {},
+    reclaimFocusAtPos: () => {},
   };
 
   constructor(uid: string, config: TargetZoneConfig) {
@@ -51,6 +52,16 @@ export class TargetZoneCore
     this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
       this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
     });
+  }
+
+  // --- IDependencyBindable Implementation ---
+
+  public bindDelegate(key: string, delegate: AnyFunction): void {
+    if (Object.prototype.hasOwnProperty.call(this.delegates, key)) {
+      (this.delegates as any)[key] = delegate;
+    } else if (import.meta.env?.DEV) {
+      console.warn(`[Omnipad-Core] TargetZone attempted to bind unknown delegate: ${key}`);
+    }
   }
 
   // --- IPointerHandler Implementation ---
@@ -187,9 +198,7 @@ export class TargetZoneCore
     const py = rect.top + percentToPx(this.state.position.y, rect.height);
 
     // 发起焦点夺回请求 / Send request of focus reclaim
-    if (this.delegates.reclaimFocusAtPos(px, py)) {
-      this.triggerFocusFeedback();
-    }
+    this.delegates.reclaimFocusAtPos(px, py, () => this.triggerFocusFeedback());
   }
 
   /**

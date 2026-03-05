@@ -10,6 +10,9 @@ import {
   resolveLayoutStyle,
   remap,
   supportsContainerQueries,
+  dispatchKeyboardEvent,
+  dispatchPointerEventAtPos,
+  reclaimFocusAtPos,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
@@ -41,8 +44,14 @@ const { uid, config } = useWidgetConfig<TargetZoneConfig>(
   props,
   defaultProps,
 );
-const { core, state, elementRef } = useCoreEntity<TargetZoneCore, CursorState>(
+const { core, state, elementRef, domEvents } = useCoreEntity<TargetZoneCore, CursorState>(
   () => new TargetZoneCore(uid.value, config.value),
+  {},
+  {
+    dispatchKeyboardEvent: dispatchKeyboardEvent,
+    dispatchPointerEventAtPos: dispatchPointerEventAtPos,
+    reclaimFocusAtPos: reclaimFocusAtPos,
+  },
 );
 
 const containerStyle = computed(() => resolveLayoutStyle(config.value.layout));
@@ -70,10 +79,10 @@ const cursorStyle = computed(() => {
   };
 });
 
-const onPointerDown = (e: PointerEvent) => core.value?.onPointerDown(e);
-const onPointerMove = (e: PointerEvent) => core.value?.onPointerMove(e);
-const onPointerUp = (e: PointerEvent) => core.value?.onPointerUp(e);
-const onPointerCancel = (e: PointerEvent) => core.value?.onPointerCancel(e);
+const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);
+const onPointerMove = (e: PointerEvent) => domEvents.value?.onPointerMove(e);
+const onPointerUp = (e: PointerEvent) => domEvents.value?.onPointerUp(e);
+const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e);
 </script>
 
 <template>

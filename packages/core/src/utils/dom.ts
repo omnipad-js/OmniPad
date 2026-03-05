@@ -151,11 +151,11 @@ export const dispatchPointerEventAtPos = (
  * @param y - The vertical coordinate relative to the viewport.
  * @returns True if the focus was successfully moved to the target; false if it was already focused or no target found.
  */
-export const reclaimFocusAtPos = (x: number, y: number): boolean => {
+export const reclaimFocusAtPos = (x: number, y: number, callback: () => void): void => {
   // Find the deepest element at coordinates, penetrating Shadow DOM boundaries
   // 在指定坐标处寻找最深层元素，穿透 Shadow DOM 边界
   const target = getDeepElement(x, y) as HTMLElement;
-  if (!target) return false;
+  if (!target) return;
 
   // Identify the current truly active element across all Shadow Roots
   // 识别当前页面中真正获得焦点的最深层元素（跨越所有 Shadow Root）
@@ -165,10 +165,8 @@ export const reclaimFocusAtPos = (x: number, y: number): boolean => {
   // 如果当前焦点不在目标元素上，则执行强制夺回逻辑
   if (currentActive !== target) {
     focusElement(target);
-    return true;
+    callback();
   }
-
-  return false;
 };
 
 // --- Compatibility ---
@@ -244,7 +242,7 @@ export function createPointerBridge(
       if (!e.isTrusted) return;
 
       // 如果开启了“仅限直接点击”，则进行校验 / If “Direct Click Only” is enabled, verification will be performed.
-      if (options.requireDirectHit && e.target !== e.currentTarget) return;
+      if (options?.requireDirectHit && e.target !== e.currentTarget) return;
 
       // 如果当前已有指针在控制，则忽略后续的其他指针按下 / Ensure the widget only responds to one pointer at a time
       if (coreHandler.activePointerId != null) return;
