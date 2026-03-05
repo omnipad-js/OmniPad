@@ -84,8 +84,12 @@ const stickStyle = computed(() => {
 
 /* 浮标的锚点固定在基座中心 */
 .omnipad-axis-stick-container {
-  width: calc(var(--omnipad-axis-stick-width, 0px) * var(--omnipad-default-axis-stick-width-scaler, 0.2));
-  height: calc(var(--omnipad-axis-stick-height, 0px) * var(--omnipad-default-axis-stick-height-scaler, 0.2));
+  width: calc(
+    var(--omnipad-axis-stick-width, 0px) * var(--omnipad-default-axis-stick-width-scaler, 0.2)
+  );
+  height: calc(
+    var(--omnipad-axis-stick-height, 0px) * var(--omnipad-default-axis-stick-height-scaler, 0.2)
+  );
 
   position: absolute;
   left: 50%;

@@ -67,30 +67,11 @@
 }
 
 /* Basic Button Style Class */
-.omnipad-button-base {
+.omnipad-default-button-base {
   background: var(--omnipad-btn-bg);
   border: var(--omnipad-btn-border-width) var(--omnipad-btn-border-style) var(--omnipad-btn-border-color);
   border-radius: var(--omnipad-btn-radius);
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all var(--omnipad-btn-transition-duration) var(--omnipad-btn-transition-timing);
-}
-
-/* Specialized Processing for Hollow Labels */
-.omnipad-button-label-hollow {
-  font-family: var(--omnipad-btn-font-family);
-  font-size: var(--omnipad-btn-font-size);
-  color: var(--omnipad-btn-label-color);
-  font-weight: var(--omnipad-btn-font-weight);
-  
-  background: inherit;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: invert(1) grayscale(1) contrast(9);
-  mix-blend-mode: destination-out;
 }
 
 /* The visual representation of the virtual pointer (the "red dot") */

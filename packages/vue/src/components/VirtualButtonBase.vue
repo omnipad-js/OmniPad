@@ -15,15 +15,16 @@ const containerStyle = computed(() => {
 </script>
 
 <template>
-  <div
-    class="omnipad-button-base"
-    :class="{ 'is-active': isActive }"
-    :style="containerStyle"
-    tabindex="-1"
-  >
-    <slot>
-      <span v-if="label" class="omnipad-button-label">{{ label }}</span>
+  <div class="omnipad-button-base" :style="containerStyle" tabindex="-1">
+    <slot name="base" :is-active="isActive" :label="label">
+      <div class="omnipad-default-button-base" :class="{ 'is-active': isActive }"></div>
     </slot>
+
+    <div class="omnipad-button-content-layer">
+      <slot :is-active="isActive" :label="label">
+        <span v-if="label" class="omnipad-default-button-label">{{ label }}</span>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -34,16 +35,32 @@ const containerStyle = computed(() => {
   overflow: hidden;
   box-sizing: border-box;
   pointer-events: auto;
+
+  will-change: transform, opacity;
 }
 
-.omnipad-button-base.is-active {
-  background: var(--omnipad-btn-pressed-bg);
+.omnipad-default-button-base {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.omnipad-button-content-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.omnipad-default-button-base.is-active {
+  background: var(--omnipad-btn-pressed-bg, rgba(255, 255, 255, 0.4));
   border-color: var(--omnipad-btn-pressed-border-color);
   opacity: var(--omnipad-btn-pressed-opacity);
-  filter: brightness(1.2);
 }
 
-.omnipad-button-label {
+.omnipad-default-button-label {
   font-family: var(--omnipad-btn-font-family);
   font-size: var(--omnipad-btn-font-size);
   color: var(--omnipad-btn-label-color);
