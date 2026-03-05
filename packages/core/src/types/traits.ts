@@ -1,4 +1,4 @@
-import { AbstractRect, EntityType, InputActionSignal } from '.';
+import { AbstractRect, AnyFunction, EntityType, InputActionSignal } from '.';
 
 /**
  * Trait: Provides identity with a unique ID and specific entity type.
@@ -100,4 +100,12 @@ export interface ISignalReceiver {
    * @param signal - The signal data containing action type and payload.
    */
   handleSignal(signal: InputActionSignal): void;
+}
+
+export interface IDependencyBindable {
+  /**
+   * Binds a functional delegate by key.
+   * We use AnyFunction to avoid the generic 'Function' type linting error.
+   */
+  bindDelegate(key: string, delegate: AnyFunction): void;
 }

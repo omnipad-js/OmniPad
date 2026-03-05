@@ -186,6 +186,12 @@ export const CONTEXT = {
   PARENT_ID_KEY: 'omnipad-parent-id-link',
 } as const;
 
+/**
+ * A safe alternative to the global 'Function' type.
+ * Represents any callable function with any arguments.
+ */
+export type AnyFunction = (...args: any[]) => void;
+
 // Export sub-modules
 export * from './configs';
 export * from './keys';
