@@ -105,12 +105,12 @@ export const dispatchPointerEventAtPos = (
   type: string,
   x: number,
   y: number,
-  opts: PointerEventInit = {},
+  opts: { button: number; buttons: number; pressure: number },
 ) => {
   const target = getDeepElement(x, y);
   if (!target) return;
 
-  const commonProps = {
+  const commonProps: PointerEventInit = {
     bubbles: true,
     cancelable: true,
     composed: true, // Crucial for piercing Shadow DOM boundaries

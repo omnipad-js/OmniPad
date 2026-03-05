@@ -31,6 +31,20 @@ export class TargetZoneCore
   private focusFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
   private throttledPointerMove: (e: PointerEvent) => void;
 
+  private delegates = {
+    dispatchKeyboardEvent: (
+      type: string,
+      payload: { key: string; code: string; keyCode: number },
+    ) => DOM.dispatchKeyboardEvent(type, payload as any),
+    dispatchPointerEventAtPos: (
+      type: string,
+      x: number,
+      y: number,
+      opts: { button: number; buttons: number; pressure: number },
+    ) => DOM.dispatchPointerEventAtPos(type, x, y, opts),
+    reclaimFocusAtPos: (x: number, y: number) => DOM.reclaimFocusAtPos(x, y),
+  };
+
   constructor(uid: string, config: TargetZoneConfig) {
     super(uid, CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
 
@@ -42,27 +56,19 @@ export class TargetZoneCore
   // --- IPointerHandler Implementation ---
 
   public get activePointerId(): number | null {
-    return -1;
+    return null;
   }
 
   public onPointerDown(e: PointerEvent): void {
-    if (e.cancelable) e.preventDefault();
-    e.stopPropagation();
-
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEDOWN);
   }
 
   public onPointerMove(e: PointerEvent): void {
-    if (e.cancelable) e.preventDefault();
-    e.stopPropagation();
-
     // Asynchronously execute throttle logic
     this.throttledPointerMove(e);
   }
 
   public onPointerUp(e: PointerEvent): void {
-    if (e.cancelable) e.preventDefault();
-
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEUP);
     // Physical clicks also require reissuing "click"
     this.processPhysicalEvent(e, ACTION_TYPES.CLICK);
@@ -105,7 +111,7 @@ export class TargetZoneCore
     switch (type) {
       case ACTION_TYPES.KEYDOWN:
       case ACTION_TYPES.KEYUP:
-        DOM.dispatchKeyboardEvent(type, payload as any);
+        this.delegates.dispatchKeyboardEvent(type, payload as any);
         break;
 
       case ACTION_TYPES.MOUSEMOVE:
@@ -160,9 +166,10 @@ export class TargetZoneCore
     const py = rect.top + percentToPx(target.y, rect.height);
 
     // 调用驱动层派发合成事件 / Call DOM driver to dispatch synthetic events
-    DOM.dispatchPointerEventAtPos(pointerType, px, py, {
+    this.delegates.dispatchPointerEventAtPos(pointerType, px, py, {
       button: payload.button ?? 0,
       buttons: this.state.isPointerDown ? 1 : 0,
+      pressure: this.state.isPointerDown ? 0.5 : 0,
     });
   }
 
@@ -179,13 +186,8 @@ export class TargetZoneCore
     const px = rect.left + percentToPx(this.state.position.x, rect.width);
     const py = rect.top + percentToPx(this.state.position.y, rect.height);
 
-    // 穿透 Shadow DOM 查找该位置最深层的元素 / Find deepest element including Shadow DOM
-    const target = DOM.getDeepElement(px, py) as HTMLElement;
-    if (!target) return;
-
-    // 若当前焦点不在该目标上，则强制夺回焦点 / If focus is lost, force focus back to target
-    if (DOM.getDeepActiveElement() !== target) {
-      DOM.focusElement(target);
+    // 发起焦点夺回请求 / Send request of focus reclaim
+    if (this.delegates.reclaimFocusAtPos(px, py)) {
       this.triggerFocusFeedback();
     }
   }
