@@ -1,10 +1,20 @@
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
-import { Registry, ICoreEntity, ISpatial } from '@omnipad/core';
+import {
+  Registry,
+  ICoreEntity,
+  ISpatial,
+  IPointerHandler,
+  createPointerBridge,
+} from '@omnipad/core';
 
-export function useCoreEntity<T extends ICoreEntity, S>(createCore: () => T) {
+export function useCoreEntity<T extends ICoreEntity, S>(
+  createCore: () => T,
+  domEventOptions: Record<string, any> = {},
+) {
   const core = shallowRef<T>();
   const state = ref<S>();
   const elementRef = ref<any>(null);
+  const domEvents = ref<Record<string, (e: PointerEvent) => any>>({});
 
   // 统一处理状态订阅
   const syncState = (newState: S) => {
@@ -41,6 +51,15 @@ export function useCoreEntity<T extends ICoreEntity, S>(createCore: () => T) {
     if (domEl && 'bindRectProvider' in instance) {
       (instance as unknown as ISpatial).bindRectProvider(() => domEl!.getBoundingClientRect());
     }
+
+    // 自动生成标准化 DOM 事件 (IPointerHandler 接口对接)
+    if ('onPointerDown' in instance) {
+      const bridge = createPointerBridge(
+        instance as unknown as IPointerHandler,
+        domEventOptions,
+      );
+      domEvents.value = { ...bridge };
+    }
   });
 
   onUnmounted(() => {
@@ -53,5 +72,6 @@ export function useCoreEntity<T extends ICoreEntity, S>(createCore: () => T) {
     core,
     state,
     elementRef,
+    domEvents,
   };
 }
