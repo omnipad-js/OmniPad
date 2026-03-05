@@ -1,4 +1,4 @@
-import { AbstractRect, AnyFunction, EntityType, InputActionSignal } from '.';
+import { AbstractPointerEvent, AbstractRect, AnyFunction, EntityType, InputActionSignal } from '.';
 
 /**
  * Trait: Provides identity with a unique ID and specific entity type.
@@ -85,10 +85,10 @@ export interface IResettable {
 export interface IPointerHandler {
   readonly activePointerId: number | null;
 
-  onPointerDown(e: PointerEvent): void;
-  onPointerMove(e: PointerEvent): void;
-  onPointerUp(e: PointerEvent): void;
-  onPointerCancel(e: PointerEvent): void;
+  onPointerDown(e: AbstractPointerEvent): void;
+  onPointerMove(e: AbstractPointerEvent): void;
+  onPointerUp(e: AbstractPointerEvent): void;
+  onPointerCancel(e: AbstractPointerEvent): void;
 }
 
 /**

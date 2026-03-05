@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
-import { CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES } from '../types';
 import { createRafThrottler } from '../utils/performance';
 import { GestureRecognizer } from '../utils/gesture';
 import { isVec2Equal } from '../utils';
@@ -34,7 +34,7 @@ export class TrackpadCore
   /** Stores the last processed client coordinates to calculate delta / 存储上次处理的客户端坐标以计算增量 */
   private lastPointerPos = { x: 0, y: 0 };
 
-  private throttledPointerMove: (e: PointerEvent) => void;
+  private throttledPointerMove: (e: AbstractPointerEvent) => void;
   private gesture: GestureRecognizer;
   private emitter: ActionEmitter;
 
@@ -53,7 +53,7 @@ export class TrackpadCore
 
     // Initialize throttler to align signal emission with screen refresh rate
     // 初始化节流器，使信号发送频率与屏幕刷新率对齐
-    this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
+    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
       this.processPointerMove(e);
     });
 
@@ -84,7 +84,7 @@ export class TrackpadCore
     return this.state.pointerId;
   }
 
-  public onPointerDown(e: PointerEvent): void {
+  public onPointerDown(e: AbstractPointerEvent): void {
     // Important: lastPointerPos must be updated immediately to prevent jump on first move
     // 关键：必须立即更新最后记录坐标，防止第一次移动时产生巨大的瞬间跳变
     this.lastPointerPos = { x: e.clientX, y: e.clientY };
@@ -93,9 +93,7 @@ export class TrackpadCore
     this.setState({ isActive: true, pointerId: e.pointerId });
   }
 
-  public onPointerMove(e: PointerEvent): void {
-    if (this.state.pointerId !== e.pointerId) return;
-
+  public onPointerMove(e: AbstractPointerEvent): void {
     // Gesture detection needs raw frequency for precision / 手势检测需要原始频率以保证精度
     this.gesture.onPointerMove(e.clientX, e.clientY);
 
@@ -109,7 +107,7 @@ export class TrackpadCore
    *
    * @param e - The pointer event.
    */
-  private processPointerMove(e: PointerEvent) {
+  private processPointerMove(e: AbstractPointerEvent) {
     // Calculate displacement since the last processed frame
     // 计算自上一帧处理以来的位移量
     const dx = e.clientX - this.lastPointerPos.x;
@@ -135,7 +133,7 @@ export class TrackpadCore
     this.lastPointerPos = { x: e.clientX, y: e.clientY };
   }
 
-  public onPointerUp(e: PointerEvent): void {
+  public onPointerUp(e: AbstractPointerEvent): void {
     // Resolve gesture results (Tap, DoubleTap, etc.) / 结算手势判定结果
     this.gesture.onPointerUp(e.clientX, e.clientY);
 

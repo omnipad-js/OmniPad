@@ -42,10 +42,10 @@ const dynamicWidgetRef = ref<any>(null);
 
 // 整合配置
 const { uid, config } = useWidgetConfig<InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props);
-const { core, state, elementRef, domEvents, bindDelegates } = useCoreEntity<InputZoneCore, InputZoneState>(
-  () => new InputZoneCore(uid.value, config.value),
-  { requireDirectHit: true },
-);
+const { core, state, elementRef, domEvents, bindDelegates } = useCoreEntity<
+  InputZoneCore,
+  InputZoneState
+>(() => new InputZoneCore(uid.value, config.value), { requireDirectHit: true });
 
 const fixedChildren = computed(() => {
   const targetUid = props.treeNode?.config?.dynamicWidgetId;

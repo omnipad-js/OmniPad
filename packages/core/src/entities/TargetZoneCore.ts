@@ -1,4 +1,11 @@
-import { ACTION_TYPES, InputActionSignal, Vec2, CMP_TYPES, AnyFunction } from '../types';
+import {
+  ACTION_TYPES,
+  InputActionSignal,
+  Vec2,
+  CMP_TYPES,
+  AnyFunction,
+  AbstractPointerEvent,
+} from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
 import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/traits';
@@ -38,7 +45,7 @@ export class TargetZoneCore
 {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
   private focusFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private throttledPointerMove: (e: PointerEvent) => void;
+  private throttledPointerMove: (e: AbstractPointerEvent) => void;
 
   private delegates: TargetZoneDelegates = {
     dispatchKeyboardEvent: () => {},
@@ -49,7 +56,7 @@ export class TargetZoneCore
   constructor(uid: string, config: TargetZoneConfig) {
     super(uid, CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
 
-    this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
+    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
       this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
     });
   }
@@ -70,29 +77,29 @@ export class TargetZoneCore
     return null;
   }
 
-  public onPointerDown(e: PointerEvent): void {
+  public onPointerDown(e: AbstractPointerEvent): void {
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEDOWN);
   }
 
-  public onPointerMove(e: PointerEvent): void {
+  public onPointerMove(e: AbstractPointerEvent): void {
     // Asynchronously execute throttle logic
     this.throttledPointerMove(e);
   }
 
-  public onPointerUp(e: PointerEvent): void {
+  public onPointerUp(e: AbstractPointerEvent): void {
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEUP);
     // Physical clicks also require reissuing "click"
     this.processPhysicalEvent(e, ACTION_TYPES.CLICK);
   }
 
-  public onPointerCancel(e: PointerEvent): void {
+  public onPointerCancel(e: AbstractPointerEvent): void {
     this.processPhysicalEvent(e, ACTION_TYPES.MOUSEUP);
   }
 
   /**
    * Convert physical DOM events into internal signals
    */
-  private processPhysicalEvent(e: PointerEvent, type: string) {
+  private processPhysicalEvent(e: AbstractPointerEvent, type: string) {
     const rect = this.rect;
     if (!rect) return;
 

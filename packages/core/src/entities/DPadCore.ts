@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler } from '../types/traits';
 import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
-import { CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES } from '../types';
 import { ActionEmitter } from '../utils/action';
 import { clamp } from '../utils/math';
 import { createRafThrottler } from '../utils/performance';
@@ -28,7 +28,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
     right: ActionEmitter;
   };
 
-  private throttledPointerMove: (e: PointerEvent) => void;
+  private throttledPointerMove: (e: AbstractPointerEvent) => void;
 
   constructor(uid: string, config: DPadConfig) {
     super(uid, CMP_TYPES.D_PAD, config, INITIAL_STATE);
@@ -42,7 +42,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
       right: new ActionEmitter(target, config.mapping?.right),
     };
 
-    this.throttledPointerMove = createRafThrottler<PointerEvent>((e) => {
+    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
       this.processInput(e);
     });
   }
@@ -53,12 +53,12 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
     return this.state.pointerId;
   }
 
-  public onPointerDown(e: PointerEvent): void {
+  public onPointerDown(e: AbstractPointerEvent): void {
     this.setState({ isActive: true, pointerId: e.pointerId });
     this.processInput(e);
   }
 
-  public onPointerMove(e: PointerEvent): void {
+  public onPointerMove(e: AbstractPointerEvent): void {
     this.throttledPointerMove(e);
   }
 
@@ -76,7 +76,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
    * Evaluates the touch position and updates the 4 emitters accordingly.
    * 使用轴向分割逻辑处理 8 方向输入
    */
-  private processInput(e: PointerEvent) {
+  private processInput(e: AbstractPointerEvent) {
     const rect = this.rect;
     if (!rect) return;
 

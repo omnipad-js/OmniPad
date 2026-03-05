@@ -2,14 +2,14 @@ import { BaseEntity } from './BaseEntity';
 import { IDependencyBindable, IPointerHandler } from '../types/traits';
 import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
-import { Vec2, CMP_TYPES, AnyFunction } from '../types';
+import { Vec2, CMP_TYPES, AnyFunction, AbstractPointerEvent } from '../types';
 import { pxToPercent } from '../utils/math';
 
 interface InputZoneDelegates {
-  dynamicWidgetPointerDown: (e: PointerEvent) => void;
-  dynamicWidgetPointerMove: (e: PointerEvent) => void;
-  dynamicWidgetPointerUp: (e: PointerEvent) => void;
-  dynamicWidgetPointerCancel: (e: PointerEvent) => void;
+  dynamicWidgetPointerDown: (e: AbstractPointerEvent) => void;
+  dynamicWidgetPointerMove: (e: AbstractPointerEvent) => void;
+  dynamicWidgetPointerUp: (e: AbstractPointerEvent) => void;
+  dynamicWidgetPointerCancel: (e: AbstractPointerEvent) => void;
 }
 
 const INITIAL_STATE: InputZoneState = {
@@ -55,7 +55,7 @@ export class InputZoneCore
     return this.state.dynamicPointerId;
   }
 
-  public onPointerDown(e: PointerEvent): void {
+  public onPointerDown(e: AbstractPointerEvent): void {
     // 如果已经有一个在运行了，则不处理 / Ignore if a dynamic widget is already active
     if (this.state.isDynamicActive) return;
 
@@ -73,7 +73,7 @@ export class InputZoneCore
     this.delegates.dynamicWidgetPointerDown(e);
   }
 
-  public onPointerMove(e: PointerEvent): void {
+  public onPointerMove(e: AbstractPointerEvent): void {
     // 仅处理属于当前动态控件的指针移动 / Only handle move events for the current active pointer
     if (!this.state.isDynamicActive) return;
 
@@ -81,37 +81,17 @@ export class InputZoneCore
     this.delegates.dynamicWidgetPointerMove(e);
   }
 
-  public onPointerUp(e: PointerEvent): void {
+  public onPointerUp(e: AbstractPointerEvent): void {
     // 在释放之前先运行动态控件抬起事件 / Run the dynamic control pointerup event
     this.delegates.dynamicWidgetPointerUp(e);
 
-    this.handleRelease(e);
+    this.reset();
   }
 
-  public onPointerCancel(e: PointerEvent): void {
+  public onPointerCancel(e: AbstractPointerEvent): void {
     this.delegates.dynamicWidgetPointerCancel(e);
 
-    this.handleRelease(e);
-  }
-
-  /**
-   * Internal helper to handle pointer release and cleanup.
-   */
-  private handleRelease(e: PointerEvent) {
-    if (e.pointerId === this.state.dynamicPointerId) {
-      // 释放指针捕获 / Release pointer capture
-      try {
-        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch (err) {
-        // Ignore errors if capture was already lost
-      }
-
-      // 重置动态控件状态 / Reset dynamic widget state
-      this.setState({
-        isDynamicActive: false,
-        dynamicPointerId: null,
-      });
-    }
+    this.reset();
   }
 
   // --- Helper Calculations ---

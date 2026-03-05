@@ -3,7 +3,7 @@ import { ButtonState } from '../types/state';
 import { IPointerHandler } from '../types/traits';
 import { BaseEntity } from './BaseEntity';
 import { ActionEmitter } from '../utils/action';
-import { CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES } from '../types';
 
 const INITIAL_STATE: ButtonState = {
   isActive: false,
@@ -38,7 +38,7 @@ export class ButtonCore extends BaseEntity<ButtonConfig, ButtonState> implements
     return this.state.pointerId;
   }
 
-  public onPointerDown(e: PointerEvent): void {
+  public onPointerDown(e: AbstractPointerEvent): void {
     // 更新内部交互状态 / Update internal interaction state
     this.setState({ isActive: true, isPressed: true, pointerId: e.pointerId });
 
