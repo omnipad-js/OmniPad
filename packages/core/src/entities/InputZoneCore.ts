@@ -1,9 +1,16 @@
 import { BaseEntity } from './BaseEntity';
-import { IPointerHandler } from '../types/traits';
+import { IDependencyBindable, IPointerHandler } from '../types/traits';
 import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
-import { Vec2, CMP_TYPES } from '../types';
+import { Vec2, CMP_TYPES, AnyFunction } from '../types';
 import { pxToPercent } from '../utils/math';
+
+interface InputZoneDelegates {
+  dynamicWidgetPointerDown: (e: PointerEvent) => void;
+  dynamicWidgetPointerMove: (e: PointerEvent) => void;
+  dynamicWidgetPointerUp: (e: PointerEvent) => void;
+  dynamicWidgetPointerCancel: (e: PointerEvent) => void;
+}
 
 const INITIAL_STATE: InputZoneState = {
   isDynamicActive: false,
@@ -19,57 +26,71 @@ const INITIAL_STATE: InputZoneState = {
  */
 export class InputZoneCore
   extends BaseEntity<InputZoneConfig, InputZoneState>
-  implements IPointerHandler
+  implements IPointerHandler, IDependencyBindable
 {
+  private delegates: InputZoneDelegates = {
+    dynamicWidgetPointerDown: () => {},
+    dynamicWidgetPointerMove: () => {},
+    dynamicWidgetPointerUp: () => {},
+    dynamicWidgetPointerCancel: () => {},
+  };
+
   constructor(uid: string, config: InputZoneConfig) {
     super(uid, CMP_TYPES.INPUT_ZONE, config, INITIAL_STATE);
   }
+
+  // --- IDependencyBindable Implementation ---
+
+  public bindDelegate(key: string, delegate: AnyFunction): void {
+    if (Object.prototype.hasOwnProperty.call(this.delegates, key)) {
+      (this.delegates as any)[key] = delegate;
+    } else if (import.meta.env?.DEV) {
+      console.warn(`[Omnipad-Core] TargetZone attempted to bind unknown delegate: ${key}`);
+    }
+  }
+
+  // --- IPointerHandler Implementation ---
 
   public get activePointerId(): number | null {
     return this.state.dynamicPointerId;
   }
 
   public onPointerDown(e: PointerEvent): void {
-    // 1. 如果已经有一个在运行了，则不处理 / Ignore if a dynamic widget is already active
+    // 如果已经有一个在运行了，则不处理 / Ignore if a dynamic widget is already active
     if (this.state.isDynamicActive) return;
 
-    // 2. 关键判断：是否点在空白处？ / Logic: verify if the background was hit instead of a child widget
-    // 逻辑：如果 e.target === e.currentTarget，说明没点中子控件（Button），点在背景上了
-    if (e.target !== e.currentTarget) return;
-
-    if (e.cancelable) e.preventDefault();
-
-    e.stopPropagation();
-
-    // 3. 计算相对于本分区的百分比坐标 / Calculate percentage coordinates relative to this zone
+    // 计算相对于本分区的百分比坐标 / Calculate percentage coordinates relative to this zone
     const pos = this.calculateRelativePosition(e.clientX, e.clientY);
 
-    // 4. 锁定该指针到本分区（直到抬起） / Lock the pointer to this zone until released
-    // 此处通常由适配层执行 setPointerCapture 以确保事件流连贯
-    // (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-
-    // 5. 激活动态控件状态 / Activate the dynamic widget state
+    // 激活动态控件状态 / Activate the dynamic widget state
     this.setState({
       isDynamicActive: true,
       dynamicPointerId: e.pointerId,
       dynamicPosition: pos,
     });
+
+    // 更新状态后运行动态控件按下事件 / Run the dynamic control pointerdown event after updating the state
+    this.delegates.dynamicWidgetPointerDown(e);
   }
 
   public onPointerMove(e: PointerEvent): void {
     // 仅处理属于当前动态控件的指针移动 / Only handle move events for the current active pointer
-    if (!this.state.isDynamicActive || e.pointerId !== this.state.dynamicPointerId) return;
+    if (!this.state.isDynamicActive) return;
 
-    // 这里 InputZone 只需要保持 Capture 即可，具体逻辑由动态组件处理
-    // InputZone only maintains the capture; specific logic is handled by the dynamic widget
+    // 运行动态控件移动事件 / Run the dynamic control pointermove event
+    this.delegates.dynamicWidgetPointerMove(e);
   }
 
   public onPointerUp(e: PointerEvent): void {
-    if (e.cancelable) e.preventDefault();
+    // 在释放之前先运行动态控件抬起事件 / Run the dynamic control pointerup event
+    this.delegates.dynamicWidgetPointerUp(e);
+
     this.handleRelease(e);
   }
 
   public onPointerCancel(e: PointerEvent): void {
+    this.delegates.dynamicWidgetPointerCancel(e);
+
     this.handleRelease(e);
   }
 

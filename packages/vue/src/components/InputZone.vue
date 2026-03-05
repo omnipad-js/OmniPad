@@ -42,8 +42,9 @@ const dynamicWidgetRef = ref<any>(null);
 
 // 整合配置
 const { uid, config } = useWidgetConfig<InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props);
-const { core, state, elementRef } = useCoreEntity<InputZoneCore, InputZoneState>(
+const { core, state, elementRef, domEvents, bindDelegates } = useCoreEntity<InputZoneCore, InputZoneState>(
   () => new InputZoneCore(uid.value, config.value),
+  { requireDirectHit: true },
 );
 
 const fixedChildren = computed(() => {
@@ -98,6 +99,13 @@ watch(
         core.value?.updateConfig({
           dynamicWidgetId: newWidgetInstance.uid,
         });
+        // 将动态组件的事件绑定到输入分区
+        bindDelegates({
+          dynamicWidgetPointerDown: newWidgetInstance.onPointerDown,
+          dynamicWidgetPointerMove: newWidgetInstance.onPointerMove,
+          dynamicWidgetPointerUp: newWidgetInstance.onPointerUp,
+          dynamicWidgetPointerCancel: newWidgetInstance.onPointerCancel,
+        });
       }
     });
   },
@@ -133,56 +141,10 @@ const dynamicWrapperStyle = computed(() => {
   };
 });
 
-// 事件下发
-const onPointerDown = (e: PointerEvent) => {
-  if (!core.value) return;
-  core.value.onPointerDown(e);
-
-  if (state.value?.isDynamicActive && dynamicWidgetRef.value) {
-    // 触发动态控件暴露的接口
-    if (typeof dynamicWidgetRef.value.onPointerDown === 'function') {
-      dynamicWidgetRef.value.onPointerDown(e);
-    }
-  }
-};
-
-const onPointerMove = (e: PointerEvent) => {
-  if (!core.value) return;
-  core.value.onPointerMove(e);
-
-  if (state.value?.isDynamicActive && dynamicWidgetRef.value) {
-    // 触发动态控件暴露的接口
-    if (typeof dynamicWidgetRef.value.onPointerMove === 'function') {
-      dynamicWidgetRef.value.onPointerMove(e);
-    }
-  }
-};
-
-const onPointerUp = (e: PointerEvent) => {
-  // 如果先执行输入分区的抬起事件，动态控件会被禁用，从而无法执行动态控件的抬起事件
-  if (state.value?.isDynamicActive && dynamicWidgetRef.value) {
-    // 触发动态控件暴露的接口
-    if (typeof dynamicWidgetRef.value.onPointerUp === 'function') {
-      dynamicWidgetRef.value.onPointerUp(e);
-    }
-  }
-
-  if (!core.value) return;
-  core.value.onPointerUp(e);
-};
-
-const onPointerCancel = (e: PointerEvent) => {
-  // 如果先执行输入分区的抬起事件，动态控件会被禁用，从而无法执行动态控件的抬起事件
-  if (state.value?.isDynamicActive && dynamicWidgetRef.value) {
-    // 触发动态控件暴露的接口
-    if (typeof dynamicWidgetRef.value.onPointerCancel === 'function') {
-      dynamicWidgetRef.value.onPointerCancel(e);
-    }
-  }
-
-  if (!core.value) return;
-  core.value.onPointerCancel(e);
-};
+const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);
+const onPointerMove = (e: PointerEvent) => domEvents.value?.onPointerMove(e);
+const onPointerUp = (e: PointerEvent) => domEvents.value?.onPointerUp(e);
+const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e);
 </script>
 
 <template>
