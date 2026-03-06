@@ -198,7 +198,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
 
 <style scoped>
 .omnipad-input-zone {
-  position: absolute;
+  position: relative;
   pointer-events: none;
 
   /* for Container Queries */

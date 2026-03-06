@@ -145,6 +145,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
 
 <style scoped>
 .omnipad-target-zone {
+  position: relative;
   pointer-events: auto;
   overflow: hidden;
 
