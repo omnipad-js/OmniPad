@@ -43,6 +43,7 @@ const { state, elementRef, domEvents } = useCoreEntity<ButtonCore, ButtonState>(
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);
+const onPointerMove = (e: PointerEvent) => domEvents.value?.onPointerMove(e);
 const onPointerUp = (e: PointerEvent) => domEvents.value?.onPointerUp(e);
 const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e);
 
@@ -50,6 +51,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
 defineExpose({
   uid,
   onPointerDown,
+  onPointerMove,
   onPointerUp,
   onPointerCancel,
 });

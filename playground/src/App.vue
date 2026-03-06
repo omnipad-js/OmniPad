@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { RootLayer, VirtualButton } from '@omnipad/vue';
+import { ref, onMounted, computed } from 'vue';
+import RufflePlayer from './components/RufflePlayer.vue';
+import ConfigConsole from './components/ConfigConsole.vue';
+import { InputZone } from '@omnipad/vue';
 import {
-  exportProfile,
-  InputManager,
   parseProfileJson,
   parseProfileTrees,
+  exportProfile,
+  InputManager,
   Registry,
-  OmniPad,
 } from '@omnipad/core';
-import ConfigConsole from './components/ConfigConsole.vue';
-import RufflePlayer from './components/RufflePlayer.vue';
 
 const jsonText = ref('{}'); // 文本框内容
-const treeRoot = ref<any>(null); // 当前运行时的树根
+const forest = ref<any>(null); // 当前运行时的树根
+const loadCount = ref(0); // 加载计数器，配合 vue 的 key 实现强制重载
 const showConfig = ref(false);
 
 const currentSwf = ref<string | null>(null);
@@ -36,7 +36,8 @@ const loadConfig = () => {
     const raw = JSON.parse(jsonText.value);
     const safeProfile = parseProfileJson(raw);
 
-    treeRoot.value = parseProfileTrees(safeProfile)['$managed-root'];
+    forest.value = parseProfileTrees(safeProfile);
+    loadCount.value++;
     console.log(
       '[Playground] Config Loaded into TreeNode.',
       Registry.getInstance().getAllEntities().length,
@@ -45,14 +46,12 @@ const loadConfig = () => {
     alert('读取失败: ' + e.message);
   }
 };
-
-// --- 动作 2: 保存 ---
+// --- 导出逻辑：同时指定多个根 ---
 const saveConfig = () => {
-  // 从 Registry 中抓取所有实体，并将它们序列化
-  // 传入 treeRoot.value.uid 确保我们知道谁是根
+  const rootIds = ['$left-pad', '$right-pad'];
   const exported = exportProfile(
-    { name: 'Exported Profile', version: '1.0', author: 'Playground' },
-    ['$managed-root'],
+    { name: 'Flex Export', version: '1.0' },
+    rootIds.map((id) => forest.value[id]?.uid).filter(Boolean),
   );
 
   // 回填到文本框
@@ -60,7 +59,7 @@ const saveConfig = () => {
   console.log('[Playground] Profile Serialized from Registry.');
 };
 
-import demoRaw from './profiles/platformer.json';
+import demoRaw from './profiles/multiroot.json';
 onMounted(() => {
   InputManager.getInstance().init();
   jsonText.value = JSON.stringify(demoRaw, null, 2);
@@ -70,6 +69,14 @@ onMounted(() => {
 const toggleFullscreen = () => {
   InputManager.getInstance().toggleFullscreen();
 };
+
+const renderLeftPad = computed(() => {
+  return forest.value ? forest.value['$left-pad'] : {};
+});
+
+const renderRightPad = computed(() => {
+  return forest.value ? forest.value['$right-pad'] : {};
+});
 </script>
 
 <template>
@@ -84,34 +91,40 @@ const toggleFullscreen = () => {
         <button class="upload-btn" @pointerdown="toggleFullscreen">Fullscreen</button>
       </div>
     </header>
+    <!-- 主交互区域：这是 Flex 布局的战场 -->
+    <main class="game-flex-container">
+      <!-- [左侧/下方左半] 输入分区 -->
+      <section class="flex-item side-panel left">
+        <InputZone
+          v-if="renderLeftPad"
+          widget-id="$left-pad"
+          :tree-node="renderLeftPad"
+          :key="`left-${loadCount}`"
+        />
+      </section>
 
-    <!-- 主显示区 -->
-    <main class="viewport">
-      <RufflePlayer
-        :swf-url="currentSwf"
-        widget-id="$ruffle-player"
-        cursor-enabled
-        :cursor-auto-delay="3000"
-      />
+      <!-- [中间/上方全宽] 游戏核心区 -->
+      <section class="flex-item-two main-stage">
+        <RufflePlayer
+          :swf-url="currentSwf"
+          widget-id="$ruffle-player"
+          cursor-enabled
+          :cursor-auto-delay="3000"
+        />
+      </section>
+
+      <!-- [右侧/下方右半] 输入分区 -->
+      <section class="flex-item side-panel right">
+        <InputZone
+          v-if="renderRightPad"
+          widget-id="$right-pad"
+          :tree-node="renderRightPad"
+          :key="`right-${loadCount}`"
+        />
+      </section>
     </main>
 
-    <div class="main-root-layer">
-      <RootLayer widget-id="$managed-root" :tree-node="treeRoot" />
-      <!-- <RootLayer widget-id="$managed-root">
-        <VirtualButton
-          label="UP"
-          target-stage-id="$ruffle-player"
-          :mapping="{
-            type: 'keyboard',
-            button: 0,
-            fixedPoint: { x: 90, y: 10 },
-            ...OmniPad.Keys.ArrowUp,
-          }"
-          :layout="{ left: '30%', top: '70%', width: '80px', height: '80px', anchor: 'center' }"
-        ></VirtualButton>
-      </RootLayer> -->
-    </div>
-
+    <!-- 底部控制台 -->
     <ConfigConsole
       v-model="jsonText"
       v-show="showConfig"
@@ -142,17 +155,6 @@ body,
   width: 100vw;
 }
 
-.main-root-layer {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
-
-.main-root-layer > .omnipad-root-layer {
-  height: 100%;
-  width: 100%;
-}
-
 .toolbar {
   height: 50px;
   background: #222;
@@ -174,12 +176,6 @@ body,
   margin-right: 10px;
 }
 
-.viewport {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
 .console {
   height: 30px;
   background: #000;
@@ -189,5 +185,77 @@ body,
   align-items: center;
   padding: 0 10px;
   color: #0f0;
+}
+
+.game-flex-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+.flex-item {
+  position: relative; /* 必须为 relative，让内部组件的 LayoutBox 生效 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================
+   横屏模式：左 | 中 | 右 (1:1:1)
+   ========================================= */
+@media (orientation: landscape) {
+  .game-flex-container {
+    flex-direction: row;
+  }
+  .flex-item {
+    flex: 1;
+  }
+  .flex-item-two {
+    flex: 2;
+  }
+}
+
+/* =========================================
+   竖屏模式：
+   上 (Stage)
+   下 (Left | Right)
+   ========================================= */
+@media (orientation: portrait) {
+  .game-flex-container {
+    flex-direction: column;
+    height: 50vh;
+  }
+
+  .main-stage {
+    flex: 1; /* 占据上半部分 */
+    width: 100%;
+  }
+
+  /* 下半部分需要并排显示左右两个分区 */
+  .side-panel {
+    position: absolute;
+    bottom: 0;
+    height: 50%; /* 占据下半部分 */
+    width: 50%;
+  }
+
+  .side-panel.left {
+    left: 0;
+  }
+  .side-panel.right {
+    right: 0;
+  }
+}
+
+/* 调试：给分区加个暗色，方便识别范围 */
+.side-panel {
+  background: rgba(255, 255, 255, 0.02);
+  z-index: 100;
+}
+.main-stage {
+  background: #000;
 }
 </style>

@@ -96,9 +96,8 @@ onMounted(() => {
 }
 
 .ruffle-container {
-  /* 模拟典型的 Flash 游戏比例 */
-  width: 550px;
-  height: 400px;
+  width: 100%;
+  height: 100%;
   background: #000;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   position: relative;

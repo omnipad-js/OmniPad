@@ -4,29 +4,34 @@
     "version": "1.0",
     "author": "Playground"
   },
-  "rootId": "$managed-root",
   "items": [
     {
-      "id": "$managed-root",
-      "type": "root-layer",
+      "id": "$right-pad",
+      "type": "input-zone",
       "config": {
-        "layout": {}
+        "layout": {
+          "left": 0,
+          "top": 0,
+          "width": "100%",
+          "height": "100%"
+        },
+        "baseType": "input-zone"
       }
     },
     {
       "id": "node_1",
       "type": "trackpad",
-      "parentId": "$managed-root",
+      "parentId": "$right-pad",
       "config": {
         "label": "TRACKPAD",
         "sensitivity": 1,
         "targetStageId": "$ruffle-player",
         "layout": {
-          "left": "80%",
-          "top": "80%",
-          "width": "200px",
-          "height": "200px",
-          "anchor": "center"
+          "left": 0,
+          "top": 0,
+          "width": "100%",
+          "height": "100%",
+          "anchor": "top-left"
         }
       }
     }
