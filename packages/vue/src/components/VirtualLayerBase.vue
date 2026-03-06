@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import { ConfigTreeNode } from '@omnipad/core';
 import { getComponent } from '../utils/componentRegistry';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
   nodes: ConfigTreeNode[];
 }>();
+
+const renderNodes = computed(() => {
+  return (props.nodes || []).map((node) => {
+    const component = getComponent(node.config?.baseType || node.type);
+
+    return {
+      node,
+      component,
+    };
+  });
+});
 </script>
 
 <template>
   <div class="omnipad-virtual-layer-base omnipad-prevent">
     <component
-      v-for="node in nodes || []"
-      :key="node.uid"
-      :is="getComponent(node.type)"
-      :tree-node="node"
+      v-for="item in renderNodes"
+      :key="item.node.uid"
+      :is="item.component"
+      :tree-node="item.node"
     />
 
     <slot />

@@ -40,7 +40,7 @@ export interface BaseConfig {
    */
   id?: string;
   /** The unique type identifier for the component. */
-  type: string;
+  baseType: string;
   /** CID of the parent component. Root components have no parentId. */
   parentId?: string;
   /** Spatial layout settings. */
@@ -51,7 +51,7 @@ export interface BaseConfig {
  * Configuration for a virtual keyboard/mouse button.
  */
 export interface ButtonConfig extends BaseConfig {
-  type: typeof CMP_TYPES.BUTTON;
+  baseType: typeof CMP_TYPES.BUTTON;
   /** Visual text displayed on the button. */
   label: string;
   /** CID of the TargetZone where signals should be dispatched. */
@@ -64,7 +64,7 @@ export interface ButtonConfig extends BaseConfig {
  * Configuration for a virtual trackpad.
  */
 export interface TrackpadConfig extends BaseConfig {
-  type: typeof CMP_TYPES.TRACKPAD;
+  baseType: typeof CMP_TYPES.TRACKPAD;
   /** Label displayed on the trackpad */
   label: string;
   /** Simulation sensitivity, e.g. 0.5 - 2.0 */
@@ -79,7 +79,7 @@ export interface TrackpadConfig extends BaseConfig {
  * Configuration for a virtual d-pad.
  */
 export interface DPadConfig extends BaseConfig {
-  type: typeof CMP_TYPES.D_PAD;
+  baseType: typeof CMP_TYPES.D_PAD;
   /** CID of the target Stage to receive clicks */
   targetStageId?: string;
   /** Defines the specific actions or key signals emitted for each cardinal direction. */
@@ -104,7 +104,7 @@ export interface DPadConfig extends BaseConfig {
  * Input Zones act as containers and can handle dynamic (floating) widgets.
  */
 export interface InputZoneConfig extends BaseConfig {
-  type: typeof CMP_TYPES.INPUT_ZONE;
+  baseType: typeof CMP_TYPES.INPUT_ZONE;
   /** If true, attempts to regain focus for the target stage when touched. */
   preventFocusLoss?: boolean;
   /**
@@ -118,7 +118,7 @@ export interface InputZoneConfig extends BaseConfig {
  * Acts as the bridge between virtual signals and the actual game/app DOM.
  */
 export interface TargetZoneConfig extends BaseConfig {
-  type: typeof CMP_TYPES.TARGET_ZONE;
+  baseType: typeof CMP_TYPES.TARGET_ZONE;
   /** Whether to render a visual virtual cursor. */
   cursorEnabled?: boolean;
   /** Time in milliseconds before the cursor auto-hides after inactivity. 0 to disable. */

@@ -171,7 +171,7 @@ export function exportProfile(meta: GamepadProfile['meta'], rootUid: string): Ga
     }
 
     // 剔除运行时元数据，仅保留业务配置
-    const { id, type, parentId, ...cleanConfig } = processedConfig;
+    const { id, parentId, ...cleanConfig } = processedConfig;
 
     return {
       id: getNewCid(currentEid),

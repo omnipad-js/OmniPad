@@ -16,9 +16,13 @@ export function useWidgetConfig<T extends BaseConfig>(
   const rawTreeNode = props.treeNode as ConfigTreeNode | undefined;
 
   // 如果类型不匹配，treeNode 被视为 undefined，从而忽略该配置
-  const treeNode = rawTreeNode && rawTreeNode.type === requiredType ? rawTreeNode : undefined;
+  const treeNode =
+    (rawTreeNode && rawTreeNode.config?.baseType === requiredType) ||
+    rawTreeNode?.type === requiredType
+      ? rawTreeNode
+      : undefined;
 
-  if (rawTreeNode && rawTreeNode.type !== requiredType) {
+  if (rawTreeNode && !treeNode) {
     console.warn(
       `[OmniPad-Validation] Type mismatch! Component expected "${requiredType}", but received "${rawTreeNode.type}". Config ignored.`,
     );
@@ -52,7 +56,7 @@ export function useWidgetConfig<T extends BaseConfig>(
       ...fromConfig,
       ...fromProps,
       id: uid.value,
-      type: requiredType,
+      baseType: requiredType,
       parentId: parentId.value,
       // 特殊处理 Layout：深度合并，确保即便只传了 { width: 100 } 也不丢失原来的 left/top
       layout: {

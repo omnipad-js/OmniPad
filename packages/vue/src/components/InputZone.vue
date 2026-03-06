@@ -89,6 +89,12 @@ const dynamicControlInfo = computed(() => {
   };
 });
 
+// --- 根据 Config 渲染的组件 ---
+const renderDynamicWidget = computed(() => {
+  const node = dynamicControlInfo.value.nodeToRender as ConfigTreeNode;
+  return getComponent(node.config?.baseType || node.type);
+});
+
 // --- 同步动态组件 ID 给 Core ---
 watch(
   dynamicWidgetRef,
@@ -186,7 +192,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
         <!-- 情况 B: 根据 Config 渲染 -->
         <template v-else-if="dynamicControlInfo.nodeToRender">
           <component
-            :is="getComponent((dynamicControlInfo.nodeToRender as ConfigTreeNode).type)"
+            :is="renderDynamicWidget"
             :ref="(el: any) => (dynamicWidgetRef = el)"
             :tree-node="dynamicControlInfo.nodeToRender"
           />
