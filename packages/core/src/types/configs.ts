@@ -161,8 +161,6 @@ export interface GamepadProfile {
     version: string;
     author?: string;
   };
-  /** The CID of the entry-point component (usually a root layer or zone, or widget for individual widget config). */
-  rootId: string;
   /** List of all components in the profile. Hierarchies are defined via parentId. */
   items: FlatConfigItem[];
 }

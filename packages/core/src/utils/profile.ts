@@ -17,10 +17,6 @@ export function parseProfileJson(raw: any): GamepadProfile {
     throw new Error('[OmniPad-Validation] Profile must be a valid JSON object.');
   }
 
-  if (!raw.rootId) {
-    throw new Error('[OmniPad-Validation] Missing "rootId" in profile.');
-  }
-
   if (!Array.isArray(raw.items)) {
     throw new Error('[OmniPad-Validation] "items" must be an array.');
   }
@@ -50,20 +46,19 @@ export function parseProfileJson(raw: any): GamepadProfile {
 
   return {
     meta,
-    rootId: String(raw.rootId),
     items,
   };
 }
 
 /**
- * Converts a flat GamepadProfile into a hierarchical ConfigTreeNode tree for runtime rendering.
- * Handles CID (Config ID) to UID (Entity ID) mapping and reference resolution.
+ * Converts a flat GamepadProfile into a forest of ConfigTreeNodes for runtime rendering.
+ * Automatically identifies all items without a parentId as root nodes.
  *
  * @param profile - The normalized profile data.
- * @returns The root node of the configuration tree.
+ * @returns A record map of root nodes, keyed by their original configuration ID.
  */
-export function parseProfileTree(profile: GamepadProfile): ConfigTreeNode {
-  const { items, rootId } = profile;
+export function parseProfileTrees(profile: GamepadProfile): Record<string, ConfigTreeNode> {
+  const { items } = profile;
 
   // 1. 建立 CID -> UID 的映射表
   // 保证在此次解析周期内，同一个 CID 永远映射到同一个 UID，处理 ID 引用关系
@@ -71,9 +66,7 @@ export function parseProfileTree(profile: GamepadProfile): ConfigTreeNode {
 
   const getUid = (cid: string, type: string = 'node'): string => {
     if (isGlobalID(cid)) return cid;
-    if (!cidToUidMap.has(cid)) {
-      cidToUidMap.set(cid, generateUID(type));
-    }
+    if (!cidToUidMap.has(cid)) cidToUidMap.set(cid, generateUID(type));
     return cidToUidMap.get(cid)!;
   };
 
@@ -84,17 +77,25 @@ export function parseProfileTree(profile: GamepadProfile): ConfigTreeNode {
   // 3. 建立父子关系索引表
   // 优化搜索性能，将 O(n^2) 的树构建转为 O(n)
   const childrenMap = new Map<string, FlatConfigItem[]>();
+  // 收集没有 parentId 的节点作为根节点
+  const rootItems: FlatConfigItem[] = [];
+
   items.forEach((item) => {
     if (item.parentId) {
-      if (!childrenMap.has(item.parentId)) {
-        childrenMap.set(item.parentId, []);
-      }
+      if (!childrenMap.has(item.parentId)) childrenMap.set(item.parentId, []);
       childrenMap.get(item.parentId)!.push(item);
+    } else {
+      rootItems.push(item);
     }
   });
 
-  // 4. 递归构建函数
-  const buildNode = (item: FlatConfigItem): ConfigTreeNode => {
+  // 4. 递归构建函数，包含循环引用保护
+  const buildNode = (item: FlatConfigItem, visitedCids: Set<string>): ConfigTreeNode => {
+    if (visitedCids.has(item.id)) {
+      throw new Error(`[Omnipad-Core] Circular dependency detected at node: ${item.id}`);
+    }
+    visitedCids.add(item.id);
+
     // 获取扁平业务配置。注意：此处不直接修改原 item.config 以保持纯净性
     const runtimeConfig = { ...item.config } as AnyConfig;
 
@@ -110,7 +111,8 @@ export function parseProfileTree(profile: GamepadProfile): ConfigTreeNode {
 
     // 查找并递归构建子节点树
     const rawChildren = childrenMap.get(item.id) || [];
-    const children = rawChildren.map((child) => buildNode(child));
+    // 递归子节点时，传递当前的 visited 集合的副本
+    const children = rawChildren.map((child) => buildNode(child, new Set(visitedCids)));
 
     return {
       uid: getUid(item.id),
@@ -120,27 +122,39 @@ export function parseProfileTree(profile: GamepadProfile): ConfigTreeNode {
     };
   };
 
-  // 5. 找到根节点并开始从顶向下构建
-  const rootItem = items.find((i) => i.id === rootId);
-  if (!rootItem) {
-    throw new Error(`[OmniPad-Core] Root item with ID "${rootId}" not found in profile.`);
-  }
+  // 5. 生成森林 (Forest of root nodes)
+  const roots: Record<string, ConfigTreeNode> = {};
+  rootItems.forEach((rootItem) => {
+    roots[rootItem.id] = buildNode(rootItem, new Set());
+  });
 
-  return buildNode(rootItem);
+  return roots;
 }
 
 /**
- * Serializes the current runtime entities from the Registry back into a flat GamepadProfile.
- * Generates fresh Config IDs (CIDs) for all nodes except global IDs.
+ * Serializes the specified runtime entities into a flat GamepadProfile.
+ * If no rootUids are provided, exports all entities currently in the registry.
  *
  * @param meta - Metadata for the exported profile.
  * @param rootUid - The Entity ID of the node to be treated as the root.
  * @returns A flat GamepadProfile ready for storage.
  */
-export function exportProfile(meta: GamepadProfile['meta'], rootUid: string): GamepadProfile {
+export function exportProfile(meta: GamepadProfile['meta'], rootUids?: string[]): GamepadProfile {
   const registry = Registry.getInstance();
-  // 仅获取属于指定 rootUid 下的子树实体 (BFS 逻辑)
-  const allEntities = registry.getEntitiesByRoot(rootUid) as BaseEntity<any, any>[];
+  let targetEntities: BaseEntity<any, any>[] = [];
+
+  if (!rootUids || rootUids.length === 0) {
+    // 没指定根，导出注册表里所有的玩意儿
+    targetEntities = registry.getAllEntities() as BaseEntity<any, any>[];
+  } else {
+    // 根据多个根 UID 分别抓取，然后去重合并
+    const entitySet = new Set<BaseEntity<any, any>>();
+    rootUids.forEach((uid) => {
+      const subtree = registry.getEntitiesByRoot(uid) as BaseEntity<any, any>[];
+      subtree.forEach((e) => entitySet.add(e));
+    });
+    targetEntities = Array.from(entitySet);
+  }
 
   // 1. 建立 EID -> 新 CID 的映射表
   // 规则：如果是 $ 开头的全局 ID 保持不变，否则生成简短的 cid_xxxx 以减小配置体积
@@ -157,7 +171,7 @@ export function exportProfile(meta: GamepadProfile['meta'], rootUid: string): Ga
 
   // 2. 扫描并转换
   // 遍历所有获取到的实体，通过其内部的 getConfig 方法还原最新状态
-  const items: FlatConfigItem[] = allEntities.map((entity) => {
+  const items: FlatConfigItem[] = targetEntities.map((entity) => {
     const config = entity.getConfig();
     const currentEid = entity.uid;
 
@@ -184,7 +198,6 @@ export function exportProfile(meta: GamepadProfile['meta'], rootUid: string): Ga
 
   return {
     meta,
-    rootId: getNewCid(rootUid),
     items,
   };
 }

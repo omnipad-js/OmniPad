@@ -28,7 +28,7 @@ interface VirtualDPadProps {
 
   /**
    * Mapping definitions for the 4 cardinal directions.
-   * Each direction requires a standard KeyMapping object.
+   * Each direction requires a standard ActionMapping object.
    */
   mapping?: DPadConfig['mapping'];
 

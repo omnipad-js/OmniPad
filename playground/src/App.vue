@@ -5,7 +5,7 @@ import {
   exportProfile,
   InputManager,
   parseProfileJson,
-  parseProfileTree,
+  parseProfileTrees,
   Registry,
   OmniPad,
 } from '@omnipad/core';
@@ -35,8 +35,8 @@ const loadConfig = () => {
   try {
     const raw = JSON.parse(jsonText.value);
     const safeProfile = parseProfileJson(raw);
-    // 生成新的树，这会导致 VirtualLayerBase 重新卸载并挂载所有组件
-    treeRoot.value = parseProfileTree(safeProfile);
+
+    treeRoot.value = parseProfileTrees(safeProfile)['$managed-root'];
     console.log(
       '[Playground] Config Loaded into TreeNode.',
       Registry.getInstance().getAllEntities().length,
@@ -52,7 +52,7 @@ const saveConfig = () => {
   // 传入 treeRoot.value.uid 确保我们知道谁是根
   const exported = exportProfile(
     { name: 'Exported Profile', version: '1.0', author: 'Playground' },
-    '$managed-root',
+    ['$managed-root'],
   );
 
   // 回填到文本框
