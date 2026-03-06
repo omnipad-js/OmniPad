@@ -20,11 +20,11 @@
     },
     {
       "id": "node_1",
-      "type": "trackpad",
+      "type": "random-trackpad",
       "parentId": "$right-pad",
       "config": {
-        "label": "TRACKPAD",
-        "sensitivity": 1,
+        "label": "DYNAMIC TRACKPAD (3x sensitivity)",
+        "sensitivity": 3,
         "targetStageId": "$ruffle-player",
         "layout": {
           "left": 0,
@@ -32,7 +32,8 @@
           "width": "100%",
           "height": "100%",
           "anchor": "top-left"
-        }
+        },
+        "baseType": "trackpad"
       }
     }
   ]

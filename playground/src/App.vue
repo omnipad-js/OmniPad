@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeMount } from 'vue';
 import RufflePlayer from './components/RufflePlayer.vue';
 import ConfigConsole from './components/ConfigConsole.vue';
-import { InputZone } from '@omnipad/vue';
+import { InputZone, registerComponent } from '@omnipad/vue';
 import {
   parseProfileJson,
   parseProfileTrees,
@@ -10,6 +10,7 @@ import {
   InputManager,
   Registry,
 } from '@omnipad/core';
+import CustomTrackpad from './components/CustomTrackpad.vue';
 
 const jsonText = ref('{}'); // 文本框内容
 const forest = ref<any>(null); // 当前运行时的树根
@@ -77,6 +78,11 @@ const renderLeftPad = computed(() => {
 const renderRightPad = computed(() => {
   return forest.value ? forest.value['$right-pad'] : {};
 });
+
+// 注册自定义触摸板
+onBeforeMount(() => {
+  registerComponent('random-trackpad', CustomTrackpad);
+});
 </script>
 
 <template>
@@ -101,6 +107,26 @@ const renderRightPad = computed(() => {
           :tree-node="renderLeftPad"
           :key="`left-${loadCount}`"
         />
+        <!-- <InputZone
+          v-else
+          :layout="{
+            top: 0,
+            left: 0,
+            height: '100%',
+            width: '100%',
+          }"
+        >
+          <CustomTrackpad
+            :layout="{
+              top: 0,
+              left: 0,
+              height: '100%',
+              width: '100%',
+            }"
+            target-stage-id="$ruffle-player"
+            label="STATIC TRACKPAD (1x sensitivity)"
+          ></CustomTrackpad>
+        </InputZone> -->
       </section>
 
       <!-- [中间/上方全宽] 游戏核心区 -->
