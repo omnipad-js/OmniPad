@@ -14,7 +14,7 @@ import { IPointerHandler } from '../types';
 export const getDeepElement = (
   x: number,
   y: number,
-  ignoreClass: string = 'omnipad-target-zone',
+  ignoreClass: string = 'omnipad-prevent',
 ): Element | null => {
   // Get all elements beneath the point
   const elements = document.elementsFromPoint(x, y);

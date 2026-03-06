@@ -167,7 +167,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
 
     <div
       v-if="dynamicControlInfo.nodeToRender || core?.isInterceptorRequired"
-      class="omnipad-input-zone-trigger"
+      class="omnipad-input-zone-trigger omnipad-prevent"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
