@@ -69,7 +69,7 @@ export interface TrackpadConfig extends BaseConfig {
   label: string;
   /** Simulation sensitivity, e.g. 0.5 - 2.0 */
   sensitivity: number;
-  /** CID of the target Stage to receive clicks */
+  /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Optional: Mouse or keyboard event metadata to be emitted when triggered. */
   mapping?: ActionMapping;
@@ -80,7 +80,7 @@ export interface TrackpadConfig extends BaseConfig {
  */
 export interface DPadConfig extends BaseConfig {
   baseType: typeof CMP_TYPES.D_PAD;
-  /** CID of the target Stage to receive clicks */
+  /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Defines the specific actions or key signals emitted for each cardinal direction. */
   mapping: {
@@ -97,6 +97,26 @@ export interface DPadConfig extends BaseConfig {
    * * @defaultValue false
    */
   showStick?: boolean;
+}
+
+export interface JoystickConfig extends BaseConfig {
+  baseType: typeof CMP_TYPES.JOYSTICK;
+  /** CID of the TargetZone where signals should be dispatched. */
+  targetStageId?: string;
+  /** Determines the minimum travel distance required to trigger a direction. */
+  threshold?: number;
+  /** Enable cursor displacement simulation */
+  cursorMode?: boolean;
+  /** Simulation sensitivity, e.g. 0.5 - 2.0 */
+  cursorSensitivity?: number;
+  /** Defines the specific actions or key signals emitted for each cardinal direction. */
+  mapping?: {
+    up?: ActionMapping;
+    down?: ActionMapping;
+    left?: ActionMapping;
+    right?: ActionMapping;
+    stick?: ActionMapping;
+  };
 }
 
 /**
@@ -134,6 +154,7 @@ export type AnyConfig =
   | TargetZoneConfig
   | TrackpadConfig
   | DPadConfig
+  | JoystickConfig
   | any;
 
 /**

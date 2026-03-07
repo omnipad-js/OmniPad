@@ -22,7 +22,7 @@ export const CMP_TYPES = {
   /** Simulates a mouse button click/hold */
   MOUSE_BUTTON: 'mouse-button',
   /** A joystick that outputs 360-degree or locked direction vectors */
-  ANALOG_STICK: 'analog-stick',
+  JOYSTICK: 'joystick',
   /** Classic 4/8-way directional pad */
   D_PAD: 'd-pad',
   /** Trackpad-style relative movement area */
@@ -102,7 +102,7 @@ export type WidgetType =
   | typeof CMP_TYPES.BUTTON
   | typeof CMP_TYPES.KEYBOARD_BUTTON
   | typeof CMP_TYPES.MOUSE_BUTTON
-  | typeof CMP_TYPES.ANALOG_STICK
+  | typeof CMP_TYPES.JOYSTICK
   | typeof CMP_TYPES.D_PAD
   | typeof CMP_TYPES.TRACKPAD
   | (string & {});

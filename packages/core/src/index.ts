@@ -10,6 +10,7 @@ export { BaseEntity } from './entities/BaseEntity';
 export { ButtonCore } from './entities/ButtonCore';
 export { DPadCore } from './entities/DPadCore';
 export { InputZoneCore } from './entities/InputZoneCore';
+export { JoystickCore } from './entities/JoystickCore';
 export { RootLayerCore } from './entities/RootLayerCore';
 export { TargetZoneCore } from './entities/TargetZoneCore';
 export { TrackpadCore } from './entities/TrackpadCore';

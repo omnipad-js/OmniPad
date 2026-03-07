@@ -32,17 +32,6 @@ export interface AxisLogicState {
 }
 
 /**
- * Logic-level state for joystick-type widgets.
- * Provides directional data calculated from the stick movement.
- */
-export interface JoystickLogicState {
-  /** Normalized direction vector where x and y range from -1.0 to 1.0. */
-  vector: { x: number; y: number };
-  /** The current angle of the stick in radians. */
-  angle: number;
-}
-
-/**
  * Runtime state for the Virtual Cursor within a TargetZone.
  */
 export interface CursorState {
@@ -102,6 +91,6 @@ export interface TrackpadState extends InteractionState, ButtonLogicState {}
 export interface DPadState extends InteractionState, AxisLogicState {}
 
 /**
- * Combined state for Analog Stick components.
+ * Combined state for Joystick components.
  */
-export interface JoystickState extends InteractionState, JoystickLogicState {}
+export interface JoystickState extends InteractionState, AxisLogicState, ButtonLogicState {}
