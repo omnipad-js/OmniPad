@@ -59,8 +59,8 @@ export class JoystickCore
     // 2. 初始化手势识别器（用于杆头点击 L3）/ Gesture recognizer for stick-head tap
     this.gesture = new GestureRecognizer({
       onTap: () => {
-        this.emitters.stick.press();
-        this.emitters.stick.release(true);
+        this.setState({ isPressed: true });
+        this.emitters.stick.tap();
       },
       onDoubleTapHoldStart: () => {
         this.setState({ isPressed: true });

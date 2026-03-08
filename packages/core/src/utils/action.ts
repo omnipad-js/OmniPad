@@ -2,6 +2,7 @@ import { Registry } from '../registry';
 import { ActionMapping, ACTION_TYPES } from '../types';
 import { ICoreEntity, ISignalReceiver } from '../types/traits';
 import { KEYS } from '../types/keys';
+import { delayFrames } from './performance';
 
 /**
  * Action Emitter Utility.
@@ -118,6 +119,21 @@ export class ActionEmitter {
   public reset(): void {
     if (this.isPressed) {
       this.release(false);
+    }
+  }
+
+  /**
+   * Trigger a complete click with physical delay
+   */
+  public async tap(isNormalRelease: boolean = true) {
+    if (this.isPressed) return;
+
+    this.press();
+
+    await delayFrames(2);
+
+    if (this.isPressed) {
+      this.release(isNormalRelease);
     }
   }
 

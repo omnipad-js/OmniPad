@@ -70,3 +70,18 @@ export function createTicker(callback: () => void) {
     },
   };
 }
+
+/**
+ * Delay the specified number of rendering frames.
+ * @param frames Count of frames to delay.
+ */
+export const delayFrames = (frames: number = 2): Promise<void> => {
+  return new Promise((resolve) => {
+    let count = 0;
+    const loop = () => {
+      if (++count >= frames) resolve();
+      else rAF(loop);
+    };
+    rAF(loop);
+  });
+};
