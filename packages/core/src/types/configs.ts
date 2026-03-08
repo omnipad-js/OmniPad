@@ -53,11 +53,11 @@ export interface BaseConfig {
 export interface ButtonConfig extends BaseConfig {
   baseType: typeof CMP_TYPES.BUTTON;
   /** Visual text displayed on the button. */
-  label: string;
+  label?: string;
   /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Keyboard or mouse event metadata to be emitted when triggered. */
-  mapping: ActionMapping;
+  mapping?: ActionMapping;
 }
 
 /**
@@ -66,9 +66,9 @@ export interface ButtonConfig extends BaseConfig {
 export interface TrackpadConfig extends BaseConfig {
   baseType: typeof CMP_TYPES.TRACKPAD;
   /** Label displayed on the trackpad */
-  label: string;
+  label?: string;
   /** Simulation sensitivity, e.g. 0.5 - 2.0 */
-  sensitivity: number;
+  sensitivity?: number;
   /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Optional: Mouse or keyboard event metadata to be emitted when triggered. */
@@ -83,7 +83,7 @@ export interface DPadConfig extends BaseConfig {
   /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Defines the specific actions or key signals emitted for each cardinal direction. */
-  mapping: {
+  mapping?: {
     up: ActionMapping;
     down: ActionMapping;
     left: ActionMapping;
@@ -101,6 +101,8 @@ export interface DPadConfig extends BaseConfig {
 
 export interface JoystickConfig extends BaseConfig {
   baseType: typeof CMP_TYPES.JOYSTICK;
+  /** Label displayed on the joystick */
+  label?: string;
   /** CID of the TargetZone where signals should be dispatched. */
   targetStageId?: string;
   /** Determines the minimum travel distance required to trigger a direction. */

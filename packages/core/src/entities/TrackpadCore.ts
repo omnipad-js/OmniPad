@@ -121,8 +121,8 @@ export class TrackpadCore
 
     // Convert pixel delta to percentage delta relative to target stage size
     // 将像素增量转换为相对于目标舞台尺寸的百分比增量
-    const deltaX = (dx / rect.width) * 100 * this.config.sensitivity;
-    const deltaY = (dy / rect.height) * 100 * this.config.sensitivity;
+    const deltaX = (dx / rect.width) * 100 * (this.config.sensitivity ?? 1.0);
+    const deltaY = (dy / rect.height) * 100 * (this.config.sensitivity ?? 1.0);
 
     const delta = { x: deltaX, y: deltaY };
 
@@ -154,7 +154,8 @@ export class TrackpadCore
     // 重置手势状态，防止因重置导致的“拖拽模式”粘连
     this.gesture.reset();
     this.emitter.reset();
-    this.setState(INITIAL_STATE);
+
+    this.handleRelease();
   }
 
   // --- IConfigurable Implementation ---

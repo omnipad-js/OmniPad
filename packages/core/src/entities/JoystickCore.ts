@@ -108,19 +108,31 @@ export class JoystickCore
 
   public onPointerUp(e: AbstractPointerEvent): void {
     this.gesture.onPointerUp(e.clientX, e.clientY);
-    this.reset();
+    this.handleRelease();
   }
 
   public onPointerCancel(): void {
-    this.reset();
+    this.handleRelease();
   }
 
-  // --- Core Logic ---
+  // --- Internal Logic ---
+
+  /**
+   * Clean up pointer capture and reset interaction state.
+   */
+  private handleRelease() {
+    this.setState(INITIAL_STATE);
+
+    // 重置所有发射器
+    Object.values(this.emitters).forEach((m) => m?.reset());
+  }
 
   /**
    * 计算位移向量并驱动按键逻辑 / Calculate vector and drive key logic
    */
   private processInput(e: AbstractPointerEvent, validate: boolean = false) {
+    if (!this.state.isActive) return;
+    
     const rect = this.rect;
     if (!rect) return;
 
@@ -161,7 +173,7 @@ export class JoystickCore
 
     // 根据向量和灵敏度计算每帧的偏移增量
     // Calculate per-frame delta based on vector and sensitivity
-    const sensitivity = this.config.cursorSensitivity || 1.0;
+    const sensitivity = this.config.cursorSensitivity ?? 1.0;
     const delta = {
       x: vector.x * sensitivity,
       y: vector.y * sensitivity,
@@ -210,10 +222,7 @@ export class JoystickCore
     this.ticker.stop();
     this.gesture.reset();
 
-    // 重置所有发射器
-    Object.values(this.emitters).forEach((m) => m?.reset());
-
-    this.setState(INITIAL_STATE);
+    this.handleRelease();
   }
 
   public override updateConfig(newConfig: Partial<JoystickConfig>): void {
