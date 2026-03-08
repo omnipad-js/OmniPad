@@ -54,10 +54,7 @@ export class DPadCore extends BaseEntity<DPadConfig, DPadState> implements IPoin
   }
 
   public onPointerDown(e: AbstractPointerEvent): void {
-    this.setState({ isActive: true, pointerId: e.pointerId });
-
-    // 需要验证触发点是否位于缓存 Rect 的边界内 / Verify whether the trigger point is within the cached Rect's bounds.
-    this.processInput(e, true);
+    this.setState({ isActive: true, pointerId: e.pointerId, vector: { x: 0, y: 0 } });
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {

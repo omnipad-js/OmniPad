@@ -90,15 +90,13 @@ export class JoystickCore
   }
 
   public onPointerDown(e: AbstractPointerEvent): void {
-    this.setState({ isActive: true, pointerId: e.pointerId });
+    this.setState({ isActive: true, pointerId: e.pointerId, vector: { x: 0, y: 0 } });
     this.gesture.onPointerDown(e.clientX, e.clientY);
 
     // 如果开启了光标模拟，启动 Ticker / Start cursor ticker if enabled
     if (this.config.cursorMode) {
       this.ticker.start();
     }
-
-    this.processInput(e, true);
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
@@ -122,6 +120,8 @@ export class JoystickCore
    */
   private handleRelease() {
     this.setState(INITIAL_STATE);
+
+    this.ticker.stop();
 
     // 重置所有发射器
     Object.values(this.emitters).forEach((m) => m?.reset());
@@ -169,7 +169,7 @@ export class JoystickCore
    */
   private handleCursorTick() {
     const { vector, isActive } = this.state;
-    if (!isActive || !this.config.cursorMode) return;
+    if (!isActive || !this.config.cursorMode || !this.gesture.hasMoved) return;
 
     // 根据向量和灵敏度计算每帧的偏移增量
     // Calculate per-frame delta based on vector and sensitivity
@@ -219,7 +219,6 @@ export class JoystickCore
   // --- IResettable Implementation ---
 
   public reset(): void {
-    this.ticker.stop();
     this.gesture.reset();
 
     this.handleRelease();
