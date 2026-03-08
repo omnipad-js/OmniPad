@@ -17,6 +17,7 @@ import VirtualButtonBase from './VirtualButtonBase.vue';
 interface VirtualJoystickProps {
   treeNode?: ConfigTreeNode;
   widgetId?: string;
+  label?: string;
   targetStageId?: string;
   threshold?: number;
   cursorMode?: {
@@ -31,6 +32,7 @@ interface VirtualJoystickProps {
 const props = defineProps<VirtualJoystickProps>();
 
 const defaultProps = {
+  label: 'PUSH',
   threshold: 0.2,
   cursorMode: false,
   cursorSensitivity: 1.0,
@@ -90,18 +92,18 @@ defineExpose({
     </template>
 
     <!-- 透传柄头插槽，给用户改写 L3 按钮样式的能力 -->
-    <template #stick="slotProps">
+    <template #stick>
       <VirtualButtonBase
         :layout="{ height: '100%', width: '100%' }"
-        label=" "
-        :is-active="slotProps.isActive"
+        :is-active="state?.isPressed"
+        :label="config.label"
       >
-        <template #base="slotPropsA">
-          <slot name="stick-base" v-bind="slotPropsA" />
+        <template #base="slotProps">
+          <slot name="stick-base" v-bind="slotProps" />
         </template>
 
-        <template #default="slotPropsA">
-          <slot name="stick" v-bind="slotPropsA" />
+        <template #default="slotProps">
+          <slot name="stick" v-bind="slotProps" />
         </template>
       </VirtualButtonBase>
     </template>
@@ -121,6 +123,8 @@ defineExpose({
   --omnipad-axis-base-border-style: solid;
   --omnipad-axis-base-border-width: 2px;
   --omnipad-axis-base-bg: rgba(255, 255, 255, 0.2);
+  --omnipad-default-axis-stick-height-scaler: 0.5;
+  --omnipad-default-axis-stick-width-scaler: 0.5;
 
   --omnipad-btn-bg: rgba(255, 255, 255, 0.2);
   --omnipad-btn-border-color: rgba(255, 255, 255, 0.4);

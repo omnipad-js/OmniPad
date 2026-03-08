@@ -132,7 +132,7 @@ export class JoystickCore
    */
   private processInput(e: AbstractPointerEvent, validate: boolean = false) {
     if (!this.state.isActive) return;
-    
+
     const rect = this.rect;
     if (!rect) return;
 
