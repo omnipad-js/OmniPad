@@ -104,8 +104,8 @@ export class JoystickCore
     this.throttledUpdate(e);
   }
 
-  public onPointerUp(e: AbstractPointerEvent): void {
-    this.gesture.onPointerUp(e.clientX, e.clientY);
+  public onPointerUp(): void {
+    this.gesture.onPointerUp();
     this.handleRelease();
   }
 

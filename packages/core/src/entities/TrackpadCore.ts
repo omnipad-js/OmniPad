@@ -5,7 +5,7 @@ import { TrackpadState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES } from '../types';
 import { createRafThrottler } from '../utils/performance';
 import { GestureRecognizer } from '../utils/gesture';
-import { isVec2Equal } from '../utils';
+import { isVec2Equal } from '../utils/math';
 import { ActionEmitter } from '../utils/action';
 
 /**
@@ -136,9 +136,9 @@ export class TrackpadCore
     this.lastPointerPos = { x: e.clientX, y: e.clientY };
   }
 
-  public onPointerUp(e: AbstractPointerEvent): void {
+  public onPointerUp(): void {
     // Resolve gesture results (Tap, DoubleTap, etc.) / 结算手势判定结果
-    this.gesture.onPointerUp(e.clientX, e.clientY);
+    this.gesture.onPointerUp();
 
     this.handleRelease();
   }

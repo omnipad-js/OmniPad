@@ -113,11 +113,8 @@ export class GestureRecognizer {
 
   /**
    * Processes the pointer up event and resolves the final gesture.
-   *
-   * @param x - Viewport X coordinate.
-   * @param y - Viewport Y coordinate.
    */
-  public onPointerUp(x: number, y: number): void {
+  public onPointerUp(): void {
     const now = Date.now();
     const duration = now - this.startTime;
 
