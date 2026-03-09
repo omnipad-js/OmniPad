@@ -1,12 +1,20 @@
 import { computed, inject, provide, ref, Ref } from 'vue';
-import { BaseConfig, ConfigTreeNode, EntityType, CONTEXT } from '@omnipad/core';
+import { type BaseConfig, type ConfigTreeNode, type EntityType, CONTEXT } from '@omnipad/core';
 import { generateUID } from '@omnipad/core/utils';
 
 /**
- * 控件配置整合钩子
- * @param requiredType 要求的组件类型 (用于校验)
- * @param props 组件接收到的原始 Props
- * @param defaultProps 组件定义的业务默认值 (不含 treeNode)
+ * A unified hook to resolve widget configurations by merging JSON tree nodes and Vue props.
+ *
+ * It handles:
+ * 1. UID generation and persistence.
+ * 2. Identity inheritance (finding parentId via Provide/Inject).
+ * 3. Configuration merging (Props override JSON config).
+ *
+ * @template T - The specific configuration type extending BaseConfig.
+ * @param defaultType - The fallback component type if not specified in config.
+ * @param props - The raw properties passed to the Vue component.
+ * @param defaultProps - Default values to fill if both config and props are missing.
+ * @returns An object containing the finalized `uid` and the reactive `config`.
  */
 export function useWidgetConfig<T extends BaseConfig>(
   requiredType: EntityType,

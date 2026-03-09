@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
 import {
-  ConfigTreeNode,
-  JoystickConfig,
   JoystickCore,
-  JoystickState,
-  LayoutBox,
   CMP_TYPES,
+  type ConfigTreeNode,
+  type JoystickConfig,
+  type JoystickState,
+  type LayoutBox,
 } from '@omnipad/core';
 import { supportsContainerQueries } from '@omnipad/core/utils';
 import { useCoreEntity } from '../composables/useCoreEntity';

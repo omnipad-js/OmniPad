@@ -1,14 +1,30 @@
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
 import {
   Registry,
-  ICoreEntity,
-  ISpatial,
-  IPointerHandler,
-  AnyFunction,
-  IDependencyBindable,
+  type AnyFunction,
+  type ICoreEntity,
+  type IDependencyBindable,
+  type IPointerHandler,
+  type ISpatial,
 } from '@omnipad/core';
 import { createPointerBridge } from '@omnipad/core/utils';
 
+/**
+ * Bridges a Vue component with its corresponding Headless Core logic entity.
+ *
+ * This hook automates:
+ * 1. Core instantiation and global registration.
+ * 2. State synchronization between Core and Vue's reactivity system.
+ * 3. Spatial rect reporting for precise coordinate mapping.
+ * 4. Standardized Pointer Event bridging (PointerCapture, stopping propagation, etc).
+ *
+ * @template T - The Core class type (e.g., JoystickCore).
+ * @template S - The State interface type (e.g., JoystickState).
+ * @param createCore - A factory function that returns a new instance of the Core class.
+ * @param domEventOptions - Options for Pointer Event bridge.
+ * @param initialDelegates - Optional registry of callbacks to inject into the core at startup.
+ * @returns Ref objects for the core instance, reactive state, DOM element, and bridge helpers.
+ */
 export function useCoreEntity<T extends ICoreEntity, S>(
   createCore: () => T,
   domEventOptions: Record<string, any> = {},

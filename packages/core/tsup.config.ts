@@ -5,7 +5,7 @@ export default defineConfig({
     index: 'src/index.ts',
     'utils/index': 'src/utils/index.ts',
   },
-  format: ['cjs', 'esm'],  
+  format: ['cjs', 'esm'],
   outExtension({ format }) {
     return {
       js: format === 'esm' ? '.mjs' : '.cjs',

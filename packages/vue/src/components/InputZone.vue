@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useSlots, VNode, watch } from 'vue';
 import {
-  ConfigTreeNode,
-  InputZoneConfig,
   InputZoneCore,
-  InputZoneState,
-  LayoutBox,
   CMP_TYPES,
+  type ConfigTreeNode,
+  type InputZoneConfig,
+  type InputZoneState,
+  type LayoutBox,
 } from '@omnipad/core';
 import { resolveLayoutStyle, remap, supportsContainerQueries } from '@omnipad/core/utils';
 import { useCoreEntity } from '../composables/useCoreEntity';

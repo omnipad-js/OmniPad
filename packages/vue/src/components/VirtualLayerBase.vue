@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ConfigTreeNode } from '@omnipad/core';
+import { type ConfigTreeNode } from '@omnipad/core';
 import { getComponent, getComponentSafe } from '../utils/componentRegistry';
 import { computed } from 'vue';
 

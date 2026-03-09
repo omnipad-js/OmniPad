@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
-  ConfigTreeNode,
-  type LayoutBox,
-  CMP_TYPES,
-  ButtonConfig,
   ButtonCore,
-  ButtonState,
+  CMP_TYPES,
+  type ButtonConfig,
+  type ButtonState,
+  type ConfigTreeNode,
+  type LayoutBox,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';

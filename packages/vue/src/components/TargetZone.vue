@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
-  ConfigTreeNode,
-  CursorState,
-  LayoutBox,
-  TargetZoneConfig,
   TargetZoneCore,
   CMP_TYPES,
+  type ConfigTreeNode,
+  type CursorState,
+  type LayoutBox,
+  type TargetZoneConfig,
 } from '@omnipad/core';
 import {
   resolveLayoutStyle,

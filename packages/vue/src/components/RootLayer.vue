@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ConfigTreeNode, RootLayerCore, BaseConfig, CMP_TYPES, LayoutBox } from '@omnipad/core';
+import {
+  RootLayerCore,
+  CMP_TYPES,
+  type BaseConfig,
+  type ConfigTreeNode,
+  type LayoutBox,
+} from '@omnipad/core';
 import { resolveLayoutStyle } from '@omnipad/core/utils';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';

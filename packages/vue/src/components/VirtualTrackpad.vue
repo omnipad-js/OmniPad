@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-  ConfigTreeNode,
-  LayoutBox,
-  type TrackpadConfig,
   TrackpadCore,
-  type TrackpadState,
   CMP_TYPES,
-  ActionMapping,
+  type ActionMapping,
+  type ConfigTreeNode,
+  type LayoutBox,
+  type TrackpadConfig,
+  type TrackpadState,
 } from '@omnipad/core';
 import { useCoreEntity } from '../composables/useCoreEntity';
 import { useWidgetConfig } from '../composables/useWidgetConfig';
