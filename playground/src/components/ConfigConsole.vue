@@ -51,6 +51,7 @@ watch(
   background: #222;
   padding: 15px;
   border-left: 2px solid #444;
+  z-index: 10000;
 }
 
 textarea {
