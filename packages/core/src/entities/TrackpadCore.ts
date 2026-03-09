@@ -94,6 +94,8 @@ export class TrackpadCore
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
+    if (!this.state.isActive || e.pointerId !== this.state.pointerId) return;
+
     // Gesture detection needs raw frequency for precision / 手势检测需要原始频率以保证精度
     this.gesture.onPointerMove(e.clientX, e.clientY);
 
@@ -136,7 +138,9 @@ export class TrackpadCore
     this.lastPointerPos = { x: e.clientX, y: e.clientY };
   }
 
-  public onPointerUp(): void {
+  public onPointerUp(e: AbstractPointerEvent): void {
+    if (!this.state.isActive || e.pointerId !== this.state.pointerId) return;
+
     // Resolve gesture results (Tap, DoubleTap, etc.) / 结算手势判定结果
     this.gesture.onPointerUp();
 
