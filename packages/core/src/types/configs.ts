@@ -46,6 +46,11 @@ export interface BaseConfig {
   parentId?: string;
   /** Spatial layout configuration relative to its parent zone. */
   layout: LayoutBox;
+  /**
+   * Custom CSS class names or style tags.
+   * For visual decoration only; must not include layout attributes such as top/left/width/height.
+   */
+  cssClasses?: string | string[];
 }
 
 /**
