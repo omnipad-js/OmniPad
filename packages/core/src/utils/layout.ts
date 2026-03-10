@@ -21,8 +21,10 @@ export const resolveLayoutStyle = (layout: LayoutBox): Record<string, string | n
 
   const style: Record<string, string | number> = {};
 
-  // 强制使用绝对定位，因为 LayoutBox 是基于坐标系的
+  // 强制使用绝对定位，因为 LayoutBox 是基于坐标系的 / Forced use of absolute positioning because LayoutBox is based on a coordinate system.
   style.position = 'absolute';
+  // 强制设置等宽等高；当仅设置单一维度时视为正方形 / Force equal width and height; when only one dimension is set, it is treated as a square.
+  style.aspectRatio = '1/1';
 
   // 1. 处理基础位置和尺寸
   // 遍历标准的 CSS 位置属性
@@ -30,7 +32,7 @@ export const resolveLayoutStyle = (layout: LayoutBox): Record<string, string | n
   fields.forEach((field) => {
     const val = layout[field];
     if (val !== undefined) {
-      // 逻辑：如果是纯数字则补全 px，如果是字符串（如 10vh）则原样保留
+      // 如果是纯数字则补全 px，如果是字符串（如 10vh）则原样保留
       style[field] = typeof val === 'number' ? `${val}px` : val;
     }
   });
