@@ -76,5 +76,11 @@ export function useWidgetConfig<T extends BaseConfig>(
     } as T;
   });
 
-  return { uid, config };
+  const customClasses = computed(() => {
+    const s = config.value.cssClasses;
+    if (!s) return [];
+    return Array.isArray(s) ? s : [s];
+  });
+
+  return { uid, config, customClasses };
 }
