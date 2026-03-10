@@ -23,7 +23,7 @@ const props = defineProps<{
   layout?: LayoutBox;
 }>();
 
-const { uid, config } = useWidgetConfig<BaseConfig>(CMP_TYPES.ROOT_LAYER, props);
+const { uid, config, customClasses } = useWidgetConfig<BaseConfig>(CMP_TYPES.ROOT_LAYER, props);
 
 const { elementRef } = useCoreEntity(() => new RootLayerCore(uid.value, config.value));
 
@@ -35,6 +35,7 @@ const containerStyle = computed(() => resolveLayoutStyle(config.value.layout));
     :id="uid"
     ref="elementRef"
     class="omnipad-root-layer omnipad-prevent"
+    :class="customClasses"
     :style="containerStyle"
   >
     <VirtualLayerBase :nodes="treeNode?.children || []">

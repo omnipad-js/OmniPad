@@ -41,7 +41,7 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<TargetZoneConfig>(
+const { uid, config, customClasses } = useWidgetConfig<TargetZoneConfig>(
   CMP_TYPES.TARGET_ZONE,
   props,
   defaultProps,
@@ -92,6 +92,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
     :id="uid"
     ref="elementRef"
     class="omnipad-target-zone omnipad-prevent"
+    :class="customClasses"
     :style="containerStyle"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"

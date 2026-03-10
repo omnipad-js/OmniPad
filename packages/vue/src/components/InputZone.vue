@@ -39,7 +39,10 @@ const slots = useSlots() as {
 const dynamicWidgetRef = ref<any>(null);
 
 // 整合配置
-const { uid, config } = useWidgetConfig<InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props);
+const { uid, config, customClasses } = useWidgetConfig<InputZoneConfig>(
+  CMP_TYPES.INPUT_ZONE,
+  props,
+);
 const { core, state, elementRef, domEvents, bindDelegates } = useCoreEntity<
   InputZoneCore,
   InputZoneState
@@ -156,6 +159,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
     :id="uid"
     ref="elementRef"
     class="omnipad-input-zone omnipad-prevent"
+    :class="customClasses"
     :style="containerStyle"
   >
     <!-- 基础层：VirtualLayerBase 处理静态 Children -->

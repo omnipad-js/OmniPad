@@ -36,7 +36,11 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<ButtonConfig>(CMP_TYPES.BUTTON, props, defaultProps);
+const { uid, config, customClasses } = useWidgetConfig<ButtonConfig>(
+  CMP_TYPES.BUTTON,
+  props,
+  defaultProps,
+);
 const { state, elementRef, domEvents } = useCoreEntity<ButtonCore, ButtonState>(
   () => new ButtonCore(uid.value, config.value),
 );
@@ -62,6 +66,7 @@ defineExpose({
     :id="uid"
     ref="elementRef"
     class="omnipad-button omnipad-prevent"
+    :class="customClasses"
     :layout="config.layout"
     :label="config.label"
     :is-active="state?.isPressed"
