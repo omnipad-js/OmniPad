@@ -1,5 +1,11 @@
 # 🎮 OmniPad (Web Virtual Gamepad)
 
+<div align="center">
+<a href="https://github.com/omnipad-js/omnipad/blob/main/README.md">English</a> |
+<a href="https://github.com/omnipad-js/omnipad/blob/main/README_cn.md">简体中文</a>
+</div>
+<br/>
+
 ![npm version](https://img.shields.io/npm/v/@omnipad/core?color=orange&label=@omnipad/core)
 ![npm version](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&label=@omnipad/vue)
 ![license](https://img.shields.io/badge/license-MIT-blue)
