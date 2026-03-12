@@ -256,9 +256,12 @@ After registration, you can directly use `"type": "custom-trackpad"` in your JSO
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Status & Vision
 
-OmniPad has established a rock-solid foundation. We are now evolving toward a full-scale automation ecosystem:
+> **📢 Current Status: Maintenance Mode** \
+> The core MVP (v0.4) of OmniPad has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
+>
+> However, OmniPad's underlying architecture (Headless Core) inherently possesses limitless scalability potential. Below are evolutionary directions we consider highly valuable, and **we warmly welcome community participation through PRs to build together**:
 
 - [ ] **Advanced Macro & Combo System**
   - Turbo (Auto-fire) and Toggle mode support.

@@ -257,9 +257,12 @@ registerComponent('custom-trackpad', CustomTrackpad);
 
 ---
 
-## 🗺️ 路线图与未来计划 (Roadmap)
+## 🗺️ 项目状态与未来愿景 (Status & Vision)
 
-OmniPad 目前已完成了极其稳固的底层输入状态机与 Vue 3 适配层。未来，我们将向着“全生态、全自动化”的方向演进。以下是我们规划中的功能特性（欢迎社区提交 PR 共同建设！）：
+> **📢 当前状态：维护模式 (Maintenance Mode)** \
+> OmniPad 的核心 MVP (v0.4) 已经完全达成了设计初衷，提供了极其稳固的底层输入状态机。由于个人精力有限，**目前我将主要负责核心 Bug 修复与稳定性维护，短期内暂无大规模新功能开发计划。**
+>
+> 然而，OmniPad 的底层架构（Headless Core）天生具备无限的扩展可能。以下是我们认为非常有价值的演进方向，**非常欢迎社区通过 PR 参与共建**：
 
 - [ ] **高阶宏指令系统 (Macro & Combo System)**
   - 连发模式 (Turbo) 与 开关模式 (Toggle) 支持。
