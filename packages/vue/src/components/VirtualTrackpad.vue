@@ -42,7 +42,7 @@ const { uid, config, customClasses } = useWidgetConfig<TrackpadConfig>(CMP_TYPES
   sensitivity: 1.0,
 });
 
-const { state, elementRef, domEvents } = useCoreEntity<TrackpadCore, TrackpadState>(
+const { core, state, elementRef, domEvents } = useCoreEntity<TrackpadCore, TrackpadState>(
   () => new TrackpadCore(uid.value, config.value),
 );
 
@@ -59,6 +59,7 @@ defineExpose({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
+  markRectDirty: () => core.value?.markRectDirty,
 });
 </script>
 

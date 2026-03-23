@@ -108,7 +108,11 @@ watch(
         });
         // 将动态组件的事件绑定到输入分区
         bindDelegates({
-          dynamicWidgetPointerDown: newWidgetInstance.onPointerDown,
+          dynamicWidgetPointerDown: (e) => {
+            // 触发之前给动态控件的 Rect 上脏标记，后续逻辑获取新的 Rect
+            newWidgetInstance.markRectDirty?.();
+            newWidgetInstance.onPointerDown?.(e);
+          },
           dynamicWidgetPointerMove: newWidgetInstance.onPointerMove,
           dynamicWidgetPointerUp: newWidgetInstance.onPointerUp,
           dynamicWidgetPointerCancel: newWidgetInstance.onPointerCancel,

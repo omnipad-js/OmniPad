@@ -41,7 +41,7 @@ const { uid, config, customClasses } = useWidgetConfig<ButtonConfig>(
   props,
   defaultProps,
 );
-const { state, elementRef, domEvents } = useCoreEntity<ButtonCore, ButtonState>(
+const { core, state, elementRef, domEvents } = useCoreEntity<ButtonCore, ButtonState>(
   () => new ButtonCore(uid.value, config.value),
 );
 
@@ -58,6 +58,7 @@ defineExpose({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
+  markRectDirty: () => core.value?.markRectDirty,
 });
 </script>
 
