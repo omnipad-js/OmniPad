@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
 import {
   Registry,
+  WindowManager,
   type AnyFunction,
   type ICoreEntity,
   type IDependencyBindable,
@@ -110,6 +111,10 @@ export function useCoreEntity<T extends ICoreEntity, S>(
       const bridge = createPointerBridge(instance as unknown as IPointerHandler, domEventOptions);
       domEvents.value = { ...bridge };
     }
+
+    // 只要有任何一个组件被挂载到页面上，自动启动全局视口监听
+    // 内部的 _isListening 会保证它只绑定一次原生事件
+    WindowManager.getInstance().init();
   });
 
   onUnmounted(() => {

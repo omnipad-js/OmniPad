@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount, onMounted } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import RufflePlayer from './components/RufflePlayer.vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import { registerComponent, RootLayer } from '@omnipad/vue';
@@ -86,10 +86,6 @@ const renderPlayer = computed(() => {
 // 注册自定义触摸板
 onBeforeMount(() => {
   registerComponent('random-trackpad', CustomTrackpad);
-});
-
-onMounted(() => {
-  WindowManager.getInstance().init();
 });
 </script>
 
