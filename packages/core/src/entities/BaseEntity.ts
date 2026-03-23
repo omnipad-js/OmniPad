@@ -18,6 +18,8 @@ export abstract class BaseEntity<TConfig, TState>
   protected state: TState;
   protected rectProvider: (() => AbstractRect) | null = null;
 
+  private _onMarkDirtyCb: (() => void) | null = null;
+
   // 内部状态发射器，负责处理状态订阅逻辑 / Internal emitter for state subscription logic
   protected stateEmitter = new SimpleEmitter<TState>();
 
@@ -78,8 +80,13 @@ export abstract class BaseEntity<TConfig, TState>
     return this.rectProvider ? this.rectProvider() : null;
   }
 
-  public bindRectProvider(provider: () => AbstractRect): void {
+  public bindRectProvider(provider: () => AbstractRect, onMarkDirty?: () => void): void {
     this.rectProvider = provider;
+    if (onMarkDirty) this._onMarkDirtyCb = onMarkDirty;
+  }
+
+  public markRectDirty(): void {
+    this._onMarkDirtyCb?.();
   }
 
   public updateConfig(newConfig: Partial<TConfig>): void {

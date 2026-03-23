@@ -33,7 +33,12 @@ export interface ISpatial {
   /**
    * Dynamically obtain dimensions and position to ensure the most precise real-time screen coordinates are obtained during each interaction.
    */
-  bindRectProvider(provider: () => AbstractRect): void;
+  bindRectProvider(provider: () => AbstractRect, onMarkDirty?: () => void): void;
+
+  /**
+   * Trigger a cache invalidation.
+   */
+  markRectDirty(): void;
 }
 
 /**
