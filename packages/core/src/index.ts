@@ -5,6 +5,7 @@ export * from './types';
 export { GamepadManager } from './gamepadManager';
 export { InputManager } from './imputManager';
 export { Registry } from './registry';
+export { WindowManager } from './windowManager';
 
 export { BaseEntity } from './entities/BaseEntity';
 export { ButtonCore } from './entities/ButtonCore';
