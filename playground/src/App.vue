@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, onMounted } from 'vue';
 import RufflePlayer from './components/RufflePlayer.vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import { registerComponent, RootLayer } from '@omnipad/vue';
-import { GamepadManager, InputManager, Registry } from '@omnipad/core';
+import { GamepadManager, Registry, WindowManager } from '@omnipad/core';
 import { parseProfileJson, parseProfileTrees, exportProfile } from '@omnipad/core/utils';
 import CustomTrackpad from './components/CustomTrackpad.vue';
 
@@ -68,7 +68,7 @@ const saveConfig = (selectedRoots: string[]) => {
 const closeConfig = () => (showConfig.value = false);
 
 const toggleFullscreen = () => {
-  InputManager.getInstance().toggleFullscreen();
+  WindowManager.getInstance().toggleFullscreen();
 };
 
 const renderLeftPad = computed(() => {
@@ -86,6 +86,10 @@ const renderPlayer = computed(() => {
 // 注册自定义触摸板
 onBeforeMount(() => {
   registerComponent('random-trackpad', CustomTrackpad);
+});
+
+onMounted(() => {
+  WindowManager.getInstance().init();
 });
 </script>
 
