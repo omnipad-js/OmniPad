@@ -10,7 +10,6 @@ import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
 import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/traits';
 import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
-import { createRafThrottler } from '../utils/performance';
 import { BaseEntity } from './BaseEntity';
 
 /**
@@ -45,7 +44,6 @@ export class TargetZoneCore
 {
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
   private focusFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
-  private throttledPointerMove: (e: AbstractPointerEvent) => void;
 
   private delegates: TargetZoneDelegates = {
     dispatchKeyboardEvent: () => {},
@@ -55,10 +53,6 @@ export class TargetZoneCore
 
   constructor(uid: string, config: TargetZoneConfig) {
     super(uid, CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
-
-    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
-      this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
-    });
   }
 
   // --- IDependencyBindable Implementation ---
@@ -82,8 +76,7 @@ export class TargetZoneCore
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
-    // Asynchronously execute throttle logic
-    this.throttledPointerMove(e);
+    this.processPhysicalEvent(e, ACTION_TYPES.MOUSEMOVE);
   }
 
   public onPointerUp(e: AbstractPointerEvent): void {
