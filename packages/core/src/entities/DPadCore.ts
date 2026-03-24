@@ -4,14 +4,16 @@ import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES } from '../types';
 import { ActionEmitter } from '../utils/action';
-import { clamp } from '../utils/math';
-import { createRafThrottler } from '../utils/performance';
+import { clamp, isVec2Equal, lerp } from '../utils/math';
 
 const INITIAL_STATE: DPadState = {
   isActive: false,
   pointerId: null,
   vector: { x: 0, y: 0 },
 };
+
+const VECTOR_DIRTY_THRESHOLD = 0.002; // 向量脏检查阈值
+const GAMEPAD_SMOOTHING = 0.3; // 柄头位移脏检查阈值
 
 /**
  * Core logic for a virtual D-Pad widget.
@@ -31,8 +33,6 @@ export class DPadCore
     right: ActionEmitter;
   };
 
-  private throttledPointerMove: (e: AbstractPointerEvent) => void;
-
   constructor(uid: string, config: DPadConfig) {
     super(uid, CMP_TYPES.D_PAD, config, INITIAL_STATE);
 
@@ -44,10 +44,6 @@ export class DPadCore
       left: new ActionEmitter(target, config.mapping?.left),
       right: new ActionEmitter(target, config.mapping?.right),
     };
-
-    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
-      this.processInput(e);
-    });
   }
 
   // --- IPointerHandler Implementation ---
@@ -58,11 +54,12 @@ export class DPadCore
 
   public onPointerDown(e: AbstractPointerEvent): void {
     this.setState({ isActive: true, pointerId: e.pointerId, vector: { x: 0, y: 0 } });
+    this.processInput(e, true);
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
     if (!this.state.isActive || e.pointerId !== this.state.pointerId) return;
-    this.throttledPointerMove(e);
+    this.processInput(e);
   }
 
   public onPointerUp(e: AbstractPointerEvent): void {
@@ -100,6 +97,7 @@ export class DPadCore
     if (validate) {
       if (normX != clamp(normX, -1, 1) || normY != clamp(normY, -1, 1)) {
         this.setState({ vector: { x: 0, y: 0 } });
+        this.markRectDirty();
         return;
       }
     }
@@ -107,9 +105,10 @@ export class DPadCore
     const vector = { x: clamp(normX, -1, 1), y: clamp(normY, -1, 1) };
 
     // 更新内部 vector 状态供适配层渲染浮标 / Update vector for floating stick rendering
-    this.setState({ vector });
-
-    this.handleDigitalKeys(vector);
+    if (!isVec2Equal(vector, this.state.vector, VECTOR_DIRTY_THRESHOLD)) {
+      this.setState({ vector });
+      this.handleDigitalKeys(vector);
+    }
   }
 
   /**
@@ -169,14 +168,33 @@ export class DPadCore
 
   // --- IProgrammatic Implementation ---
 
-  triggerVector(x: number, y: number): void {
-    const vector = { x, y };
-    const deadzone = this.config.threshold ?? 0.3;
-    if (Math.abs(x) >= deadzone || Math.abs(y) >= deadzone) {
-      this.setState({ isActive: true, vector });
+  public triggerVector(x: number, y: number): void {
+    const threshold = this.config.threshold ?? 0.3;
+
+    // D-Pad 通常关注最大偏移量，如果任一轴都没过阈值，视为回正
+    // For a D-pad, the focus is typically on the maximum offset; if none of the axes exceed the threshold, it is considered to have returned to center.
+    if (Math.abs(x) < threshold && Math.abs(y) < threshold) {
+      if (this.state.isActive) {
+        this.reset();
+      }
+      return;
+    }
+
+    if (!this.state.isActive) {
+      this.setState({ isActive: true });
+    }
+
+    // 如果开了 showStick，平滑处理能让那个小浮标动起来极其丝滑
+    // If showStick is enabled, anti-aliasing makes the little cursor move incredibly smoothly.
+    const smoothedX = lerp(this.state.vector.x, x, GAMEPAD_SMOOTHING);
+    const smoothedY = lerp(this.state.vector.y, y, GAMEPAD_SMOOTHING);
+    const vector = { x: smoothedX, y: smoothedY };
+
+    // 只有当平滑后的位移超过阈值时才更新状态
+    // The state is updated only when the smoothed displacement exceeds the threshold.
+    if (!isVec2Equal(vector, this.state.vector, VECTOR_DIRTY_THRESHOLD)) {
+      this.setState({ vector });
       this.handleDigitalKeys(vector);
-    } else {
-      this.reset();
     }
   }
 }
