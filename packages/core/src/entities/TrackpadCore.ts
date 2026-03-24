@@ -3,7 +3,6 @@ import { IPointerHandler } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES } from '../types';
-import { createRafThrottler } from '../utils/performance';
 import { GestureRecognizer } from '../utils/gesture';
 import { isVec2Equal } from '../utils/math';
 import { ActionEmitter } from '../utils/action';
@@ -34,7 +33,6 @@ export class TrackpadCore
   /** Stores the last processed client coordinates to calculate delta / 存储上次处理的客户端坐标以计算增量 */
   private lastPointerPos = { x: 0, y: 0 };
 
-  private throttledPointerMove: (e: AbstractPointerEvent) => void;
   private gesture: GestureRecognizer;
   private emitter: ActionEmitter;
 
@@ -50,12 +48,6 @@ export class TrackpadCore
     // 初始化动作发射器：默认模拟鼠标左键 / Initialize emitter, default to Left Mouse Button
     const mouseAction = config.mapping || { type: 'mouse' };
     this.emitter = new ActionEmitter(config.targetStageId, mouseAction);
-
-    // Initialize throttler to align signal emission with screen refresh rate
-    // 初始化节流器，使信号发送频率与屏幕刷新率对齐
-    this.throttledPointerMove = createRafThrottler<AbstractPointerEvent>((e) => {
-      this.processPointerMove(e);
-    });
 
     // Configure the gesture state machine / 配置手势状态机
     this.gesture = new GestureRecognizer({
@@ -98,9 +90,7 @@ export class TrackpadCore
 
     // Gesture detection needs raw frequency for precision / 手势检测需要原始频率以保证精度
     this.gesture.onPointerMove(e.clientX, e.clientY);
-
-    // Movement signals are throttled to save CPU / 位移信号经过节流以节省计算资源
-    this.throttledPointerMove(e);
+    this.processInput(e);
   }
 
   /**
@@ -109,7 +99,7 @@ export class TrackpadCore
    *
    * @param e - The pointer event.
    */
-  private processPointerMove(e: AbstractPointerEvent) {
+  private processInput(e: AbstractPointerEvent) {
     // 状态锁保护，防止节流产生的异常信号 / State lock protection prevents abnormal signals caused by throttling.
     if (!this.state.isActive) return;
 
