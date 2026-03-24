@@ -5,8 +5,8 @@ import { JoystickState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES } from '../types';
 import { ActionEmitter } from '../utils/action';
 import { GestureRecognizer } from '../utils/gesture';
-import { createRafThrottler, createTicker } from '../utils/performance';
-import { clamp, applyRadialDeadzone } from '../utils/math';
+import { createTicker } from '../utils/performance';
+import { clamp, applyRadialDeadzone, isVec2Equal, lerp } from '../utils/math';
 
 const INITIAL_STATE: JoystickState = {
   isActive: false,
@@ -15,6 +15,9 @@ const INITIAL_STATE: JoystickState = {
   value: 0,
   vector: { x: 0, y: 0 },
 };
+
+const VECTOR_DIRTY_THRESHOLD = 0.002; // 向量脏检查阈值
+const GAMEPAD_SMOOTHING = 0.3; // 柄头位移脏检查阈值
 
 /**
  * Joystick Core Implementation.
@@ -39,7 +42,6 @@ export class JoystickCore
 
   private gesture: GestureRecognizer;
   private ticker: ReturnType<typeof createTicker>;
-  private throttledUpdate: (e: AbstractPointerEvent) => void;
 
   constructor(uid: string, config: JoystickConfig) {
     super(uid, CMP_TYPES.JOYSTICK, config, INITIAL_STATE);
@@ -78,11 +80,6 @@ export class JoystickCore
     this.ticker = createTicker(() => {
       this.handleCursorTick();
     });
-
-    // 4. 初始化节流器：高性能 UI 更新 / Throttler for UI updates
-    this.throttledUpdate = createRafThrottler((e: AbstractPointerEvent) => {
-      this.processInput(e);
-    });
   }
 
   // --- IPointerHandler Implementation ---
@@ -94,6 +91,7 @@ export class JoystickCore
   public onPointerDown(e: AbstractPointerEvent): void {
     this.setState({ isActive: true, pointerId: e.pointerId, vector: { x: 0, y: 0 } });
     this.gesture.onPointerDown(e.clientX, e.clientY);
+    this.processInput(e, true);
   }
 
   public onPointerMove(e: AbstractPointerEvent): void {
@@ -104,7 +102,7 @@ export class JoystickCore
     if (this.config.cursorMode) {
       this.ticker.start();
     }
-    this.throttledUpdate(e);
+    this.processInput(e);
   }
 
   public onPointerUp(e: AbstractPointerEvent): void {
@@ -151,6 +149,7 @@ export class JoystickCore
     if (validate) {
       if (normX != clamp(normX, -1, 1) || normY != clamp(normY, -1, 1)) {
         this.setState({ vector: { x: 0, y: 0 } });
+        this.markRectDirty();
         return;
       }
     }
@@ -162,10 +161,11 @@ export class JoystickCore
     // 使用之前 math.ts 里的工具，输入半径为 1.0 的单位向量
     const vector = applyRadialDeadzone(rawVector, 1.0, this.config.threshold || 0.15);
 
-    this.setState({ vector });
-
-    // 3. 驱动按键发射器 / Handle digital key mapping
-    this.handleDigitalKeys(vector);
+    // 更新内部 vector 状态供适配层渲染浮标 / Update vector for floating stick rendering
+    if (!isVec2Equal(vector, this.state.vector, VECTOR_DIRTY_THRESHOLD)) {
+      this.setState({ vector });
+      this.handleDigitalKeys(vector);
+    }
   }
 
   /**
@@ -173,14 +173,21 @@ export class JoystickCore
    */
   private handleCursorTick() {
     const { vector, isActive } = this.state;
-    if (!isActive || !this.config.cursorMode) return;
+    if (
+      !isActive ||
+      !this.config.cursorMode ||
+      isVec2Equal(vector, { x: 0, y: 0 }, VECTOR_DIRTY_THRESHOLD)
+    ) {
+      this.ticker.stop();
+      return;
+    }
 
     // 根据向量和灵敏度计算每帧的偏移增量
     // Calculate per-frame delta based on vector and sensitivity
     const sensitivity = this.config.cursorSensitivity ?? 1.0;
     const delta = {
-      x: vector.x * sensitivity,
-      y: vector.y * sensitivity,
+      x: vector.x * Math.abs(vector.x) * sensitivity,
+      y: vector.y * Math.abs(vector.y) * sensitivity,
     };
 
     if (Math.abs(delta.x) > 0 || Math.abs(delta.y) > 0) {
@@ -259,16 +266,29 @@ export class JoystickCore
   }
 
   triggerVector(x: number, y: number): void {
-    const vector = { x, y };
-    const deadzone = this.config.threshold ?? 0.3;
-    if (Math.abs(x) >= deadzone || Math.abs(y) >= deadzone) {
-      this.setState({ isActive: true, vector });
-      this.handleDigitalKeys(vector);
-      if (this.config.cursorMode) {
-        this.ticker.start();
-      }
-    } else {
-      this.handleRelease();
+    const deadzone = this.config.threshold ?? 0.15;
+    const magnitude = Math.hypot(x, y);
+
+    // 如果手柄回弹到中心，立即切断，不需要平滑
+    // If the joystick snaps back to the center, cut the signal immediately; no smoothing is required.
+    if (magnitude < deadzone) {
+      if (this.state.isActive) this.handleRelease();
+      return;
     }
+
+    if (!this.state.isActive) {
+      this.setState({ isActive: true });
+    }
+
+    const smoothedX = lerp(this.state.vector.x, x, GAMEPAD_SMOOTHING);
+    const smoothedY = lerp(this.state.vector.y, y, GAMEPAD_SMOOTHING);
+    const vector = { x: smoothedX, y: smoothedY };
+
+    if (!isVec2Equal(vector, this.state.vector, VECTOR_DIRTY_THRESHOLD)) {
+      this.setState({ vector });
+      this.handleDigitalKeys(vector);
+    }
+
+    if (this.config.cursorMode) this.ticker.start();
   }
 }
