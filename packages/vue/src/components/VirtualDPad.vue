@@ -55,14 +55,18 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<DPadConfig>(CMP_TYPES.D_PAD, props, defaultProps);
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<DPadConfig>(
+  CMP_TYPES.D_PAD,
+  props,
+  defaultProps,
+);
 
 // 桥接 Core
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   DPadCore,
   DPadState,
   DPadConfig
->(() => new DPadCore(uid.value, config.value, props.treeNode?.type), config);
+>(() => new DPadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
 
 const canUseNativeCQ = supportsContainerQueries();
 
@@ -118,19 +122,19 @@ defineExpose({
         <div class="omnipad-dpad-cross-bg">
           <div
             class="dpad-arm top"
-            :class="{ on: slotProps.vector && slotProps.vector.y < -config.threshold! }"
+            :class="{ on: slotProps.vector && slotProps.vector.y < -effectiveConfig?.threshold! }"
           ></div>
           <div
             class="dpad-arm bottom"
-            :class="{ on: slotProps.vector && slotProps.vector.y > config.threshold! }"
+            :class="{ on: slotProps.vector && slotProps.vector.y > effectiveConfig?.threshold! }"
           ></div>
           <div
             class="dpad-arm left"
-            :class="{ on: slotProps.vector && slotProps.vector.x < -config.threshold! }"
+            :class="{ on: slotProps.vector && slotProps.vector.x < -effectiveConfig?.threshold! }"
           ></div>
           <div
             class="dpad-arm right"
-            :class="{ on: slotProps.vector && slotProps.vector.x > config.threshold! }"
+            :class="{ on: slotProps.vector && slotProps.vector.x > effectiveConfig?.threshold! }"
           ></div>
           <div class="dpad-center"></div>
         </div>

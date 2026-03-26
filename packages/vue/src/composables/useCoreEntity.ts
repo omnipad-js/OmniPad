@@ -30,7 +30,7 @@ import { createCachedProvider, createPointerBridge } from '@omnipad/core/utils';
  */
 export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   createCore: () => T,
-  externalConfig: ComputedRef<BaseConfig>,
+  externalConfig: ComputedRef<Partial<C>>,
   domEventOptions: Record<string, any> = {},
   initialDelegates?: Record<string, AnyFunction>,
 ) {

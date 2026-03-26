@@ -36,12 +36,16 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<ButtonConfig>(CMP_TYPES.BUTTON, props, defaultProps);
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<ButtonConfig>(
+  CMP_TYPES.BUTTON,
+  props,
+  defaultProps,
+);
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   ButtonCore,
   ButtonState,
   ButtonConfig
->(() => new ButtonCore(uid.value, config.value, props.treeNode?.type), config);
+>(() => new ButtonCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);

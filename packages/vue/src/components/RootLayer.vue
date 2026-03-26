@@ -23,11 +23,14 @@ const props = defineProps<{
   layout?: LayoutBox;
 }>();
 
-const { uid, config } = useWidgetConfig<BaseConfig>(CMP_TYPES.ROOT_LAYER, props);
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<BaseConfig>(
+  CMP_TYPES.ROOT_LAYER,
+  props,
+);
 
 const { effectiveConfig, effectiveLayout, elementRef } = useCoreEntity(
-  () => new RootLayerCore(uid.value, config.value, props.treeNode?.type),
-  config,
+  () => new RootLayerCore(uid.value, initialConfig.value, props.treeNode?.type),
+  reactiveConfig,
 );
 
 const containerStyle = computed(() => {

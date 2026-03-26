@@ -48,33 +48,47 @@ export function useWidgetConfig<T extends BaseConfig>(
   const uid = computed(() => props.widgetId || treeNode?.uid || generateUID(requiredType));
   provide(CONTEXT.PARENT_ID_KEY, uid);
 
-  // 合并业务配置 (Props 覆盖 Config)
-  const config = computed(() => {
-    const fromConfig = treeNode?.config || {};
+  // --- 组装初始的完整配置 (Initial Config) ---
+  const fromTreeConfig = treeNode?.config || {};
 
-    // 过滤掉 Vue Props 中的辅助性字段和 undefined 值
-    const fromProps = Object.fromEntries(
-      Object.entries(props).filter(([k, v]) => {
-        return v !== undefined && k !== 'treeNode' && k !== 'widgetId';
-      }),
-    );
+  // 提取初始时刻通过 props 传入的业务字段
+  const initialProps = Object.fromEntries(
+    Object.entries(props).filter(
+      ([k, v]) => v !== undefined && k !== 'treeNode' && k !== 'widgetId',
+    ),
+  );
 
-    // 组装最终配置
+  const initialConfig = computed(() => {
     return {
       ...defaultProps,
-      ...fromConfig,
-      ...fromProps,
+      ...fromTreeConfig,
+      ...initialProps,
       id: uid.value,
       baseType: requiredType,
       parentId: parentId.value,
       // 特殊处理 Layout：深度合并，确保即便只传了 { width: 100 } 也不丢失原来的 left/top
       layout: {
         ...(defaultProps.layout || {}),
-        ...(fromConfig.layout || {}),
-        ...(fromProps.layout || {}),
+        ...(fromTreeConfig.layout || {}),
+        ...(initialProps.layout || {}),
       },
     } as T;
   });
 
-  return { uid, config };
+  // 每次 props 变化时，只提取出真正传进来的业务属性
+  const reactiveConfig = computed(() => {
+    const currentProps = Object.fromEntries(
+      // 排除身份和依赖配置的异常变更
+      Object.entries(props).filter(
+        ([k, v]) => v !== undefined && k !== 'treeNode' && k !== 'widgetId' && k !== 'parentId',
+      ),
+    );
+
+    return {
+      ...currentProps,
+      layout: currentProps.layout || undefined, // 只有当传入了新的 layout 时才包裹
+    } as Partial<T>;
+  });
+
+  return { uid, initialConfig, reactiveConfig };
 }

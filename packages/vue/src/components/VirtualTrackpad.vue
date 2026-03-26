@@ -37,16 +37,20 @@ interface VirtualTrackpadProps {
 
 const props = defineProps<VirtualTrackpadProps>();
 
-const { uid, config } = useWidgetConfig<TrackpadConfig>(CMP_TYPES.TRACKPAD, props, {
-  label: 'TRACKPAD',
-  sensitivity: 1.0,
-});
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<TrackpadConfig>(
+  CMP_TYPES.TRACKPAD,
+  props,
+  {
+    label: 'TRACKPAD',
+    sensitivity: 1.0,
+  },
+);
 
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   TrackpadCore,
   TrackpadState,
   TrackpadConfig
->(() => new TrackpadCore(uid.value, config.value, props.treeNode?.type), config);
+>(() => new TrackpadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);

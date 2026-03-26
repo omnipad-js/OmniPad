@@ -41,7 +41,7 @@ const defaultProps = {
 };
 
 // 整合配置
-const { uid, config } = useWidgetConfig<TargetZoneConfig>(
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<TargetZoneConfig>(
   CMP_TYPES.TARGET_ZONE,
   props,
   defaultProps,
@@ -51,8 +51,8 @@ const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   CursorState,
   TargetZoneConfig
 >(
-  () => new TargetZoneCore(uid.value, config.value, props.treeNode?.type),
-  config,
+  () => new TargetZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
+  reactiveConfig,
   {},
   {
     dispatchKeyboardEvent: dispatchKeyboardEvent,

@@ -55,13 +55,17 @@ const defaultProps = {
   cursorSensitivity: 1.0,
 };
 
-const { uid, config } = useWidgetConfig<JoystickConfig>(CMP_TYPES.JOYSTICK, props, defaultProps);
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<JoystickConfig>(
+  CMP_TYPES.JOYSTICK,
+  props,
+  defaultProps,
+);
 
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   JoystickCore,
   JoystickState,
   JoystickConfig
->(() => new JoystickCore(uid.value, config.value, props.treeNode?.type), config);
+>(() => new JoystickCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
 
 const canUseNativeCQ = supportsContainerQueries();
 const baseRadius = ref({ x: 0, y: 0 });

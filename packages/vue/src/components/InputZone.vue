@@ -39,11 +39,14 @@ const slots = useSlots() as {
 const dynamicWidgetRef = ref<any>(null);
 
 // 整合配置
-const { uid, config } = useWidgetConfig<InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props);
+const { uid, initialConfig, reactiveConfig } = useWidgetConfig<InputZoneConfig>(
+  CMP_TYPES.INPUT_ZONE,
+  props,
+);
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
   useCoreEntity<InputZoneCore, InputZoneState, InputZoneConfig>(
-    () => new InputZoneCore(uid.value, config.value, props.treeNode?.type),
-    config,
+    () => new InputZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
+    reactiveConfig,
     {
       requireDirectHit: true,
     },
