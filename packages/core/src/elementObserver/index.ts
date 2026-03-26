@@ -4,7 +4,7 @@ import { createRafThrottler } from '../utils/performance';
  * Unique symbol key for the global ElementObserver instance to ensure
  * singleton persistence across different modules.
  */
-const OBSERVER_MANAGER_KEY = Symbol.for('omnipad.observer_manager.instance');
+const ELEMENT_OBSERVER_KEY = Symbol.for('omnipad.element_observer.instance');
 
 /**
  * A centralized observation pool for DOM elements.
@@ -55,11 +55,11 @@ export class ElementObserver {
   public static getInstance(): ElementObserver {
     const globalObj = globalThis as any;
 
-    if (!globalObj[OBSERVER_MANAGER_KEY]) {
-      globalObj[OBSERVER_MANAGER_KEY] = new ElementObserver();
+    if (!globalObj[ELEMENT_OBSERVER_KEY]) {
+      globalObj[ELEMENT_OBSERVER_KEY] = new ElementObserver();
     }
 
-    return globalObj[OBSERVER_MANAGER_KEY];
+    return globalObj[ELEMENT_OBSERVER_KEY];
   }
 
   /**
