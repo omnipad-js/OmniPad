@@ -3,6 +3,7 @@ import { CONTEXT, KEYS, CMP_TYPES, ACTION_TYPES } from './types';
 export * from './types';
 
 export { GamepadManager } from './gamepadManager';
+export { ElementObserver } from './elementObserver';
 export { Registry, setGlobalSignalHandler } from './registry';
 export { WindowManager } from './windowManager';
 
