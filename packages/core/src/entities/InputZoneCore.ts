@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IDependencyBindable, IPointerHandler } from '../types/traits';
 import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
-import { Vec2, CMP_TYPES, AnyFunction, AbstractPointerEvent } from '../types';
+import { Vec2, CMP_TYPES, AnyFunction, AbstractPointerEvent, EntityType } from '../types';
 import { pxToPercent } from '../utils/math';
 
 interface InputZoneDelegates {
@@ -35,8 +35,8 @@ export class InputZoneCore
     dynamicWidgetPointerCancel: () => {},
   };
 
-  constructor(uid: string, config: InputZoneConfig) {
-    super(uid, CMP_TYPES.INPUT_ZONE, config, INITIAL_STATE);
+  constructor(uid: string, config: InputZoneConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.INPUT_ZONE, config, INITIAL_STATE);
   }
 
   // --- IDependencyBindable Implementation ---

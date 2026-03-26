@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
-import { AbstractPointerEvent, CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 import { GestureRecognizer } from '../utils/gesture';
 import { isVec2Equal } from '../utils/math';
 import { ActionEmitter } from '../utils/action';
@@ -42,8 +42,8 @@ export class TrackpadCore
    * @param uid - Unique entity ID.
    * @param config - Configuration for the trackpad.
    */
-  constructor(uid: string, config: TrackpadConfig) {
-    super(uid, CMP_TYPES.TRACKPAD, config, INITIAL_STATE);
+  constructor(uid: string, config: TrackpadConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.TRACKPAD, config, INITIAL_STATE);
 
     // 初始化动作发射器：默认模拟鼠标左键 / Initialize emitter, default to Left Mouse Button
     const mouseAction = config.mapping || { type: 'mouse' };

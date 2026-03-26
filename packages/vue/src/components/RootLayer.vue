@@ -26,7 +26,7 @@ const props = defineProps<{
 const { uid, config, customClasses } = useWidgetConfig<BaseConfig>(CMP_TYPES.ROOT_LAYER, props);
 
 const { effectiveLayout, elementRef } = useCoreEntity(
-  () => new RootLayerCore(uid.value, config.value),
+  () => new RootLayerCore(uid.value, config.value, props.treeNode?.type),
   config,
 );
 

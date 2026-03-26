@@ -64,7 +64,7 @@ const { uid, config, customClasses } = useWidgetConfig<JoystickConfig>(
 const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
   JoystickCore,
   JoystickState
->(() => new JoystickCore(uid.value, config.value), config);
+>(() => new JoystickCore(uid.value, config.value, props.treeNode?.type), config);
 
 const canUseNativeCQ = supportsContainerQueries();
 const baseRadius = ref({ x: 0, y: 0 });

@@ -50,7 +50,7 @@ const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
   TargetZoneCore,
   CursorState
 >(
-  () => new TargetZoneCore(uid.value, config.value),
+  () => new TargetZoneCore(uid.value, config.value, props.treeNode?.type),
   config,
   {},
   {

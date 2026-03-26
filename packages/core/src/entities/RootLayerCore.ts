@@ -1,6 +1,6 @@
 import { BaseEntity } from './BaseEntity';
 import { BaseConfig } from '../types/configs';
-import { LayerState, CMP_TYPES } from '../types';
+import { LayerState, CMP_TYPES, EntityType } from '../types';
 
 /**
  * Initial state for the Root Layer.
@@ -16,9 +16,9 @@ const INITIAL_STATE: LayerState = {
  * identity (UID) and coordinate reference for all descendant components.
  */
 export class RootLayerCore extends BaseEntity<BaseConfig, LayerState> {
-  constructor(uid: string, config: BaseConfig) {
+  constructor(uid: string, config: BaseConfig, customTypeName?: EntityType) {
     // 显式指定实体类型为 ROOT_LAYER / Explicitly set the entity type as ROOT_LAYER
-    super(uid, CMP_TYPES.ROOT_LAYER, config, INITIAL_STATE);
+    super(uid, customTypeName || CMP_TYPES.ROOT_LAYER, config, INITIAL_STATE);
   }
 
   public reset(): void {

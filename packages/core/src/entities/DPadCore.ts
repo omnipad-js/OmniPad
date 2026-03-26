@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
-import { AbstractPointerEvent, CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 import { ActionEmitter } from '../utils/action';
 import { clamp, isVec2Equal, lerp } from '../utils/math';
 
@@ -33,8 +33,8 @@ export class DPadCore
     right: ActionEmitter;
   };
 
-  constructor(uid: string, config: DPadConfig) {
-    super(uid, CMP_TYPES.D_PAD, config, INITIAL_STATE);
+  constructor(uid: string, config: DPadConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.D_PAD, config, INITIAL_STATE);
 
     // 为每个方向初始化发射器 / Initialize emitters for each direction
     const target = config.targetStageId;

@@ -46,7 +46,7 @@ const { uid, config, customClasses } = useWidgetConfig<InputZoneConfig>(
 const { core, state, domEvents, effectiveLayout, elementRef, bindDelegates } = useCoreEntity<
   InputZoneCore,
   InputZoneState
->(() => new InputZoneCore(uid.value, config.value), config, { requireDirectHit: true });
+>(() => new InputZoneCore(uid.value, config.value, props.treeNode?.type), config, { requireDirectHit: true });
 
 const fixedChildren = computed(() => {
   const targetUid = props.treeNode?.config?.dynamicWidgetId;

@@ -3,7 +3,7 @@ import { ButtonState } from '../types/state';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { BaseEntity } from './BaseEntity';
 import { ActionEmitter } from '../utils/action';
-import { AbstractPointerEvent, CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 
 const INITIAL_STATE: ButtonState = {
   isActive: false,
@@ -29,8 +29,8 @@ export class ButtonCore
    * @param uid - The unique entity ID.
    * @param config - The flat configuration object for the button.
    */
-  constructor(uid: string, config: ButtonConfig) {
-    super(uid, CMP_TYPES.BUTTON, config, INITIAL_STATE);
+  constructor(uid: string, config: ButtonConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.BUTTON, config, INITIAL_STATE);
     // 初始化发射器 / initialize the emitter
     this.emitter = new ActionEmitter(config.targetStageId, config.mapping);
   }

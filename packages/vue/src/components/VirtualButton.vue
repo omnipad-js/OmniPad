@@ -44,7 +44,7 @@ const { uid, config, customClasses } = useWidgetConfig<ButtonConfig>(
 const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
   ButtonCore,
   ButtonState
->(() => new ButtonCore(uid.value, config.value), config);
+>(() => new ButtonCore(uid.value, config.value, props.treeNode?.type), config);
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);

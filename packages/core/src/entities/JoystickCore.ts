@@ -2,7 +2,7 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { JoystickConfig } from '../types/configs';
 import { JoystickState } from '../types/state';
-import { AbstractPointerEvent, CMP_TYPES } from '../types';
+import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 import { ActionEmitter } from '../utils/action';
 import { GestureRecognizer } from '../utils/gesture';
 import { createTicker } from '../utils/performance';
@@ -43,8 +43,8 @@ export class JoystickCore
   private gesture: GestureRecognizer;
   private ticker: ReturnType<typeof createTicker>;
 
-  constructor(uid: string, config: JoystickConfig) {
-    super(uid, CMP_TYPES.JOYSTICK, config, INITIAL_STATE);
+  constructor(uid: string, config: JoystickConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.JOYSTICK, config, INITIAL_STATE);
 
     const target = config.targetStageId;
     const m = config.mapping || {};

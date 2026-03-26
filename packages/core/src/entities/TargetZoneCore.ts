@@ -5,6 +5,7 @@ import {
   CMP_TYPES,
   AnyFunction,
   AbstractPointerEvent,
+  EntityType,
 } from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
@@ -56,8 +57,8 @@ export class TargetZoneCore
     reclaimFocusAtPos: () => {},
   };
 
-  constructor(uid: string, config: TargetZoneConfig) {
-    super(uid, CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
+  constructor(uid: string, config: TargetZoneConfig, customTypeName?: EntityType) {
+    super(uid, customTypeName || CMP_TYPES.TARGET_ZONE, config, INITIAL_STATE);
 
     // 初始化节流器，只包裹耗时的 DOM 查询和派发逻辑 / Wrap only the time-consuming DOM queries and dispatch logic
     this.throttledMoveExecution = createRafThrottler((payload: any) => {

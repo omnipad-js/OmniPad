@@ -63,7 +63,7 @@ const { uid, config, customClasses } = useWidgetConfig<DPadConfig>(
 
 // 桥接 Core
 const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<DPadCore, DPadState>(
-  () => new DPadCore(uid.value, config.value),
+  () => new DPadCore(uid.value, config.value, props.treeNode?.type),
   config,
 );
 

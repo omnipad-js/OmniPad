@@ -121,6 +121,7 @@ onBeforeMount(() => {
         >
           <div v-if="renderLeftPad?.config?.hasStaticTrackpad" class="static-trackpad">
             <CustomTrackpad
+              :tree-node="{ uid: 'manual_1', type: 'random-trackpad' }"
               :layout="{
                 top: 0,
                 left: 0,

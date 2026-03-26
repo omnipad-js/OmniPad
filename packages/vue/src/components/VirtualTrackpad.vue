@@ -45,7 +45,7 @@ const { uid, config, customClasses } = useWidgetConfig<TrackpadConfig>(CMP_TYPES
 const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
   TrackpadCore,
   TrackpadState
->(() => new TrackpadCore(uid.value, config.value), config);
+>(() => new TrackpadCore(uid.value, config.value, props.treeNode?.type), config);
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);
