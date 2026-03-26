@@ -62,10 +62,11 @@ const { uid, config, customClasses } = useWidgetConfig<DPadConfig>(
 );
 
 // 桥接 Core
-const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<DPadCore, DPadState>(
-  () => new DPadCore(uid.value, config.value, props.treeNode?.type),
-  config,
-);
+const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
+  DPadCore,
+  DPadState,
+  DPadConfig
+>(() => new DPadCore(uid.value, config.value, props.treeNode?.type), config);
 
 const canUseNativeCQ = supportsContainerQueries();
 
@@ -107,7 +108,7 @@ defineExpose({
     :layout="effectiveLayout"
     :is-active="state?.isActive"
     :vector="state?.vector"
-    :show-stick="config.showStick"
+    :show-stick="effectiveConfig?.showStick"
     :base-radius="baseRadius"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"

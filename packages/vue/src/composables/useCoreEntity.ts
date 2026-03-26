@@ -28,7 +28,7 @@ import { createCachedProvider, createPointerBridge } from '@omnipad/core/utils';
  * @param initialDelegates - Optional registry of callbacks to inject into the core at startup.
  * @returns Ref objects for the core instance, reactive state, DOM element, and bridge helpers.
  */
-export function useCoreEntity<T extends ICoreEntity, S>(
+export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   createCore: () => T,
   externalConfig: ComputedRef<BaseConfig>,
   domEventOptions: Record<string, any> = {},
@@ -37,15 +37,19 @@ export function useCoreEntity<T extends ICoreEntity, S>(
   const instance = createCore();
   const core = shallowRef<T>();
   const state = ref<S>();
-  const effectiveLayout = ref<LayoutBox>({});
+  const effectiveConfig = ref<C>();
+  const effectiveLayout = ref<LayoutBox>();
   const elementRef = ref<any>(null);
   const domEvents = ref<Record<string, (e: PointerEvent) => any>>({});
 
   let resizeObserver: ResizeObserver | null = null;
 
-  // 统一处理状态订阅
+  // 统一处理状态和配置订阅
   const syncState = (newState: S) => {
     state.value = newState;
+  };
+  const syncConfig = (newConfig: C) => {
+    effectiveConfig.value = newConfig;
   };
 
   const bindDelegates = (delegates: Record<string, AnyFunction>) => {
@@ -62,16 +66,15 @@ export function useCoreEntity<T extends ICoreEntity, S>(
   onMounted(() => {
     core.value = instance;
 
-    if (externalConfig) {
-      effectiveLayout.value = externalConfig.value.layout;
-    }
-
     // 注册到全局单例
     Registry.getInstance().register(instance);
 
-    // 订阅逻辑层状态变化
+    // 订阅逻辑层状态与配置变化
     if ('subscribe' in instance) {
       (instance as any).subscribe(syncState);
+    }
+    if ('subscribeConfig' in instance) {
+      (instance as any).subscribeConfig(syncConfig);
     }
 
     // 初始时绑定的依赖方法
@@ -120,6 +123,12 @@ export function useCoreEntity<T extends ICoreEntity, S>(
       domEvents.value = { ...bridge };
     }
 
+    // 更新实际 LayoutBox
+    if (effectiveConfig.value || externalConfig) {
+      effectiveLayout.value = (effectiveConfig.value?.layout ||
+        externalConfig.value.layout) as LayoutBox;
+    }
+
     // 只要有任何一个组件被挂载到页面上，自动启动全局视口监听
     // 内部的 _isListening 会保证它只绑定一次原生事件
     WindowManager.getInstance().init();
@@ -141,6 +150,7 @@ export function useCoreEntity<T extends ICoreEntity, S>(
     core,
     state,
     domEvents,
+    effectiveConfig,
     effectiveLayout,
     elementRef,
     bindDelegates,

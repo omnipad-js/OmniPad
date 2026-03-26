@@ -46,9 +46,10 @@ const { uid, config, customClasses } = useWidgetConfig<TargetZoneConfig>(
   props,
   defaultProps,
 );
-const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
+const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   TargetZoneCore,
-  CursorState
+  CursorState,
+  TargetZoneConfig
 >(
   () => new TargetZoneCore(uid.value, config.value, props.treeNode?.type),
   config,
@@ -60,7 +61,9 @@ const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
   },
 );
 
-const containerStyle = computed(() => resolveLayoutStyle(effectiveLayout.value));
+const containerStyle = computed(() => {
+  return effectiveLayout.value ? resolveLayoutStyle(effectiveLayout.value) : {};
+});
 
 // Whether browser supports Container Queries
 const canUseNativeCQ = supportsContainerQueries();
@@ -117,7 +120,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
       </Transition>
     </slot>
     <!-- Slot: 自定义虚拟光标渲染 -->
-    <div v-if="config.cursorEnabled" class="omnipad-virtual-cursor" :style="cursorStyle">
+    <div v-if="effectiveConfig?.cursorEnabled" class="omnipad-virtual-cursor" :style="cursorStyle">
       <slot
         name="cursor"
         :state="state"
@@ -130,7 +133,7 @@ const onPointerCancel = (e: PointerEvent) => domEvents.value?.onPointerCancel(e)
       </slot>
     </div>
     <!-- Slot: 自定义虚拟光标跟随物渲染 -->
-    <div v-if="config.cursorEnabled" class="omnipad-virtual-cursor" :style="cursorStyle">
+    <div v-if="effectiveConfig?.cursorEnabled" class="omnipad-virtual-cursor" :style="cursorStyle">
       <slot
         name="with-cursor"
         :state="state"

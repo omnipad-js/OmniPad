@@ -30,7 +30,9 @@ const { effectiveLayout, elementRef } = useCoreEntity(
   config,
 );
 
-const containerStyle = computed(() => resolveLayoutStyle(effectiveLayout.value));
+const containerStyle = computed(() => {
+  return effectiveLayout.value ? resolveLayoutStyle(effectiveLayout.value) : {};
+});
 </script>
 
 <template>

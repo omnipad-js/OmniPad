@@ -61,9 +61,10 @@ const { uid, config, customClasses } = useWidgetConfig<JoystickConfig>(
   defaultProps,
 );
 
-const { core, state, domEvents, effectiveLayout, elementRef } = useCoreEntity<
+const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
   JoystickCore,
-  JoystickState
+  JoystickState,
+  JoystickConfig
 >(() => new JoystickCore(uid.value, config.value, props.treeNode?.type), config);
 
 const canUseNativeCQ = supportsContainerQueries();
@@ -120,7 +121,7 @@ defineExpose({
       <VirtualButtonBase
         :layout="{ height: '100%', width: '100%' }"
         :is-active="state?.isPressed"
-        :label="config.label"
+        :label="effectiveConfig?.label"
       >
         <template #base="slotProps">
           <slot name="stick-base" v-bind="slotProps" />

@@ -45,7 +45,8 @@ const { uid, config, customClasses } = useWidgetConfig<InputZoneConfig>(
 );
 const { core, state, domEvents, effectiveLayout, elementRef, bindDelegates } = useCoreEntity<
   InputZoneCore,
-  InputZoneState
+  InputZoneState,
+  InputZoneConfig
 >(() => new InputZoneCore(uid.value, config.value, props.treeNode?.type), config, {
   requireDirectHit: true,
 });
@@ -126,7 +127,9 @@ watch(
 );
 
 // 样式计算
-const containerStyle = computed(() => resolveLayoutStyle(effectiveLayout.value));
+const containerStyle = computed(() => {
+  return effectiveLayout.value ? resolveLayoutStyle(effectiveLayout.value) : {};
+});
 
 // Whether browser supports Container Queries
 const canUseNativeCQ = supportsContainerQueries();
