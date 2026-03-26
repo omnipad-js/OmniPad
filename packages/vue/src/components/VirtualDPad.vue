@@ -66,7 +66,7 @@ const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   DPadCore,
   DPadState,
   DPadConfig
->(() => new DPadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+>(() => new DPadCore(uid, initialConfig, props.treeNode?.type), reactiveConfig);
 
 const canUseNativeCQ = supportsContainerQueries();
 

@@ -65,7 +65,7 @@ const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   JoystickCore,
   JoystickState,
   JoystickConfig
->(() => new JoystickCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+>(() => new JoystickCore(uid, initialConfig, props.treeNode?.type), reactiveConfig);
 
 const canUseNativeCQ = supportsContainerQueries();
 const baseRadius = ref({ x: 0, y: 0 });

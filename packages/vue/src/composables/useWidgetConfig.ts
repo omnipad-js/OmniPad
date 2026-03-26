@@ -45,7 +45,7 @@ export function useWidgetConfig<T extends BaseConfig>(
 
   // 确定 UID
   // 优先级：Prop 传入的 widgetId > treeNode 里的 UID > 随机生成
-  const uid = computed(() => props.widgetId || treeNode?.uid || generateUID(requiredType));
+  const uid = props.widgetId || treeNode?.uid || generateUID(requiredType);
   provide(CONTEXT.PARENT_ID_KEY, uid);
 
   // --- 组装初始的完整配置 (Initial Config) ---
@@ -58,12 +58,11 @@ export function useWidgetConfig<T extends BaseConfig>(
     ),
   );
 
-  const initialConfig = computed(() => {
-    return {
+  const initialConfig = {
       ...defaultProps,
       ...fromTreeConfig,
       ...initialProps,
-      id: uid.value,
+      id: uid,
       baseType: requiredType,
       parentId: parentId.value,
       // 特殊处理 Layout：深度合并，确保即便只传了 { width: 100 } 也不丢失原来的 left/top
@@ -72,8 +71,7 @@ export function useWidgetConfig<T extends BaseConfig>(
         ...(fromTreeConfig.layout || {}),
         ...(initialProps.layout || {}),
       },
-    } as T;
-  });
+  } as T;
 
   // 每次 props 变化时，只提取出真正传进来的业务属性
   const reactiveConfig = computed(() => {

@@ -45,7 +45,7 @@ const { uid, initialConfig, reactiveConfig } = useWidgetConfig<InputZoneConfig>(
 );
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
   useCoreEntity<InputZoneCore, InputZoneState, InputZoneConfig>(
-    () => new InputZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
+    () => new InputZoneCore(uid, initialConfig, props.treeNode?.type),
     reactiveConfig,
     {
       requireDirectHit: true,
@@ -77,14 +77,14 @@ const dynamicControlInfo = computed(() => {
   // 1. 若 Slot 内部有多个组件，只取第一个
   if (validSlotNodes.length > 1) {
     console.error(
-      `[OmniPad-Validation] InputZone ${uid.value} has multiple dynamic widgets in slot. Only the first one will be activated.`,
+      `[OmniPad-Validation] InputZone ${uid} has multiple dynamic widgets in slot. Only the first one will be activated.`,
     );
   }
 
   // 2. 若 Slot 和 Config 同时存在，Slot 胜出，Config 被忽略
   if (hasSlot && configTemplate) {
     console.warn(
-      `[OmniPad-Validation] InputZone ${uid.value} has both Slot and Config dynamic widgets. Config ignored.`,
+      `[OmniPad-Validation] InputZone ${uid} has both Slot and Config dynamic widgets. Config ignored.`,
     );
   }
 

@@ -51,7 +51,7 @@ const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   CursorState,
   TargetZoneConfig
 >(
-  () => new TargetZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
+  () => new TargetZoneCore(uid, initialConfig, props.treeNode?.type),
   reactiveConfig,
   {},
   {

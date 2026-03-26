@@ -50,7 +50,7 @@ const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   TrackpadCore,
   TrackpadState,
   TrackpadConfig
->(() => new TrackpadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+>(() => new TrackpadCore(uid, initialConfig, props.treeNode?.type), reactiveConfig);
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents.value?.onPointerDown(e);
