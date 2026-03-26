@@ -46,6 +46,7 @@ export class WindowManager {
       console.debug('[OmniPad-Core] Safety reset triggered by environment change.');
     }
     Registry.getInstance().resetAll();
+    Registry.getInstance().markAllRectDirty();
   };
 
   private handleResizeReset = (): void => {
@@ -106,12 +107,12 @@ export class WindowManager {
     try {
       if (!document.fullscreenElement) {
         // Before entering full-screen mode, perform a global reset to prevent input contamination during the transition.
-        Registry.getInstance().resetAll();
+        this.handleGlobalReset();
 
         await target.requestFullscreen();
       } else {
         // Reset once before exiting full screen.
-        Registry.getInstance().resetAll();
+        this.handleGlobalReset();
 
         await document.exitFullscreen();
       }
