@@ -50,6 +50,11 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   };
   const syncConfig = (newConfig: C) => {
     effectiveConfig.value = newConfig;
+
+    // 更新实际 LayoutBox
+    if (effectiveConfig.value) {
+      effectiveLayout.value = effectiveConfig.value?.layout;
+    }
   };
 
   const bindDelegates = (delegates: Record<string, AnyFunction>) => {
@@ -121,12 +126,6 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
     if ('onPointerDown' in instance) {
       const bridge = createPointerBridge(instance as unknown as IPointerHandler, domEventOptions);
       domEvents.value = { ...bridge };
-    }
-
-    // 更新实际 LayoutBox
-    if (effectiveConfig.value || externalConfig) {
-      effectiveLayout.value = (effectiveConfig.value?.layout ||
-        externalConfig.value.layout) as LayoutBox;
     }
 
     // 只要有任何一个组件被挂载到页面上，自动启动全局视口监听

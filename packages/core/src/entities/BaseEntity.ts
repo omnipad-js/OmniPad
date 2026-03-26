@@ -67,7 +67,7 @@ export abstract class BaseEntity<TConfig, TState>
 
     // 配置变更可能导致 UI 需要重新计算，重新分发当前状态
     // Config changes may require UI recalculation, re-dispatch current state
-    this.stateEmitter.emit(this.state);
+    this.configEmitter.emit(this.config);
   }
 
   // --- State Management ---
