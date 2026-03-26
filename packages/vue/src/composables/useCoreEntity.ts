@@ -1,16 +1,20 @@
-import { ref, onMounted, onUnmounted, shallowRef, ComputedRef, readonly, watch } from 'vue';
 import {
-  IConfigurable,
-  IResettable,
+  ref,
+  onMounted,
+  onUnmounted,
+  shallowRef,
+  ComputedRef,
+  readonly,
+  watch,
+  computed,
+} from 'vue';
+import {
   ElementObserver,
   Registry,
   WindowManager,
   type AnyFunction,
   type BaseConfig,
   type ICoreEntity,
-  type IDependencyBindable,
-  type IPointerHandler,
-  type ISpatial,
   type LayoutBox,
 } from '@omnipad/core';
 import { createCachedProvider, createPointerBridge, getObjectDiff } from '@omnipad/core/utils';
@@ -38,34 +42,19 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   initialDelegates?: Record<string, AnyFunction>,
 ) {
   const instance = createCore();
-  const uid = instance.uid;
 
   const core = shallowRef<T>();
   const state = ref<S>();
   const effectiveConfig = ref<C>();
-  const effectiveLayout = ref<LayoutBox>();
+  const effectiveLayout = computed<LayoutBox>(() => effectiveConfig.value?.layout as LayoutBox);
   const elementRef = ref<any>(null);
-
-  // 统一处理状态和配置订阅
-  const syncState = (newState: S) => {
-    state.value = newState;
-  };
-  const syncConfig = (newConfig: C) => {
-    effectiveConfig.value = newConfig;
-
-    // 更新实际 LayoutBox
-    if (effectiveConfig.value) {
-      effectiveLayout.value = effectiveConfig.value?.layout;
-    }
-  };
 
   const bindDelegates = (delegates: Record<string, AnyFunction>) => {
     if (!core.value) return;
 
-    const bindable = core.value as unknown as IDependencyBindable;
-    if (typeof bindable.bindDelegate === 'function') {
+    if ('bindDelegate' in core.value) {
       Object.entries(delegates).forEach(([key, fn]) => {
-        bindable.bindDelegate(key, fn);
+        (core.value as any).bindDelegate(key, fn);
       });
     }
   };
@@ -82,7 +71,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
       if (Object.keys(diff).length > 0) {
         // 2. 只把变动的部分推送给 Core
-        (core.value as unknown as IConfigurable<C>).updateConfig(diff as unknown as C);
+        (core.value as any).updateConfig(diff as any);
       }
 
       // 3. 更新快照，为下一次对比做准备
@@ -99,10 +88,10 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
     // 订阅逻辑层状态与配置变化
     if ('subscribeState' in instance) {
-      (instance as any).subscribeState(syncState);
+      (instance as any).subscribeState((newState: S) => (state.value = newState));
     }
     if ('subscribeConfig' in instance) {
-      (instance as any).subscribeConfig(syncConfig);
+      (instance as any).subscribeConfig((newConfig: C) => (effectiveConfig.value = newConfig));
     }
 
     // 初始时绑定的依赖方法
@@ -129,8 +118,6 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
       const observer = ElementObserver.getInstance();
 
       if ('bindRectProvider' in instance) {
-        const spatialCore = instance as unknown as ISpatial;
-
         // A. 创建缓存闭包
         const cached = createCachedProvider(() => {
           const r = domEl!.getBoundingClientRect();
@@ -139,18 +126,18 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
         // B. 注入逻辑层
         // 传入获取方法 cached.get 和 适配层清理缓存的方法 cached.markDirty
-        spatialCore.bindRectProvider(cached.get, cached.markDirty);
+        (instance as any).bindRectProvider(cached.get, cached.markDirty);
 
         // C. 监听“自身”尺寸变化 (RO)
-        observer.observeResize(uid, domEl, () => {
-          spatialCore.markRectDirty();
+        observer.observeResize(instance.uid, domEl, () => {
+          (instance as any).markRectDirty();
         });
       }
 
       // 注册可见性观察 (IO)
-      observer.observeIntersect(uid, domEl, (isVisible) => {
+      observer.observeIntersect(instance.uid, domEl, (isVisible) => {
         if (!isVisible) {
-          (instance as unknown as IResettable).reset();
+          (instance as any).reset();
         }
       });
     }
@@ -162,7 +149,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
   onUnmounted(() => {
     // 销毁观察器防止内存泄漏
-    ElementObserver.getInstance().disconnect(uid);
+    ElementObserver.getInstance().disconnect(instance.uid);
     // 销毁 Core
     if (core.value) {
       core.value.destroy(); // 内部会处理 Registry.unregister
@@ -171,16 +158,14 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
   // 自动生成标准化 DOM 事件，在组件层根据需要绑定
   const domEvents: Record<string, any> =
-    'onPointerDown' in instance
-      ? createPointerBridge(instance as unknown as IPointerHandler, domEventOptions)
-      : {};
+    'onPointerDown' in instance ? createPointerBridge(instance as any, domEventOptions) : {};
 
   return {
     core: readonly(core),
     state: readonly(state),
     domEvents,
     effectiveConfig: readonly(effectiveConfig),
-    effectiveLayout: readonly(effectiveLayout),
+    effectiveLayout,
     elementRef,
     bindDelegates,
   };
