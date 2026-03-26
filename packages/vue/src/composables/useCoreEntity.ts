@@ -1,6 +1,8 @@
 import { ref, onMounted, onUnmounted, shallowRef, ComputedRef, readonly, watch } from 'vue';
 import {
   IConfigurable,
+  IResettable,
+  ElementObserver,
   Registry,
   WindowManager,
   type AnyFunction,
@@ -36,13 +38,13 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   initialDelegates?: Record<string, AnyFunction>,
 ) {
   const instance = createCore();
+  const uid = instance.uid;
+
   const core = shallowRef<T>();
   const state = ref<S>();
   const effectiveConfig = ref<C>();
   const effectiveLayout = ref<LayoutBox>();
   const elementRef = ref<any>(null);
-
-  let resizeObserver: ResizeObserver | null = null;
 
   // 统一处理状态和配置订阅
   const syncState = (newState: S) => {
@@ -75,7 +77,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
     (newVal) => {
       if (!core.value) return;
 
-      // 1. 找出到底是哪些属性在 Vue 层变了
+      // 1. 找出到底是哪些属性在 Vue 层变了（增量更新）
       const diff = getObjectDiff(lastExternalConfig, newVal);
 
       if (Object.keys(diff).length > 0) {
@@ -123,24 +125,34 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
     }
 
     // 尺寸监听 (ISpatial 接口对接)
-    if (domEl && 'bindRectProvider' in instance) {
-      const spatialCore = instance as unknown as ISpatial;
+    if (domEl instanceof Element) {
+      const observer = ElementObserver.getInstance();
 
-      // A. 创建缓存闭包
-      const cached = createCachedProvider(() => {
-        const r = domEl!.getBoundingClientRect();
-        return r;
+      if ('bindRectProvider' in instance) {
+        const spatialCore = instance as unknown as ISpatial;
+
+        // A. 创建缓存闭包
+        const cached = createCachedProvider(() => {
+          const r = domEl!.getBoundingClientRect();
+          return r;
+        });
+
+        // B. 注入逻辑层
+        // 传入获取方法 cached.get 和 适配层清理缓存的方法 cached.markDirty
+        spatialCore.bindRectProvider(cached.get, cached.markDirty);
+
+        // C. 监听“自身”尺寸变化 (RO)
+        observer.observeResize(uid, domEl, () => {
+          spatialCore.markRectDirty();
+        });
+      }
+
+      // 注册可见性观察 (IO)
+      observer.observeIntersect(uid, domEl, (isVisible) => {
+        if (!isVisible) {
+          (instance as unknown as IResettable).reset();
+        }
       });
-
-      // B. 注入逻辑层
-      // 传入获取方法 cached.get 和 适配层清理缓存的方法 cached.markDirty
-      spatialCore.bindRectProvider(cached.get, cached.markDirty);
-
-      // C. 使用原生 ResizeObserver 监听“自身”尺寸变化
-      resizeObserver = new ResizeObserver(() => {
-        spatialCore.markRectDirty();
-      });
-      resizeObserver.observe(domEl);
     }
 
     // 只要有任何一个组件被挂载到页面上，自动启动全局视口监听
@@ -150,10 +162,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
   onUnmounted(() => {
     // 销毁观察器防止内存泄漏
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-      resizeObserver = null;
-    }
+    ElementObserver.getInstance().disconnect(uid);
     // 销毁 Core
     if (core.value) {
       core.value.destroy(); // 内部会处理 Registry.unregister
