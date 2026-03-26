@@ -1,5 +1,11 @@
 # @omnipad/core
 
+## 0.4.4
+
+### Patch Changes
+
+- fix: data logic repair
+
 ## 0.4.3
 
 ### Patch Changes

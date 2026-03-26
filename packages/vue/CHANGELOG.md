@@ -1,5 +1,13 @@
 # @omnipad/vue
 
+## 0.4.4
+
+### Patch Changes
+
+- fix: data logic repair
+- Updated dependencies
+  - @omnipad/core@0.4.4
+
 ## 0.4.3
 
 ### Patch Changes
