@@ -1,6 +1,6 @@
 import { InputActionSignal } from '../types';
 import { IRegistry } from '../types/registry';
-import { ICoreEntity, ISignalReceiver } from '../types/traits';
+import { ICoreEntity } from '../types/traits';
 
 /**
  * Unique symbol key for the global registry instance to ensure singleton
@@ -180,6 +180,11 @@ export class Registry implements IRegistry {
       if ('reset' in entity) {
         (entity as any).reset();
       }
+    });
+  }
+
+  public markAllRectDirty(): void {
+    this.entities.forEach((entity) => {
       if ('markRectDirty' in entity) {
         (entity as any).markRectDirty();
       }
@@ -191,7 +196,7 @@ export class Registry implements IRegistry {
 
     if (target && 'handleSignal' in target) {
       // A. 发送给具体的 TargetZone
-      (target as unknown as ISignalReceiver).handleSignal(signal);
+      (target as any).handleSignal(signal);
     } else if (globalSignalHandler) {
       // B. 如果找不到目标，且有全局处理器，则交给全局处理器
       // 这里的全局处理器就是派发给 window 的逻辑

@@ -63,6 +63,12 @@ export interface IRegistry {
   resetAll(): void;
 
   /**
+   * Triggers the markRectDirty() method on all compatible entities.
+   * Essential for calibrating logical position during window resizes or scrolls.
+   */
+  markAllRectDirty(): void;
+
+  /**
    * Clears all registered entities.
    * Used for system resets or full application unmounts.
    */
