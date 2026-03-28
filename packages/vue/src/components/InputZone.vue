@@ -46,7 +46,7 @@ const { uid, initialConfig, reactiveConfig } = useWidgetConfig<InputZoneConfig>(
 );
 const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
   useCoreEntity<InputZoneCore, InputZoneState, InputZoneConfig>(
-    () => new InputZoneCore(uid, initialConfig, props.treeNode?.type),
+    () => new InputZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
     reactiveConfig,
     {
       requireDirectHit: true,

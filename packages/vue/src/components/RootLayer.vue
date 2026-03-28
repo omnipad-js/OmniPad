@@ -29,7 +29,7 @@ const { uid, initialConfig, reactiveConfig } = useWidgetConfig<BaseConfig>(
 );
 
 const { effectiveConfig, effectiveLayout, elementRef } = useCoreEntity(
-  () => new RootLayerCore(uid, initialConfig, props.treeNode?.type),
+  () => new RootLayerCore(uid.value, initialConfig.value, props.treeNode?.type),
   reactiveConfig,
 );
 
