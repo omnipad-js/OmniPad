@@ -63,7 +63,9 @@ export const ACTION_TYPES = {
  */
 export interface AbstractRect {
   left: number;
+  right: number;
   top: number;
+  bottom: number;
   width: number;
   height: number;
 }
