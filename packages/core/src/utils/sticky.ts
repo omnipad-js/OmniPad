@@ -67,13 +67,14 @@ export class StickyProvider {
    * Updates the selector and clears the current element cache.
    *
    * @param newSelector - The new CSS selector.
-   * @returns The previous cached element (if any).
+   * @returns Whether the selector is updated.
    */
-  public updateSelector(newSelector: string): void {
-    if (this._selector === newSelector) return;
+  public updateSelector(newSelector: string): boolean {
+    if (this._selector === newSelector) return false;
     this._selector = newSelector;
     this._cachedTarget = null;
     this.markDirty();
+    return true;
   }
 }
 
