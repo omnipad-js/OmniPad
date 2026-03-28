@@ -1,4 +1,5 @@
 import { StickyProvider } from '../utils/sticky';
+import { smartQuerySelector } from './query';
 
 /**
  * Creates a StickyProvider pre-configured for the Web environment.
@@ -6,7 +7,7 @@ import { StickyProvider } from '../utils/sticky';
 export const createWebStickyProvider = (selector: string) => {
   return new StickyProvider(
     selector,
-    (id) => document.querySelector(id), // finder
+    (id) => smartQuerySelector(id), // finder
     (el) => {
       // rectProvider
       const r = (el as Element).getBoundingClientRect();

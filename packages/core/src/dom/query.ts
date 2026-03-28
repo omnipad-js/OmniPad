@@ -47,3 +47,33 @@ export const getDeepActiveElement = (): Element | null => {
   }
   return el;
 };
+
+/**
+ * A robust wrapper for selecting a single DOM element.
+ *
+ *
+ * @param selector - A string containing one or more selectors to match.
+ * @returns The first {@link Element} that matches the specified selector, or `null` if no matches are found or the selector is invalid.
+ *
+ * @example
+ * // Handles special characters in IDs gracefully
+ * smartQuerySelector('#my.id$with:special-chars');
+ * // Falls back to standard CSS selectors
+ * smartQuerySelector('.container > div:first-child');
+ */
+export const smartQuerySelector = (selector: string): Element | null => {
+  if (!selector) return null;
+
+  // Forced use of getElementById for IDs to bypass CSS selector escaping rules
+  if (selector.startsWith('#')) {
+    const id = selector.slice(1);
+    const el = document.getElementById(id);
+    if (el) return el;
+  }
+
+  try {
+    return document.querySelector(selector);
+  } catch {
+    return null;
+  }
+};
