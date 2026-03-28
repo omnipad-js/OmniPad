@@ -9,6 +9,8 @@ import {
 } from '../types';
 import { Registry } from '../registry';
 import { BaseEntity } from '../entities/BaseEntity';
+import { sanitizeCssClass } from './security';
+import { validateLayoutBox } from './layout';
 
 /**
  * Validates and normalizes raw JSON data into a standard OmniPadProfile.
@@ -47,7 +49,11 @@ export function parseProfileJson(raw: any): OmniPadProfile {
       type: String(item.type),
       parentId: item.parentId ? String(item.parentId) : undefined,
       // 确保 config 存在，业务参数平铺于此
-      config: item.config || {},
+      config: {
+        ...item.config,
+        layout: validateLayoutBox(item.config.layout),
+        cssClass: sanitizeCssClass(item.config.cssClass),
+      },
     };
   });
 
