@@ -2,7 +2,7 @@
   "meta": {
     "name": "06-input-zone: Dynamic Widget Spawning",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Master the *spawn-anywhere* logic within dedicated InputZones. The left zone is configured to trigger a dynamic D-pad at any touch point, while the right zone demonstrates the co-existence of permanent fixed buttons and on-demand interactive elements."
   },
   "items": [

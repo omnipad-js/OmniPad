@@ -72,7 +72,7 @@ export class TargetZoneCore
     if (Object.prototype.hasOwnProperty.call(this.delegates, key)) {
       (this.delegates as any)[key] = delegate;
     } else if (import.meta.env?.DEV) {
-      console.warn(`[Omnipad-Core] TargetZone attempted to bind unknown delegate: ${key}`);
+      console.warn(`[OmniPad-Core] TargetZone attempted to bind unknown delegate: ${key}`);
     }
   }
 

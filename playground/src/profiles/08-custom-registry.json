@@ -2,7 +2,7 @@
   "meta": {
     "name": "08-custom-registry: Factory Extensibility & Hybrid Deployment",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Unlock the full power of the component factory by registering your own components. This example demonstrates how to define new component types that the engine can resolve directly from JSON. It also showcases an advanced hybrid pattern: using custom className and arbitrary metadata—properties outside the standard layout constraints—to style and bridge the gap between dynamic JSON-driven instances and manually deployed local widgets."
   },
   "items": [

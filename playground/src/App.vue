@@ -56,7 +56,7 @@ const loadConfig = () => {
 const saveConfig = (selectedRoots: string[]) => {
   const runtimeGamepadMappings = GamepadManager.getInstance().getConfig();
   const exported = exportProfile(
-    { name: 'Flex Export', version: '1.0', author: 'Omnipad', description: 'Enter text.' },
+    { name: 'Flex Export', version: '1.0', author: 'OmniPad', description: 'Enter text.' },
     selectedRoots,
     runtimeGamepadMappings ?? [],
   );

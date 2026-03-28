@@ -145,7 +145,7 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
   // 4. 递归构建函数，包含循环引用保护
   const buildNode = (item: FlatConfigItem, visitedCids: Set<string>): ConfigTreeNode => {
     if (visitedCids.has(item.id)) {
-      throw new Error(`[Omnipad-Core] Circular dependency detected at node: ${item.id}`);
+      throw new Error(`[OmniPad-Core] Circular dependency detected at node: ${item.id}`);
     }
     visitedCids.add(item.id);
 

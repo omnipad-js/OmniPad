@@ -58,7 +58,7 @@ export const sanitizeParsedLength = (parsed: ParsedLength): ParsedLength => {
   }
 
   // 非法单位，降级为 px
-  console.warn(`[Omnipad-Core] Blocked invalid CSS unit: ${unit}`);
+  console.warn(`[OmniPad-Core] Blocked invalid CSS unit: ${unit}`);
   return { value: isNaN(value) ? 0 : value, unit: 'px' };
 };
 

@@ -9,7 +9,7 @@ export const safeSetCapture = (el: EventTarget | null, pointerId: number) => {
     try {
       el.setPointerCapture(pointerId);
     } catch (err) {
-      if (import.meta.env?.DEV) console.warn('[Omnipad-DOM] Failed to set pointer capture:', err);
+      if (import.meta.env?.DEV) console.warn('[OmniPad-DOM] Failed to set pointer capture:', err);
     }
   }
 };

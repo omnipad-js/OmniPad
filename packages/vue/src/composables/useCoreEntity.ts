@@ -45,7 +45,6 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   const core = shallowRef<T>();
   const state = ref<S>();
   const effectiveConfig = ref<C>();
-  const effectiveLayout = computed<LayoutBox>(() => effectiveConfig.value?.layout as LayoutBox);
   const elementRef = ref<any>(null);
 
   const bindDelegates = (delegates: Record<string, AnyFunction>) => {
@@ -158,6 +157,12 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   // 自动生成标准化 DOM 事件，在组件层根据需要绑定
   const domEvents: Record<string, any> =
     'onPointerDown' in instance ? createPointerBridge(instance as any, domEventOptions) : {};
+
+  // 根据有效配置的布局设定计算获得最终有效的布局
+  const effectiveLayout = computed<LayoutBox>(() => {
+    if (!effectiveConfig.value?.layout) return {};
+    return effectiveConfig.value?.layout as LayoutBox;
+  });
 
   return {
     core: readonly(core),

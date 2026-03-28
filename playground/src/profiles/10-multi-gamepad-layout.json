@@ -2,7 +2,7 @@
   "meta": {
     "name": "10-multi-gamepad-layout: Local Co-op & Multi-Slot Support",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Unlock the potential for local multiplayer by assigning multiple gamepad slots to a single interface. This layout routes signals from two distinct physical controllers to separate virtual zones, enabling two players to interact with the same game session simultaneously."
   },
   "items": [

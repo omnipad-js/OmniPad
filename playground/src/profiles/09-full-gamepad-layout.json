@@ -2,7 +2,7 @@
   "meta": {
     "name": "09-full-gamepad-layout: Physical Hardware Mapping",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "A complete 1:1 demonstration of the Gamepad API integration. This profile maps every standard controller button and axis to a corresponding virtual widget, creating a perfect bridge between physical console hardware and web-based game engines."
   },
   "items": [

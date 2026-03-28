@@ -2,7 +2,7 @@
   "meta": {
     "name": "02-trackpad: Relative Cursor Control",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Learn how to implement fluid cursor movement using the Trackpad component. This setup combines a mouse button with a touch-sensitive trackpad, showcasing relative displacement logic and gesture-based *Double-tap & Hold* for dragging actions."
   },
   "items": [

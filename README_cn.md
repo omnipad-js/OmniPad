@@ -93,7 +93,7 @@ import '@omnipad/vue/style.css';
 ### 模式二：数据驱动模式 (Data-Driven Mode)
 
 推荐在复杂应用中使用。通过一份扁平化的 JSON 描述屏幕分区（Zones）和所有按键的映射关系。
-让 **RootLayer 或者任意 Omnipad 组件**作为根节点，承载解析后的 ConfigTreeNode。你可以将复杂的游戏 UI 拆分为多个独立逻辑块，由 CSS 决定它们的物理分布。
+让 **RootLayer 或者任意 OmniPad 组件**作为根节点，承载解析后的 ConfigTreeNode。你可以将复杂的游戏 UI 拆分为多个独立逻辑块，由 CSS 决定它们的物理分布。
 
 **1. 定义 `profile.json`:**
 

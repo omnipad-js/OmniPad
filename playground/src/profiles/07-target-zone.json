@@ -2,7 +2,7 @@
   "meta": {
     "name": "07-target-zone: Visual Feedback Customization",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Specific demonstration of the TargetZone properties. Learn how to toggle the virtual cursor via cursorEnabled and control its visibility duration with cursorAutoDelay, all while ensuring the browser focus correctly follows the simulated input."
   },
   "items": [

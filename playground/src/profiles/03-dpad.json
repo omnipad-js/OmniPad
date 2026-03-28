@@ -2,7 +2,7 @@
   "meta": {
     "name": "03-dpad: Directional Digital Input",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Compare the visual and functional variations of the classic D-pad. One side features a minimalist interface with a hidden stick handle, while the other provides explicit visual feedback using an active floating handle to guide the user's input."
   },
   "items": [

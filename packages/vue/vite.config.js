@@ -17,7 +17,7 @@ export default defineConfig({
     sourcemap: false,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'OmnipadVue',
+      name: 'OmniPadVue',
       fileName: 'omnipad-vue',
     },
     rollupOptions: {

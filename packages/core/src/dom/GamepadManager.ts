@@ -90,13 +90,13 @@ export class GamepadManager {
     // Listen for hardware connection updates / 监听硬件连接更新
     window.addEventListener('gamepadconnected', (e) => {
       if (import.meta.env?.DEV) {
-        console.log('[Omnipad-DOM] Gamepad Connected:', e.gamepad.id);
+        console.log('[OmniPad-DOM] Gamepad Connected:', e.gamepad.id);
       }
     });
 
     window.addEventListener('gamepaddisconnected', () => {
       if (import.meta.env?.DEV) {
-        console.log('[Omnipad-DOM] Gamepad disconnected.');
+        console.log('[OmniPad-DOM] Gamepad disconnected.');
       }
     });
 

@@ -2,7 +2,7 @@
   "meta": {
     "name": "04-joystick: Analog vs. Cursor Modes",
     "version": "1.0",
-    "author": "Omnipad",
+    "author": "OmniPad",
     "description": "Explore the versatility of the Joystick component in different operational states. Test a standard analog stick for 360-degree directional input alongside a speed-driven cursor mode that allows for continuous, velocity-based movement of the virtual pointer."
   },
   "items": [
