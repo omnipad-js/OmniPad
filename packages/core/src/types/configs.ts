@@ -184,9 +184,9 @@ export interface FlatConfigItem {
 }
 
 /**
- * The root structure of a Gamepad configuration file.
+ * The root structure of a OmniPad configuration file.
  */
-export interface GamepadProfile {
+export interface OmniPadProfile {
   /** Metadata about the profile creator and version. */
   meta: {
     name: string;

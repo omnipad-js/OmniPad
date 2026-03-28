@@ -4,21 +4,21 @@ import {
   ConfigTreeNode,
   FlatConfigItem,
   GamepadMappingConfig,
-  GamepadProfile,
+  OmniPadProfile,
   StandardButton,
 } from '../types';
 import { Registry } from '../registry';
 import { BaseEntity } from '../entities/BaseEntity';
 
 /**
- * Validates and normalizes raw JSON data into a standard GamepadProfile.
+ * Validates and normalizes raw JSON data into a standard OmniPadProfile.
  * Performs structural checks and injects default metadata.
  *
  * @param raw - The raw JSON object from disk or network.
- * @returns A validated GamepadProfile object.
+ * @returns A validated OmniPadProfile object.
  * @throws Error if the core structure is invalid.
  */
-export function parseProfileJson(raw: any): GamepadProfile {
+export function parseProfileJson(raw: any): OmniPadProfile {
   // 1. 核心结构校验
   if (!raw || typeof raw !== 'object') {
     throw new Error('[OmniPad-Validation] Profile must be a valid JSON object.');
@@ -62,7 +62,7 @@ export function parseProfileJson(raw: any): GamepadProfile {
 }
 
 /**
- * The resulting structure after parsing a GamepadProfile.
+ * The resulting structure after parsing a OmniPadProfile.
  * Contains a map of root nodes and a runtime-ready gamepad mapping table.
  */
 export interface ParsedProfileForest {
@@ -77,13 +77,13 @@ export interface ParsedProfileForest {
 }
 
 /**
- * Converts a flat GamepadProfile into a forest of ConfigTreeNodes for runtime rendering.
+ * Converts a flat OmniPadProfile into a forest of ConfigTreeNodes for runtime rendering.
  * Automatically identifies all items without a parentId as root nodes.
  *
  * @param profile - The normalized profile data.
  * @returns A record map of root nodes, keyed by their original configuration ID.
  */
-export function parseProfileTrees(profile: GamepadProfile): ParsedProfileForest {
+export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest {
   const { items, gamepadMappings } = profile;
 
   // 1. 建立 CID -> UID 的映射表
@@ -188,19 +188,19 @@ export function parseProfileTrees(profile: GamepadProfile): ParsedProfileForest 
 }
 
 /**
- * Serializes the specified runtime entities into a flat GamepadProfile.
+ * Serializes the specified runtime entities into a flat OmniPadProfile.
  * If no rootUids are provided, exports all entities currently in the registry.
  *
  * @param meta - Metadata for the exported profile.
  * @param rootUid - The Entity ID of the node to be treated as the root.
  * @param runtimeGamepadMapping - The current mapping from GamepadManager (using UIDs).
- * @returns A flat GamepadProfile ready for storage.
+ * @returns A flat OmniPadProfile ready for storage.
  */
 export function exportProfile(
-  meta: GamepadProfile['meta'],
+  meta: OmniPadProfile['meta'],
   rootUids?: string[],
   runtimeGamepadMappings?: Readonly<GamepadMappingConfig[]>,
-): GamepadProfile {
+): OmniPadProfile {
   const registry = Registry.getInstance();
   let targetEntities: BaseEntity<any, any>[] = [];
 
