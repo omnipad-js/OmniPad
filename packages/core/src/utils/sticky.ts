@@ -79,11 +79,11 @@ export class StickyProvider {
 
 /**
  * Resolves a relative "Sticky" layout into absolute viewport coordinates.
- * 
- * This function calculates the exact pixel positions required for `fixed` CSS positioning 
- * by mapping a relative `LayoutBox` (which may use percentages or offsets) onto the 
+ *
+ * This function calculates the exact pixel positions required for `fixed` CSS positioning
+ * by mapping a relative `LayoutBox` (which may use percentages or offsets) onto the
  * physical coordinate system of a target reference element (e.g., a game canvas).
- * 
+ *
  * @param layout - The relative layout configuration containing sticky instructions.
  * @param targetRect - The current physical bounding box of the reference element.
  * @returns A new LayoutBox with all dimensions resolved to absolute pixel strings.

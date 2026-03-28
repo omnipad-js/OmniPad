@@ -123,8 +123,9 @@ export const resolveLayoutStyle = (layout: LayoutBox): Record<string, string | n
 
   const style: Record<string, string | number> = {};
 
-  // 强制使用绝对定位，因为 LayoutBox 是基于坐标系的 / Forced use of absolute positioning because LayoutBox is based on a coordinate system.
-  style.position = 'absolute';
+  // 根据布局模式强制指定定位方式，确保与 LayoutBox 的坐标系统同步
+  // Forced positioning mode to maintain consistency with the LayoutBox coordinate system.
+  style.position = layout.stickySelector ? 'fixed' : 'absolute';
   // 设置等宽等高；当仅设置单一维度时视为正方形 / Equal width and height; when only one dimension is set, it is treated as a square.
   if (layout.isSquare) style.aspectRatio = '1/1';
 
