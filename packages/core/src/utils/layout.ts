@@ -1,4 +1,11 @@
-import { LayoutBox, AnchorPoint, VALID_UNITS, CssUnit, ParsedLength } from '../types';
+import {
+  LayoutBox,
+  AnchorPoint,
+  VALID_UNITS,
+  CssUnit,
+  ParsedLength,
+  FlexibleLength,
+} from '../types';
 
 /**
  * Convert the length input into a sanitized ParsedLength
@@ -6,13 +13,18 @@ import { LayoutBox, AnchorPoint, VALID_UNITS, CssUnit, ParsedLength } from '../t
  * @param input - The raw length input.
  * @returns A sanitized ParsedLength.
  */
-export function parseLength(input: string | number | undefined): ParsedLength {
+export function parseLength(input: FlexibleLength | undefined): ParsedLength {
   // 1. 处理空值或无效值
   if (input === undefined || input === null) {
     return { value: 0, unit: 'px' };
   }
 
-  // 2. 处理纯数字：默认 px
+  // 2. 处理 ParsedLength 对象
+  if (typeof input === 'object' && 'unit' in input && 'value' in input) {
+    return sanitizeParsedLength(input);
+  }
+
+  // 3. 处理纯数字：默认 px
   if (typeof input === 'number') {
     return {
       value: Number.isFinite(input) ? input : 0,
@@ -20,8 +32,8 @@ export function parseLength(input: string | number | undefined): ParsedLength {
     };
   }
 
-  // 3. 处理字符串
-  const val = input.trim();
+  // 4. 处理字符串
+  const val = input.trim().toLowerCase();
   const numericPart = parseFloat(val);
 
   // 检查数字部分是否有效
@@ -29,9 +41,8 @@ export function parseLength(input: string | number | undefined): ParsedLength {
     return { value: 0, unit: 'px' };
   }
 
-  // 提取单位部分
-  const unitMatch = val.match(/[a-z%]+$/i);
-  const unitPart = unitMatch ? unitMatch[0].toLowerCase() : 'px';
+  // 直接截取剩下的所有内容作为单位
+  const unitPart = val.slice(String(numericPart).length).trim();
 
   return sanitizeParsedLength({ value: numericPart, unit: unitPart as CssUnit });
 }
@@ -41,13 +52,14 @@ export function parseLength(input: string | number | undefined): ParsedLength {
  */
 export const sanitizeParsedLength = (parsed: ParsedLength): ParsedLength => {
   const { value, unit } = parsed;
-  if ((VALID_UNITS as readonly string[]).includes(unit)) {
+
+  if (!isNaN(value) && (VALID_UNITS as readonly string[]).includes(unit)) {
     return { value, unit };
   }
 
   // 非法单位，降级为 px
   console.warn(`[Omnipad-Core] Blocked invalid CSS unit: ${unit}`);
-  return { value, unit: 'px' };
+  return { value: isNaN(value) ? 0 : value, unit: 'px' };
 };
 
 /**
@@ -89,14 +101,8 @@ export const resolveLayoutStyle = (layout: LayoutBox): Record<string, string | n
   fields.forEach((field) => {
     const rawValue = layout[field];
     if (rawValue != undefined) {
-      // 检查是否已经是解析好的对象
-      if (typeof rawValue === 'object' && 'unit' in rawValue) {
-        const parsed = sanitizeParsedLength(rawValue as ParsedLength);
-        style[field] = lengthToCss(parsed);
-      } else if (typeof rawValue === 'string' || typeof rawValue === 'number') {
-        const parsed = parseLength(rawValue as string | number);
-        style[field] = lengthToCss(parsed);
-      }
+      const parsed = parseLength(rawValue as ParsedLength);
+      style[field] = lengthToCss(parsed);
     }
   });
 
