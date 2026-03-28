@@ -10,7 +10,7 @@ import {
 import { Registry } from '../registry';
 import { BaseEntity } from '../entities/BaseEntity';
 import { sanitizeCssClass } from './security';
-import { validateLayoutBox } from './layout';
+import { compressLayoutBox, validateLayoutBox } from './layout';
 
 /**
  * Validates and normalizes raw JSON data into a standard OmniPadProfile.
@@ -259,7 +259,10 @@ export function exportProfile(
       type: entity.type,
       // 如果存在父级，将其 UID 转换回本次导出的新 CID
       parentId: config.parentId ? getNewCid(config.parentId) : undefined,
-      config: cleanConfig,
+      config: {
+        ...cleanConfig,
+        layout: compressLayoutBox(cleanConfig.layout),
+      },
     };
   });
 
