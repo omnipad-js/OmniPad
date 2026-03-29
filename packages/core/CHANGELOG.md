@@ -1,5 +1,11 @@
 # @omnipad/core
 
+## 0.5.0
+
+### Minor Changes
+
+- The Injectable Update
+
 ## 0.4.5
 
 ### Patch Changes
