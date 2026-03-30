@@ -1,12 +1,12 @@
 import { EntityType } from '../types';
-import { ConfigTreeNode } from '../types/configs';
+import { BaseConfig, ConfigTreeNode } from '../types/configs';
 
 /**
- * Extract filtered business configurations.
+ * Extract filtered override configurations.
  * @param props Original Props object (e.g. Vue's props)
  * @param skipKeys Ignore key set
  */
-export function getBusinessProps(props: Record<string, any>, skipKeys: Set<string>) {
+export function getOverrideProps(props: Record<string, any>, skipKeys: Set<string>) {
   const result: Record<string, any> = {};
   for (const key in props) {
     if (props[key] !== undefined && !skipKeys.has(key)) {
@@ -14,6 +14,54 @@ export function getBusinessProps(props: Record<string, any>, skipKeys: Set<strin
     }
   }
   return result;
+}
+
+/**
+ * Merges multiple configuration sources into a unified widget configuration object.
+ *
+ * @description
+ * This function performs a shallow merge of the provided configuration objects with a
+ * specific precedence order (Right-most takes priority). It also performs a one-level
+ * deep merge specifically for the `layout` property to ensure layout settings are
+ * preserved across different sources.
+ *
+ * **Merge Priority (Highest to Lowest):**
+ * 1. Fixed metadata (`id`, `baseType`, `parentId`) - *Guaranteed overrides*
+ * 2. `overrideProps`
+ * 3. `treeConfig`
+ * 4. `defaultProps`
+ *
+ * @param requiredType - The formal entity type (e.g., 'button', 'input-zone') assigned to `baseType`.
+ * @param uid - The unique identifier to be assigned to the `id` property.
+ * @param parentId - The unique identifier of the parent container, if any.
+ * @param defaultProps - The baseline fallback configuration.
+ * @param treeConfig - Configuration derived from the widget tree structure.
+ * @param overrideProps - Domain-specific or instance-specific property overrides.
+ *
+ * @returns A complete configuration object of type `T`.
+ */
+export function mergeWidgetConfig<T extends BaseConfig>(
+  requiredType: EntityType,
+  uid: string,
+  parentId: string | undefined,
+  defaultProps: Record<string, any>,
+  treeConfig: Record<string, any>,
+  overrideProps: Record<string, any>,
+): T {
+  return {
+    ...defaultProps,
+    ...treeConfig,
+    ...overrideProps,
+    id: uid,
+    baseType: requiredType,
+    parentId,
+    // 对 layout 进行特殊的深度合并
+    layout: {
+      ...(defaultProps.layout || {}),
+      ...(treeConfig.layout || {}),
+      ...(overrideProps.layout || {}),
+    },
+  } as T;
 }
 
 /**
