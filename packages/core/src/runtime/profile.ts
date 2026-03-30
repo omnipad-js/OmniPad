@@ -7,7 +7,7 @@ import {
   OmniPadProfile,
   StandardButton,
 } from '../types';
-import { Registry } from '../registry';
+import { Registry } from '../runtime/registry';
 import { BaseEntity } from '../entities/BaseEntity';
 import { sanitizeCssClass } from '../utils/security';
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';

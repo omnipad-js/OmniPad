@@ -1,4 +1,4 @@
-import { Registry } from '../registry';
+import { Registry } from '../runtime/registry';
 import { createRafThrottler } from '../runtime/performance';
 
 /**

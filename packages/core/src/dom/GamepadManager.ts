@@ -1,4 +1,4 @@
-import { Registry } from '../registry';
+import { Registry } from '../runtime/registry';
 import { ICoreEntity, IPointerHandler, IProgrammatic } from '../types/traits';
 import { GamepadMappingConfig, StandardButton } from '../types/gamepad';
 
