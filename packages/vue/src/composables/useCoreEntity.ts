@@ -15,17 +15,13 @@ import {
   type ICoreEntity,
   type LayoutBox,
 } from '@omnipad/core';
-import {
-  createCachedProvider,
-  getObjectDiff,
-  resolveStickyLayout,
-  StickyProvider,
-} from '@omnipad/core/utils';
+import { createCachedProvider, getObjectDiff, StickyProvider } from '@omnipad/core/utils';
 import {
   ElementObserver,
   WindowManager,
   createPointerBridge,
   createWebStickyProvider,
+  flattenToHostLayout,
 } from '@omnipad/core/dom';
 
 /**
@@ -244,9 +240,9 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
     // 如果没有配置吸附，直接返回
     if (!stickyProvider || !stickyUpdateTick.value) return rawLayout;
 
-    // 执行换算 (resolveStickyLayout 内部会调用 provider.getRect())
+    // 执行换算，将相对于吸附目标元素的布局拍平成相对共同父级（视口）的布局
     const targetRect = stickyProvider.getRect();
-    return targetRect ? resolveStickyLayout(rawLayout, targetRect) : rawLayout;
+    return targetRect ? flattenToHostLayout(rawLayout, targetRect) : rawLayout;
   });
 
   return {
