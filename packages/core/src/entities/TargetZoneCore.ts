@@ -11,7 +11,7 @@ import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
 import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/traits';
 import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
-import { createRafThrottler } from '../utils/performance';
+import { createRafThrottler } from '../runtime/performance';
 import { BaseEntity } from './BaseEntity';
 
 /**

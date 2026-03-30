@@ -3,7 +3,7 @@ import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
-import { ActionEmitter } from '../utils/action';
+import { ActionEmitter } from '../runtime/action';
 import { clamp, isVec2Equal, lerp } from '../utils/math';
 
 const INITIAL_STATE: DPadState = {

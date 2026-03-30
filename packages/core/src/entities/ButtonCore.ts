@@ -2,7 +2,7 @@ import { ButtonConfig } from '../types/configs';
 import { ButtonState } from '../types/state';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { BaseEntity } from './BaseEntity';
-import { ActionEmitter } from '../utils/action';
+import { ActionEmitter } from '../runtime/action';
 import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 
 const INITIAL_STATE: ButtonState = {

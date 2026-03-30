@@ -1,7 +1,7 @@
 import { ICoreEntity, IResettable } from '../types/traits';
 import { ISpatial, IConfigurable, IStateful } from '../types/traits';
 import { Registry } from '../registry';
-import { SimpleEmitter } from '../utils/emitter';
+import { SimpleEmitter } from '../runtime/emitter';
 import { AbstractRect, EntityType } from '../types';
 
 /**

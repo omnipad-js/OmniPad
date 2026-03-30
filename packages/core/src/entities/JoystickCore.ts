@@ -3,9 +3,9 @@ import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { JoystickConfig } from '../types/configs';
 import { JoystickState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
-import { ActionEmitter } from '../utils/action';
-import { GestureRecognizer } from '../utils/gesture';
-import { createTicker } from '../utils/performance';
+import { ActionEmitter } from '../runtime/action';
+import { GestureRecognizer } from '../runtime/gesture';
+import { createTicker } from '../runtime/performance';
 import { clamp, applyRadialDeadzone, isVec2Equal, lerp } from '../utils/math';
 
 const INITIAL_STATE: JoystickState = {

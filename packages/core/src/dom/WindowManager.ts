@@ -1,5 +1,5 @@
 import { Registry } from '../registry';
-import { createRafThrottler } from '../utils/performance';
+import { createRafThrottler } from '../runtime/performance';
 
 /**
  * Unique symbol key for the global WindowManager instance.
