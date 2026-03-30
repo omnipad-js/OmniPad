@@ -1,13 +1,4 @@
-import {
-  ref,
-  onMounted,
-  onUnmounted,
-  shallowRef,
-  ComputedRef,
-  readonly,
-  watch,
-  computed,
-} from 'vue';
+import { ref, onMounted, onUnmounted, ComputedRef, readonly, watch, computed } from 'vue';
 import {
   Registry,
   StickyProvider,
@@ -55,7 +46,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 ) {
   const instance = createCore();
 
-  const core = shallowRef<T>();
+  const core = computed<T>(() => instance);
   const state = ref<S>();
   const effectiveConfig = ref<C>();
   const elementRef = ref<any>(null);
@@ -150,8 +141,6 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   };
 
   onMounted(() => {
-    core.value = instance;
-
     // 注册到全局单例
     Registry.getInstance().register(instance);
 
@@ -259,7 +248,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   });
 
   return {
-    core: readonly(core),
+    core,
     state: readonly(state),
     domEvents,
     effectiveConfig: readonly(effectiveConfig),
