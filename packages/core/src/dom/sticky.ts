@@ -1,4 +1,4 @@
-import { StickyProvider } from '../utils/sticky';
+import { StickyProvider } from '../runtime/sticky';
 import { smartQuerySelector } from './query';
 
 /**

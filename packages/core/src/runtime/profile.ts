@@ -1,4 +1,4 @@
-import { generateUID, isGlobalID } from './id';
+import { generateUID, isGlobalID } from '../utils/id';
 import {
   AnyConfig,
   ConfigTreeNode,
@@ -9,8 +9,8 @@ import {
 } from '../types';
 import { Registry } from '../registry';
 import { BaseEntity } from '../entities/BaseEntity';
-import { sanitizeCssClass } from './security';
-import { compressLayoutBox, validateLayoutBox } from './layout';
+import { sanitizeCssClass } from '../utils/security';
+import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
 
 /**
  * Validates and normalizes raw JSON data into a standard OmniPadProfile.
@@ -310,19 +310,4 @@ export function exportProfile(
     gamepadMappings:
       Object.keys(exportedGamepadMappings).length > 0 ? exportedGamepadMappings : undefined,
   };
-}
-
-/**
- * Extract filtered business configurations.
- * @param props Original Props object (e.g. Vue's props)
- * @param skipKeys Ignore key set
- */
-export function getBusinessProps(props: Record<string, any>, skipKeys: Set<string>) {
-  const result: Record<string, any> = {};
-  for (const key in props) {
-    if (props[key] !== undefined && !skipKeys.has(key)) {
-      result[key] = props[key];
-    }
-  }
-  return result;
 }

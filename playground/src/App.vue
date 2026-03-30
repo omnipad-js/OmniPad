@@ -5,7 +5,7 @@ import ConfigConsole from './components/ConfigConsole.vue';
 import { registerComponent, RootLayer } from '@omnipad/vue';
 import { Registry } from '@omnipad/core';
 import { GamepadManager, WindowManager } from '@omnipad/core/dom';
-import { parseProfileJson, parseProfileTrees, exportProfile } from '@omnipad/core/utils';
+import { parseProfileJson, parseProfileTrees, exportProfile } from '@omnipad/core';
 import CustomTrackpad from './components/CustomTrackpad.vue';
 
 const jsonText = ref('{}'); // 文本框内容

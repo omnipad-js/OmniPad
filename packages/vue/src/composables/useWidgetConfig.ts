@@ -1,8 +1,14 @@
 import { computed, inject, provide, ref, Ref } from 'vue';
-import { type BaseConfig, type ConfigTreeNode, type EntityType, CONTEXT } from '@omnipad/core';
-import { generateUID, getBusinessProps } from '@omnipad/core/utils';
+import {
+  getBusinessProps,
+  validateWidgetNode,
+  type BaseConfig,
+  type EntityType,
+  CONTEXT,
+} from '@omnipad/core';
+import { generateUID } from '@omnipad/core/utils';
 
-const BASE_INTERNAL_PROPS = ['treeNode', 'widgetId', 'parentId'];
+const BASE_INTERNAL_PROPS = Object.freeze(['treeNode', 'widgetId', 'parentId']);
 
 /**
  * A unified hook to resolve widget configurations by merging JSON tree nodes and Vue props.
@@ -24,21 +30,8 @@ export function useWidgetConfig<T extends BaseConfig>(
   defaultProps: Record<string, any> = {},
   extraSkipProps: string[] = [],
 ) {
-  // 类型检查：提取并验证 treeNode
-  const rawTreeNode = props.treeNode as ConfigTreeNode | undefined;
-
-  // 如果类型不匹配，treeNode 被视为 undefined，从而忽略该配置
-  const treeNode =
-    (rawTreeNode && rawTreeNode.config?.baseType === requiredType) ||
-    rawTreeNode?.type === requiredType
-      ? rawTreeNode
-      : undefined;
-
-  if (rawTreeNode && !treeNode) {
-    console.warn(
-      `[OmniPad-Validation] Type mismatch! Component expected "${requiredType}", but received "${rawTreeNode.type}". Config ignored.`,
-    );
-  }
+  // 类型检查：提取并验证 treeNode，如果类型不匹配，treeNode 被视为 undefined，从而忽略该配置
+  const treeNode = validateWidgetNode(props.treeNode, requiredType);
 
   // 确定父节点编号
   const injectedParentId = inject<Ref<string | undefined>>(CONTEXT.PARENT_ID_KEY, ref(undefined));

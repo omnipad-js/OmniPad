@@ -10,6 +10,7 @@ import {
 } from 'vue';
 import {
   Registry,
+  StickyProvider,
   type AnyFunction,
   type BaseConfig,
   type IConfigurable,
@@ -21,7 +22,7 @@ import {
   type IStateful,
   type LayoutBox,
 } from '@omnipad/core';
-import { createCachedProvider, getObjectDiff, StickyProvider } from '@omnipad/core/utils';
+import { createCachedProvider, getObjectDiff } from '@omnipad/core/utils';
 import {
   ElementObserver,
   WindowManager,
