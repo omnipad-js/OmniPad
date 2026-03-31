@@ -52,7 +52,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   const elementRef = ref<any>(null);
 
   // 吸附模式 Provider
-  let stickyProvider: StickyProvider | null;
+  let stickyProvider: StickyProvider<Element> | null;
   const stickyUpdateTick = ref(0);
   const triggerLayoutUpdate = () => {
     stickyUpdateTick.value = (stickyUpdateTick.value % 65535) + 1;
@@ -81,7 +81,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
       }
 
       if (!updated) return;
-      const targetEl = stickyProvider.getTarget();
+      const targetEl = stickyProvider?.getTarget();
       if (!targetEl) return;
 
       // 4. 注册 Observer
@@ -91,7 +91,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
         stickyProvider?.markDirty();
         (instance as unknown as ISpatial).markRectDirty();
       });
-      ElementObserver.getInstance().observeIntersect(stickyKey, targetEl, (isVisible) => {
+      ElementObserver.getInstance().observeIntersect(stickyKey, targetEl, (isVisible: boolean) => {
         if (!isVisible) {
           (instance as unknown as IResettable).reset();
         }
@@ -207,7 +207,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
       }
 
       // 注册可见性观察 (IO)
-      observer.observeIntersect(instance.uid, domEl, (isVisible) => {
+      observer.observeIntersect(instance.uid, domEl, (isVisible: boolean) => {
         if (!isVisible) {
           (instance as unknown as IResettable).reset();
         }

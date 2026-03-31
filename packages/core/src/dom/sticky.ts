@@ -5,9 +5,9 @@ import { smartQuerySelector } from './query';
  * Creates a StickyProvider pre-configured for the Web environment.
  */
 export const createWebStickyProvider = (selector: string) => {
-  return new StickyProvider(
+  return new StickyProvider<Element>(
     selector,
-    (id) => smartQuerySelector(id), // finder
+    (id) => smartQuerySelector(id) as Element, // finder
     (el) => {
       // rectProvider
       const r = (el as Element).getBoundingClientRect();
