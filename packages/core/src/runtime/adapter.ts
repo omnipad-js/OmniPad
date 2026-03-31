@@ -71,8 +71,8 @@ export function mergeWidgetConfig<T extends BaseConfig>(
 
 /**
  * Resolves the dynamic widget instance to be rendered based on priority and exclusivity rules.
- * 
- * This utility handles conflicts between manual components provided via slots and template 
+ *
+ * This utility handles conflicts between manual components provided via slots and template
  * components defined in the configuration. It implements a "Slot-First" strategy:
  * 1. If slot nodes are present, the first valid node is chosen, and configuration templates are ignored.
  * 2. If no slot nodes are present, it fallbacks to searching the configuration children for the matching UID.

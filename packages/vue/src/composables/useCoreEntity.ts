@@ -62,7 +62,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
     // 1. 精确定义依赖源：只有这个字符串变了，才触发回调
     () => effectiveConfig.value?.layout?.stickySelector,
 
-    (newSelector, oldSelector, onCleanup) => {
+    (newSelector, _, onCleanup) => {
       // 2. 逻辑分流
       if (!newSelector) {
         stickyProvider = null;
