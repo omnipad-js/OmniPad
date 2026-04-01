@@ -71,6 +71,6 @@ export function useStickyLayout<C extends BaseConfig>(
      * 当前正在追踪的物理目标提供者
      * 用于外部调用 .getRect() 获取实时坐标
      */
-    stickyProvider
+    stickyProvider,
   };
 }
