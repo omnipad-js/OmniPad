@@ -1,11 +1,11 @@
 import { ref, onMounted, onUnmounted, ComputedRef, readonly, watch, computed } from 'vue';
 import {
+  bindEntityDelegates,
   Registry,
   type AnyFunction,
   type BaseConfig,
   type IConfigurable,
   type ICoreEntity,
-  type IDependencyBindable,
   type IPointerHandler,
   type IStateful,
   type LayoutBox,
@@ -81,13 +81,7 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
 
   // 运行时注入依赖的入口函数
   const bindDelegates = (delegates: Record<string, AnyFunction>) => {
-    if (!core.value) return;
-
-    if ('bindDelegate' in core.value) {
-      Object.entries(delegates).forEach(([key, fn]) => {
-        (core.value as unknown as IDependencyBindable).bindDelegate(key, fn);
-      });
-    }
+    bindEntityDelegates(core.value, delegates);
   };
 
   onMounted(() => {
