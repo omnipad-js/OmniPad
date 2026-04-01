@@ -12,10 +12,9 @@ import {
 } from '@omnipad/core';
 import { resolveLayoutStyle, projectPercentToBox } from '@omnipad/core/utils';
 import { supportsContainerQueries } from '@omnipad/core/dom';
-import { useCoreEntity } from '../composables/useCoreEntity';
 import { getComponent } from '../utils/componentRegistry';
 import VirtualLayerBase from './VirtualLayerBase.vue';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface InputZoneProps {
   /** The runtime tree node for automatic setup. */
@@ -41,19 +40,12 @@ const slots = useSlots() as {
 };
 const dynamicWidgetRef = ref<any>(null);
 
-// 整合配置
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<InputZoneConfig>(
-  CMP_TYPES.INPUT_ZONE,
-  props,
-);
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
-  useCoreEntity<InputZoneCore, InputZoneState, InputZoneConfig>(
-    () => new InputZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
-    reactiveConfig,
-    {
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
+  useWidgetSetup<InputZoneCore, InputZoneState, InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props, {
+    domEventOptions: {
       requireDirectHit: true,
     },
-  );
+  });
 
 const fixedChildren = computed(() => {
   return filterNotDynamicChildren(

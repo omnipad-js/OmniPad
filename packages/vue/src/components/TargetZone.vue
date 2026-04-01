@@ -15,8 +15,7 @@ import {
   dispatchPointerEventAtPos,
   reclaimFocusAtPos,
 } from '@omnipad/core/dom';
-import { useCoreEntity } from '../composables/useCoreEntity';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface TargetZoneProps {
   /** The runtime tree node for automatic setup. */
@@ -39,26 +38,15 @@ const defaultProps = {
   cursorAutoDelay: 2500,
 };
 
-// 整合配置
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<TargetZoneConfig>(
-  CMP_TYPES.TARGET_ZONE,
-  props,
-  defaultProps,
-);
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
-  TargetZoneCore,
-  CursorState,
-  TargetZoneConfig
->(
-  () => new TargetZoneCore(uid.value, initialConfig.value, props.treeNode?.type),
-  reactiveConfig,
-  {},
-  {
-    dispatchKeyboardEvent: dispatchKeyboardEvent,
-    dispatchPointerEventAtPos: dispatchPointerEventAtPos,
-    reclaimFocusAtPos: reclaimFocusAtPos,
-  },
-);
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
+  useWidgetSetup<TargetZoneCore, CursorState, TargetZoneConfig>(CMP_TYPES.TARGET_ZONE, props, {
+    defaultProps,
+    initialDelegates: {
+      dispatchKeyboardEvent: dispatchKeyboardEvent,
+      dispatchPointerEventAtPos: dispatchPointerEventAtPos,
+      reclaimFocusAtPos: reclaimFocusAtPos,
+    },
+  });
 
 const containerStyle = computed(() => {
   return effectiveLayout.value ? resolveLayoutStyle(effectiveLayout.value) : {};

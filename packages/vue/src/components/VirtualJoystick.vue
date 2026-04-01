@@ -9,10 +9,9 @@ import {
   type LayoutBox,
 } from '@omnipad/core';
 import { supportsContainerQueries } from '@omnipad/core/dom';
-import { useCoreEntity } from '../composables/useCoreEntity';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
 import VirtualAxisBase from './VirtualAxisBase.vue';
 import VirtualButtonBase from './VirtualButtonBase.vue';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface VirtualJoystickProps {
   /** The runtime tree node for automatic setup. */
@@ -55,17 +54,10 @@ const defaultProps = {
   cursorSensitivity: 1.0,
 };
 
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<JoystickConfig>(
-  CMP_TYPES.JOYSTICK,
-  props,
-  defaultProps,
-);
-
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
-  JoystickCore,
-  JoystickState,
-  JoystickConfig
->(() => new JoystickCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
+  useWidgetSetup<JoystickCore, JoystickState, JoystickConfig>(CMP_TYPES.JOYSTICK, props, {
+    defaultProps,
+  });
 
 const canUseNativeCQ = supportsContainerQueries();
 const baseSize = ref({ x: 0, y: 0 });

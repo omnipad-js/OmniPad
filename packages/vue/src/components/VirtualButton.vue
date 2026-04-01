@@ -7,9 +7,8 @@ import {
   type ConfigTreeNode,
   type LayoutBox,
 } from '@omnipad/core';
-import { useCoreEntity } from '../composables/useCoreEntity';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
 import VirtualButtonBase from './VirtualButtonBase.vue';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface VirtualButtonProps {
   /** The runtime tree node for automatic setup. */
@@ -35,17 +34,8 @@ const defaultProps = {
   label: 'BTN',
 };
 
-// 整合配置
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<ButtonConfig>(
-  CMP_TYPES.BUTTON,
-  props,
-  defaultProps,
-);
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
-  ButtonCore,
-  ButtonState,
-  ButtonConfig
->(() => new ButtonCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
+  useWidgetSetup<ButtonCore, ButtonState, ButtonConfig>(CMP_TYPES.BUTTON, props, { defaultProps });
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents?.onPointerDown?.(e);

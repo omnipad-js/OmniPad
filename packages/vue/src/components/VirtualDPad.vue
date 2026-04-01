@@ -9,9 +9,8 @@ import {
   type LayoutBox,
 } from '@omnipad/core';
 import { supportsContainerQueries } from '@omnipad/core/dom';
-import { useCoreEntity } from '../composables/useCoreEntity';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
 import VirtualAxisBase from './VirtualAxisBase.vue';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 /**
  * Props for the Virtual D-Pad component.
@@ -54,19 +53,8 @@ const defaultProps = {
   threshold: 0.3,
 };
 
-// 整合配置
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<DPadConfig>(
-  CMP_TYPES.D_PAD,
-  props,
-  defaultProps,
-);
-
-// 桥接 Core
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
-  DPadCore,
-  DPadState,
-  DPadConfig
->(() => new DPadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
+  useWidgetSetup<DPadCore, DPadState, DPadConfig>(CMP_TYPES.D_PAD, props, { defaultProps });
 
 const canUseNativeCQ = supportsContainerQueries();
 

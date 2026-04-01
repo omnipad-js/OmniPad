@@ -8,9 +8,8 @@ import {
   type TrackpadConfig,
   type TrackpadState,
 } from '@omnipad/core';
-import { useCoreEntity } from '../composables/useCoreEntity';
-import { useWidgetConfig } from '../composables/useWidgetConfig';
 import VirtualButtonBase from './VirtualButtonBase.vue';
+import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface VirtualTrackpadProps {
   /** The runtime tree node for automatic setup. */
@@ -36,21 +35,15 @@ interface VirtualTrackpadProps {
 }
 
 const props = defineProps<VirtualTrackpadProps>();
+const defaultProps = {
+  label: 'TRACKPAD',
+  sensitivity: 1.0,
+};
 
-const { uid, initialConfig, reactiveConfig } = useWidgetConfig<TrackpadConfig>(
-  CMP_TYPES.TRACKPAD,
-  props,
-  {
-    label: 'TRACKPAD',
-    sensitivity: 1.0,
-  },
-);
-
-const { core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } = useCoreEntity<
-  TrackpadCore,
-  TrackpadState,
-  TrackpadConfig
->(() => new TrackpadCore(uid.value, initialConfig.value, props.treeNode?.type), reactiveConfig);
+const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
+  useWidgetSetup<TrackpadCore, TrackpadState, TrackpadConfig>(CMP_TYPES.TRACKPAD, props, {
+    defaultProps,
+  });
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents?.onPointerDown?.(e);

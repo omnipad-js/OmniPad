@@ -8,22 +8,12 @@ import {
   type ICoreEntity,
   type IPointerHandler,
   type IStateful,
-  type LayoutBox,
 } from '@omnipad/core';
 import { getObjectDiff } from '@omnipad/core/utils';
-import { WindowManager, createPointerBridge, flattenToHostLayout } from '@omnipad/core/dom';
-import { useStickyLayout } from './useStickyLayout';
-import { createManualTrigger } from '../utils/createManualTrigger';
-import { useSpatialObserver } from './useSpatialObserver';
+import { WindowManager, createPointerBridge } from '@omnipad/core/dom';
 
 /**
  * Bridges a Vue component with its corresponding Headless Core logic entity.
- *
- * This hook automates:
- * 1. Core instantiation and global registration.
- * 2. State synchronization between Core and Vue's reactivity system.
- * 3. Spatial rect reporting for precise coordinate mapping.
- * 4. Standardized Pointer Event bridging (PointerCapture, stopping propagation, etc).
  *
  * @template T - The Core class type (e.g., JoystickCore).
  * @template S - The State interface type (e.g., JoystickState).
@@ -44,19 +34,6 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
   const state = ref<S>();
   const effectiveConfig = ref<C>();
   const elementRef = ref<any>(null);
-
-  // 存储吸附目标的物理信息提供者 / Stores the physical information provider for the sticky target
-  const layoutUpdateTicker = createManualTrigger();
-
-  // 集成吸附模式模块
-  const { stickyProvider } = useStickyLayout(
-    core as any,
-    effectiveConfig as any,
-    layoutUpdateTicker.notify,
-  );
-
-  // 集成空间观察模块
-  useSpatialObserver(core as any, elementRef, stickyProvider);
 
   // 监听外部 Props 配置变化
   let lastExternalConfig = { ...externalConfig.value };
@@ -123,24 +100,11 @@ export function useCoreEntity<T extends ICoreEntity, S, C extends BaseConfig>(
       ? createPointerBridge(instance as unknown as IPointerHandler, domEventOptions)
       : {};
 
-  // 根据有效配置的布局设定计算获得最终有效的布局
-  const effectiveLayout = computed<LayoutBox>(() => {
-    const rawLayout = effectiveConfig.value?.layout as LayoutBox;
-
-    // 如果没有配置吸附，直接返回
-    if (!stickyProvider.value || !layoutUpdateTicker.depend()) return rawLayout;
-
-    // 执行换算，将相对于吸附目标元素的布局拍平成相对共同父级（视口）的布局
-    const targetRect = stickyProvider.value.getRect();
-    return targetRect ? flattenToHostLayout(rawLayout, targetRect) : rawLayout;
-  });
-
   return {
     core,
     state: readonly(state),
     domEvents,
     effectiveConfig: readonly(effectiveConfig),
-    effectiveLayout,
     elementRef,
     bindDelegates,
   };
