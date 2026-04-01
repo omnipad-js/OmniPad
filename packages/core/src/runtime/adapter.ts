@@ -1,6 +1,15 @@
-import { AnyFunction, EntityType, IDependencyBindable } from '../types';
+import {
+  AbstractRect,
+  AnyFunction,
+  EntityType,
+  IElementObserver,
+  IResettable,
+  ISpatial,
+} from '../types';
 import { BaseConfig, ConfigTreeNode } from '../types/configs';
+import { createCachedProvider } from '../utils/cache';
 import { filterObjectByKeys, mergeObjects } from '../utils/object';
+import { StickyProvider } from './sticky';
 
 /**
  * Binds a map of delegate functions to a core entity instance.
@@ -13,13 +22,79 @@ export function bindEntityDelegates(entity: any, delegates?: Record<string, AnyF
 
   // 检查实体是否实现了 IDependencyBindable 接口
   if ('bindDelegate' in entity && typeof entity.bindDelegate === 'function') {
-    Object.entries(delegates).forEach(([key, fn]) => {
-      // 只有当值为函数时才执行绑定 / Only bind if the value is a function
+    const entries = Object.entries(delegates);
+
+    for (let i = 0; i < entries.length; i++) {
+      const [key, fn] = entries[i];
+
+      // 严格校验：确保只绑定函数
       if (typeof fn === 'function') {
-        (entity as unknown as IDependencyBindable).bindDelegate(key, fn);
+        entity.bindDelegate(key, fn);
+      }
+    }
+  }
+}
+
+/**
+ * Orchestrates environment-agnostic spatial and visibility logic for an entity.
+ *
+ * @template T - The type of the physical element (e.g., HTMLElement, Element).
+ * @param entity - The logic core entity instance (must implement ICoreEntity).
+ * @param element - The physical element target to be observed.
+ * @param observer - The unified observer singleton (RO/IO) to track the element.
+ * @param getRect - An environment-specific function to retrieve the element's current Rect.
+ * @param stickyProvider - Optional. If provided, its cache will be invalidated alongside the entity's.
+ *
+ * @returns A cleanup function to disconnect all registered observers.
+ */
+export function setupSpatialLogic<T>(
+  entity: any,
+  element: T,
+  observer: IElementObserver<T>,
+  getRect: (el: T) => AbstractRect,
+  stickyProvider?: StickyProvider<T> | null,
+) {
+  if (!entity.uid) return () => {};
+  const uid = entity.uid;
+
+  // --- 1. Spatial Logic (Rect & Resize) ---
+  if ('bindRectProvider' in entity) {
+    const spatialCore = entity as unknown as ISpatial;
+
+    // 创建带缓存的提供者 / Create cached provider
+    const cached = createCachedProvider(() => getRect(element));
+
+    // 绑定获取与清理回调 / Bind getter and invalidation callback
+    spatialCore.bindRectProvider(cached.get, () => {
+      cached.markDirty();
+      // 联动清理吸附目标的缓存 / Link invalidation to sticky provider
+      if (stickyProvider) {
+        stickyProvider.markDirty();
+      }
+    });
+
+    // 注册尺寸监听 / Register ResizeObserver
+    observer.observeResize(uid, element, () => {
+      spatialCore.markRectDirty();
+    });
+  }
+
+  // --- 2. Visibility Logic (Intersection) ---
+  if ('reset' in entity) {
+    const resettableCore = entity as unknown as IResettable;
+
+    observer.observeIntersect(uid, element, (isVisible) => {
+      // 丢失可见性时自动重置信号 (安全阀) / Auto-reset on visibility loss
+      if (!isVisible) {
+        resettableCore.reset();
       }
     });
   }
+
+  // 返回清理函数 (用于注销所有监听) / Return cleanup function
+  return () => {
+    observer.disconnect(uid);
+  };
 }
 
 /**
