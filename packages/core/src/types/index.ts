@@ -214,6 +214,7 @@ export type AnyFunction = (...args: any[]) => void;
 export * from './configs';
 export * from './elementObserver';
 export * from './gamepad';
+export * from './ipc';
 export * from './keys';
 export * from './registry';
 export * from './state';
