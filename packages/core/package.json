@@ -21,6 +21,11 @@
       "types": "./dist/dom/index.d.ts",
       "import": "./dist/dom/index.mjs",
       "require": "./dist/dom/index.cjs"
+    },
+    "./guest": {
+      "types": "./dist/guest/index.d.ts",
+      "import": "./dist/guest/index.mjs",
+      "require": "./dist/guest/index.cjs"
     }
   },
   "typesVersions": {
@@ -33,6 +38,9 @@
       ],
       "dom": [
         "./dist/dom/index.d.ts"
+      ],
+      "guest": [
+        "./dist/guest/index.d.ts"
       ]
     }
   },
