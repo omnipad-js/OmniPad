@@ -1,6 +1,8 @@
 import { dispatchLocalPointerEventAtPos, dispatchLocalKeyboardEvent } from '../dom/dispatch';
 import { OMNIPAD_IPC_SIGNATURE, IpcMessage } from '../types/ipc';
 
+let isReceiverReady = false;
+
 /**
  * Initializes the Iframe IPC receiver in the current window context.
  *
@@ -12,8 +14,8 @@ import { OMNIPAD_IPC_SIGNATURE, IpcMessage } from '../types/ipc';
  */
 export function initIframeReceiver(): void {
   // 防止重复初始化，确保全局只有一个监听器 / Prevent multiple initializations; ensures only one listener per window
-  if ((window as any).__OMNIPAD_RECEIVER_READY__) return;
-  (window as any).__OMNIPAD_RECEIVER_READY__ = true;
+  if (isReceiverReady) return;
+  isReceiverReady = true;
 
   window.addEventListener('message', (event: MessageEvent) => {
     const data = event.data as IpcMessage;
