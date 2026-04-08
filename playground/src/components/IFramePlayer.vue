@@ -62,7 +62,7 @@ onMounted(() => {
         v-show="swfUrl"
         ref="iframeRef"
         class="game-iframe"
-        :src="guestUrl || '/guest.html'"
+        :src="guestUrl || './guest.html'"
         frameborder="0"
         scrolling="no"
         allowfullscreen

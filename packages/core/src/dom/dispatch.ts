@@ -1,4 +1,4 @@
-import { getDeepElement } from "./query";
+import { getDeepElement } from './query';
 
 export const dispatchLocalKeyboardEvent = (
   type: string,

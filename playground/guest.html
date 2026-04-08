@@ -60,7 +60,7 @@
   <script type="module">
     // 假设你在 @omnipad/core 导出了 initIframeReceiver
     // 在 Vite dev 环境中，可以直接请求 src 下的文件
-    import { initIframeReceiver } from '/src/iframe-receiver-test-entry.ts';
+    import { initIframeReceiver } from './src/iframe-receiver-test-entry.ts';
     
     // 启动内应，开始监听父窗口的虚拟指针/键盘信号
     initIframeReceiver();
