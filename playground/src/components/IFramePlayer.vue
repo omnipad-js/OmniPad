@@ -17,7 +17,7 @@ const iframeRef = ref<HTMLIFrameElement | null>(null);
 // 注意：这不是 OmniPad 的鼠标/键盘指令，这是业务指令
 const loadSwfIntoIframe = (url: string) => {
   if (iframeRef.value && iframeRef.value.contentWindow) {
-    console.log('[OmniPad-Playground] Sending SWF URL to Guest Iframe:', url);
+    console.log('[Playground] Sending SWF URL to Guest Iframe:', url);
     iframeRef.value.contentWindow.postMessage(
       {
         type: 'BUSINESS_LOAD_SWF',
@@ -38,7 +38,7 @@ watch(
 
 // 监听 iframe 加载完成，发送初始 URL
 const onIframeLoad = () => {
-  console.log('[OmniPad-Playground] Guest Iframe Loaded.');
+  console.log('[Playground] Guest Iframe Loaded.');
   if (props.swfUrl) {
     loadSwfIntoIframe(props.swfUrl);
   }
