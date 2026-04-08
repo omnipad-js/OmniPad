@@ -1,5 +1,6 @@
 import { Registry } from '../runtime/registry';
 import { createRafThrottler } from '../runtime/performance';
+import { IframeManager } from './IFrameManager';
 
 /**
  * Unique symbol key for the global WindowManager instance.
@@ -47,6 +48,7 @@ export class WindowManager {
     }
     Registry.getInstance().resetAll();
     Registry.getInstance().markAllRectDirty();
+    IframeManager.getInstance().markAllRectDirty();
   };
 
   private handleResizeReset = (): void => {
