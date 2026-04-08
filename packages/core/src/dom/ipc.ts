@@ -1,4 +1,4 @@
-import { dispatchPointerEventAtPos, dispatchKeyboardEvent } from './action';
+import { dispatchLocalPointerEventAtPos, dispatchLocalKeyboardEvent } from './action';
 import { OMNIPAD_IPC_SIGNATURE, IpcMessage } from '../types/ipc';
 
 export function initIframeReceiver() {
@@ -16,9 +16,9 @@ export function initIframeReceiver() {
       const { x, y, opts } = data.payload;
       // 直接在 iframe 内部调用工具函数
       // 此时 x, y 已经是相对于 iframe 左上角的正确坐标了
-      dispatchPointerEventAtPos(data.action, x, y, opts);
+      dispatchLocalPointerEventAtPos(data.action, x, y, opts);
     } else if (data.type === 'keyboard') {
-      dispatchKeyboardEvent(data.action, data.payload);
+      dispatchLocalKeyboardEvent(data.action, data.payload);
     }
   });
 

@@ -36,6 +36,20 @@ export const dispatchKeyboardEvent = (
     return;
   }
 
+  _dispatchStandardKeyboardEvent(type, payload);
+};
+
+export const dispatchLocalKeyboardEvent = (
+  type: string,
+  payload: { key: string; code: string; keyCode: number },
+) => {
+  _dispatchStandardKeyboardEvent(type, payload);
+};
+
+const _dispatchStandardKeyboardEvent = (
+  type: string,
+  payload: { key: string; code: string; keyCode: number },
+) => {
   const ev = new KeyboardEvent(type, {
     ...payload,
     which: payload.keyCode, // Support for legacy Flash engines
@@ -69,6 +83,28 @@ export const dispatchPointerEventAtPos = (
     return;
   }
 
+  _dispatchStandardPointerEventAtPos(target, type, x, y, opts);
+};
+
+export const dispatchLocalPointerEventAtPos = (
+  type: string,
+  x: number,
+  y: number,
+  opts: { button: number; buttons: number; pressure: number },
+) => {
+  const target = getDeepElement(x, y);
+  if (!target) return;
+
+  _dispatchStandardPointerEventAtPos(target, type, x, y, opts);
+};
+
+const _dispatchStandardPointerEventAtPos = (
+  target: Element,
+  type: string,
+  x: number,
+  y: number,
+  opts: { button: number; buttons: number; pressure: number },
+) => {
   const commonProps: PointerEventInit = {
     bubbles: true,
     cancelable: true,
