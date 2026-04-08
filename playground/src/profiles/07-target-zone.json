@@ -34,12 +34,19 @@
     },
     {
       "id": "$ruffle-player",
+      "parentId": "$right-pad",
       "type": "target-zone",
       "config": {
         "cursorAutoDelay": 0,
         "cursorEnabled": true,
         "baseType": "target-zone",
-        "layout": {}
+        "layout": {
+          "stickySelector": ".iframe-wrapper",
+          "top": 0,
+          "left": 0,
+          "width": "100%",
+          "height": "100%"
+        }
       }
     },
     {

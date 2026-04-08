@@ -142,6 +142,10 @@ watch(
   outline: none;
 }
 
+.export-section {
+  display: none;
+}
+
 .checkbox-group {
   display: flex;
   gap: 12px;
