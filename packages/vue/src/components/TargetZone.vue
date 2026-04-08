@@ -25,7 +25,10 @@ interface TargetZoneProps {
   widgetId?: string;
 
   /** Whether to render a visual virtual cursor. */
-  cursorEnabled?: boolean;
+  cursorEnabled?: {
+    type: boolean;
+    default: undefined;
+  };
 
   /** Delay in milliseconds before the virtual cursor auto-hides after inactivity (0 to disable). */
   cursorAutoDelay?: number;
