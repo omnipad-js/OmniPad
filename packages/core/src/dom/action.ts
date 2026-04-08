@@ -1,3 +1,4 @@
+import { IframeManager } from './IFrameManager';
 import { getDeepActiveElement, getDeepElement } from './query';
 
 /**
@@ -28,6 +29,13 @@ export const dispatchKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
 ) => {
+  // Get the current truly focused element (correctness guaranteed by TargetZone's `ensureFocus`)
+  const activeEl = getDeepActiveElement();
+  if (activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
+    IframeManager.getInstance().forwardKeyboardEvent(activeEl as HTMLIFrameElement, type, payload);
+    return;
+  }
+
   const ev = new KeyboardEvent(type, {
     ...payload,
     which: payload.keyCode, // Support for legacy Flash engines
@@ -55,6 +63,11 @@ export const dispatchPointerEventAtPos = (
 ) => {
   const target = getDeepElement(x, y);
   if (!target) return;
+
+  if (target.tagName.toLowerCase() === 'iframe') {
+    IframeManager.getInstance().forwardPointerEvent(target as HTMLIFrameElement, type, x, y, opts);
+    return;
+  }
 
   const commonProps: PointerEventInit = {
     bubbles: true,
