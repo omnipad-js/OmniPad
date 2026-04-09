@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { Registry } from '../runtime/registry';
 import { BaseEntity } from '../entities/BaseEntity';
-import { sanitizeCssClass } from '../utils/security';
+import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security';
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
 
 /**
@@ -25,6 +25,9 @@ export function parseProfileJson(raw: any): OmniPadProfile {
   if (!raw || typeof raw !== 'object') {
     throw new Error('[OmniPad-Validation] Profile must be a valid JSON object.');
   }
+
+  // 过滤原型链污染
+  raw = sanitizePrototypePollution(raw);
 
   if (!Array.isArray(raw.items)) {
     throw new Error('[OmniPad-Validation] "items" must be an array.');
