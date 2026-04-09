@@ -40,6 +40,11 @@ export const dispatchStandardPointerEventAtPos = (
   y: number,
   opts: { button: number; buttons: number; pressure: number },
 ) => {
+  // Defensive Interception: Preventing Illegal Floating-Point Injection (NaN/Infinity Protection)
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return;
+  }
+
   const commonProps: PointerEventInit = {
     bubbles: true,
     cancelable: true,
