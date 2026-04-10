@@ -1,6 +1,7 @@
 import { AbstractRect, ACTION_TYPES, IpcMessage, OMNIPAD_IPC_SIGNATURE } from '../types';
 import { ElementObserver } from './ElementObserver';
 import { generateUID } from '../utils/id';
+import { distillRect } from '../utils/distill';
 
 /** Unique symbol key for the global IframeManager instance. */
 const IFRAME_MANAGER_KEY = Symbol.for('omnipad.iframe_manager.instance');
@@ -179,14 +180,7 @@ export class IframeManager {
 
   private captureRect(iframe: HTMLIFrameElement): AbstractRect {
     const r = iframe.getBoundingClientRect();
-    return {
-      left: r.left,
-      right: r.right,
-      top: r.top,
-      bottom: r.bottom,
-      width: r.width,
-      height: r.height,
-    };
+    return distillRect(r);
   }
 
   private getSecureOrigin(iframe: HTMLIFrameElement): string {

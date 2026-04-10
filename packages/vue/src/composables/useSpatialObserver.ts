@@ -1,6 +1,7 @@
 import { onMounted, onUnmounted, Ref } from 'vue';
 import { type ICoreEntity, StickyProvider, setupSpatialLogic } from '@omnipad/core';
 import { ElementObserver } from '@omnipad/core/dom';
+import { distillRect } from '@omnipad/core/utils';
 
 /**
  * Handles DOM-related observations for a core entity.
@@ -36,7 +37,7 @@ export function useSpatialObserver(
         instance,
         domEl,
         ElementObserver.getInstance(),
-        (el) => el.getBoundingClientRect(), // 注入 Web 实现
+        (el) => distillRect(el.getBoundingClientRect()),
         stickyProvider?.value,
       );
     }
