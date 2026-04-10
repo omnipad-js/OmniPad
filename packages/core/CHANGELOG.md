@@ -1,5 +1,11 @@
 # @omnipad/core
 
+## 0.6.0
+
+### Minor Changes
+
+- Release v0.6.0: IFrame support.
+
 ## 0.5.0
 
 ### Minor Changes
