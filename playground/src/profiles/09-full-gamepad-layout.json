@@ -27,11 +27,7 @@
         "cursorEnabled": true,
         "baseType": "target-zone",
         "layout": {
-          "stickySelector": ".iframe-wrapper",
-          "top": 0,
-          "left": 0,
-          "width": "100%",
-          "height": "100%"
+          "stickySelector": ".iframe-wrapper"
         }
       }
     },
@@ -43,18 +39,10 @@
         "showStick": false,
         "threshold": 0.3,
         "mapping": {
-          "up": {
-            "code": "ArrowUp"
-          },
-          "down": {
-            "code": "ArrowDown"
-          },
-          "left": {
-            "code": "ArrowLeft"
-          },
-          "right": {
-            "code": "ArrowRight"
-          }
+          "up": "ArrowUp",
+          "down": "ArrowDown",
+          "left": "ArrowLeft",
+          "right": "ArrowRight"
         },
         "targetStageId": "$ruffle-player",
         "layout": {
@@ -78,18 +66,10 @@
         "cursorSensitivity": 1,
         "targetStageId": "$ruffle-player",
         "mapping": {
-          "up": {
-            "code": "KeyW"
-          },
-          "down": {
-            "code": "KeyS"
-          },
-          "left": {
-            "code": "KeyA"
-          },
-          "right": {
-            "code": "KeyD"
-          }
+          "up": "KeyW",
+          "down": "KeyS",
+          "left": "KeyA",
+          "right": "KeyD"
         },
         "layout": {
           "left": "30%",
@@ -108,9 +88,7 @@
       "config": {
         "label": "P",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": "KeyP"
-        },
+        "mapping": "KeyP",
         "layout": {
           "left": "80%",
           "top": "30%",
@@ -129,10 +107,7 @@
       "config": {
         "label": "LB",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "type": "mouse",
-          "button": 1
-        },
+        "mapping": "MouseRight",
         "layout": {
           "left": "20%",
           "top": "60%",
@@ -151,10 +126,7 @@
       "config": {
         "label": "LT",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "type": "mouse",
-          "button": 1
-        },
+        "mapping": "MouseRight",
         "layout": {
           "left": "20%",
           "top": "85%",
@@ -190,10 +162,7 @@
         "cursorSensitivity": 2,
         "targetStageId": "$ruffle-player",
         "mapping": {
-          "stick": {
-            "type": "mouse",
-            "button": 0
-          }
+          "stick": "Mouse"
         },
         "layout": {
           "left": "40%",
@@ -228,9 +197,7 @@
       "config": {
         "label": "S",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": " "
-        },
+        "mapping": "Space",
         "layout": {
           "left": "20%",
           "top": "30%",
@@ -249,9 +216,7 @@
       "config": {
         "label": "RB",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "type": "mouse"
-        },
+        "mapping": "Mouse",
         "layout": {
           "left": "80%",
           "top": "60%",
@@ -269,9 +234,7 @@
       "config": {
         "label": "RT",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "type": "mouse"
-        },
+        "mapping": "Mouse",
         "layout": {
           "left": "80%",
           "top": "85%",
@@ -289,9 +252,7 @@
       "config": {
         "label": "Y",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": "G"
-        },
+        "mapping": "KeyG",
         "layout": {
           "left": "50%",
           "top": "0%",
@@ -309,9 +270,7 @@
       "config": {
         "label": "X",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": "H"
-        },
+        "mapping": "KeyH",
         "layout": {
           "left": "0%",
           "top": "50%",
@@ -329,9 +288,7 @@
       "config": {
         "label": "A",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": ","
-        },
+        "mapping": "Comma",
         "layout": {
           "left": "50%",
           "top": "100%",
@@ -349,9 +306,7 @@
       "config": {
         "label": "B",
         "targetStageId": "$ruffle-player",
-        "mapping": {
-          "key": "."
-        },
+        "mapping": "Period",
         "layout": {
           "left": "100%",
           "top": "50%",
