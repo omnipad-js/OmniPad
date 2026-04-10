@@ -89,6 +89,7 @@ defineExpose({
 
 <template>
   <VirtualAxisBase
+    :id="uid"
     ref="elementRef"
     class="omnipad-joystick omnipad-prevent"
     :class="effectiveConfig?.cssClass"

@@ -90,6 +90,7 @@ defineExpose({
 
 <template>
   <VirtualAxisBase
+    :id="uid"
     ref="elementRef"
     class="omnipad-dpad omnipad-prevent"
     :class="effectiveConfig?.cssClass"
