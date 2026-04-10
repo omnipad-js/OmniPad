@@ -112,12 +112,6 @@ export function compressLayoutBox(raw: LayoutBox): LayoutBox {
  * - **Input:** A `layout` defined relative to the `refRect` (similar to CSS `position: absolute`).
  * - **Output:** A `layout` defined in the same coordinate space as the `refRect` (similar to CSS `position: fixed` or global coordinates).
  *
- * **Key Logic:**
- * 1. Converts dynamic units (like `%`) into `px` based on the `refRect`'s dimensions.
- * 2. Adds the `refRect`'s own offset (`left`/`top`) to the result, effectively
- * "pinning" the layout to a fixed position in the parent/viewport coordinate system.
- * 3. Clears `right` and `bottom` to ensure the output is a normalized [left, top, width, height] box.
- *
  * @param layout - The relative layout (e.g., `{ left: '10%' }` of the target).
  * @param refRect - The reference rect used as the "container" for calculation.
  * @param toPx - Optional converter for custom unit handling.
@@ -145,42 +139,50 @@ export function flattenRelativeLayout(
   let finalWidth: number;
   let finalLeft: number;
 
-  if (pL !== null && pR !== null && pW === null) {
-    // 情况 A: left + right 决定宽度
-    finalLeft = refRect.left + toPx(pL, refRect.width);
-    const rightOffset = refRect.right - toPx(pR, refRect.width);
-    finalWidth = rightOffset - finalLeft;
-  } else {
-    // 情况 B: 标准优先级 (left > right)
-    finalWidth = pW ? toPx(pW, refRect.width) : 0;
-    if (pL !== null) {
+  // 优先级 1: 显式指定了宽度 (且不为 0)
+  if (pW != null && pW.value !== 0) {
+    finalWidth = toPx(pW, refRect.width);
+    if (pL != null) {
       finalLeft = refRect.left + toPx(pL, refRect.width);
-    } else if (pR !== null) {
+    } else if (pR != null) {
       finalLeft = refRect.right - toPx(pR, refRect.width) - finalWidth;
     } else {
-      finalLeft = refRect.left; // 默认靠左
+      finalLeft = refRect.left;
     }
+  }
+  // 优先级 2: 未指定宽度，或宽度为 0 -> 尝试通过 left/right 边界拉伸
+  else {
+    const leftOffset = pL != null ? toPx(pL, refRect.width) : 0;
+    const rightOffset = pR != null ? toPx(pR, refRect.width) : 0;
+
+    finalLeft = refRect.left + leftOffset;
+    // 自动计算剩余宽度：参照物总宽 - 左偏移 - 右偏移
+    finalWidth = Math.max(0, refRect.width - leftOffset - rightOffset);
   }
 
   // --- 垂直计算 (Vertical) ---
   let finalHeight: number;
   let finalTop: number;
 
-  if (pT !== null && pB !== null && pH === null) {
-    // 情况 A: top + bottom 决定高度
-    finalTop = refRect.top + toPx(pT, refRect.height);
-    const bottomOffset = refRect.bottom - toPx(pB, refRect.height);
-    finalHeight = bottomOffset - finalTop;
-  } else {
-    // 情况 B: 标准优先级 (top > bottom)
-    finalHeight = pH ? toPx(pH, refRect.height) : 0;
-    if (pT !== null) {
+  // 优先级 1: 显式指定了高度 (且不为 0)
+  if (pH != null && pH.value !== 0) {
+    finalHeight = toPx(pH, refRect.height);
+    if (pT != null) {
       finalTop = refRect.top + toPx(pT, refRect.height);
-    } else if (pB !== null) {
+    } else if (pB != null) {
       finalTop = refRect.bottom - toPx(pB, refRect.height) - finalHeight;
     } else {
-      finalTop = refRect.top; // 默认靠顶
+      finalTop = refRect.top;
     }
+  }
+  // 优先级 2: 未指定高度，或高度为 0 -> 尝试通过 top/bottom 边界拉伸
+  else {
+    const topOffset = pT != null ? toPx(pT, refRect.height) : 0;
+    const bottomOffset = pB != null ? toPx(pB, refRect.height) : 0;
+
+    finalTop = refRect.top + topOffset;
+    // 自动计算剩余高度：参照物总高 - 顶偏移 - 底偏移
+    finalHeight = Math.max(0, refRect.height - topOffset - bottomOffset);
   }
 
   // 更新结果对象
@@ -188,9 +190,8 @@ export function flattenRelativeLayout(
     ...layout,
     left: `${finalLeft}px`,
     top: `${finalTop}px`,
-    width: pW || (pL && pR) ? `${finalWidth}px` : layout.width,
-    height: pH || (pT && pB) ? `${finalHeight}px` : layout.height,
-    // 清除 right 和 bottom，因为已经转换为了 fixed 坐标系的 top/left
+    width: `${finalWidth}px`,
+    height: `${finalHeight}px`,
     right: undefined,
     bottom: undefined,
   };
