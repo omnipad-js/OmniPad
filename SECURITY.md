@@ -7,7 +7,7 @@ As this is a community project maintained in our spare time, security updates ar
 | Version | Supported          |
 | ------- | ------------------ |
 | latest  | :white_check_mark: |
-| < 0.5.0 | :x:                |
+| < 0.6.0 | :x:                |
 
 ## Reporting a Vulnerability
 

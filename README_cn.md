@@ -27,13 +27,14 @@ OmniPad 是一个专为 Web 游戏（HTML5 Canvas、Ruffle Flash 模拟器、God
 
 ## ✨ 核心架构与特性
 
-- 🚀 **无头架构 (Headless Design)**：输入状态机、手势识别与核心调度完全封装在零依赖的 `@omnipad/core` 中，天然支持跨框架移植。目前提供开箱即用的 Vue 3 适配层 `@omnipad/vue`。
-- 🌲 **扁平配置与多根森林 (Flat Profile & Forest)**：创新的 JSON 解析引擎。支持将一份扁平的配置表解析为多个独立的根节点，允许你利用原生 CSS Flex/Grid 轻松实现横竖屏的宏观响应式布局。
+- 🚀 **无头架构**：输入状态机、手势识别与核心调度完全封装在零依赖的 `@omnipad/core` 中，天然支持跨框架移植。目前提供开箱即用的 Vue 3 适配层 `@omnipad/vue`。
+- 🌐 **跨域 Iframe 穿透**：**v0.6 重磅特性**。内置基于 `postMessage` 的安全 IPC 通信协议。自动探测页面中的 `<iframe>` 容器，实现高频指针坐标的实时偏移换算与键盘信号隧道，让“墙内”的游戏也能像原生网页一样受控。
+- 🌲 **扁平配置与多根森林**：创新的 JSON 解析引擎。支持将一份扁平的配置表解析为多个独立的根节点，允许你利用原生 CSS Flex/Grid 轻松实现横竖屏的宏观响应式布局。
 - 👻 **事件穿透与焦点保护**：独创高保真合成事件路由，优雅穿透 Ruffle 等 WebAssembly 模拟器的 Shadow DOM 隔离边界，精准投递合成事件；内置“焦点自动夺回”逻辑，彻底告别按键卡死与失灵。
-- 🎛️ **Touch-to-Spawn (动态挂载)**：支持在 `InputZone` 分区的任意空白处按下时**就地生成**摇杆或按键，完美契合现代移动端动作游戏习惯。
-- ⚡️ **性能原力 (Performance First)**：拒绝昂贵的 DOM 重排。所有位移计算均在内存中完成，并通过 translate3d 强制开启硬件加速。内置 rAF 节流机制，完美适配高刷屏幕。
-- 📐 **响应式单位支持**：LayoutBox 约束系统原生支持 px、%、vh/vw 等多种 CSS 单位，结合灵活的锚点 (Anchor) 系统，一套配置即可适配从 iPhone SE 到 iPad Pro 的所有尺寸。
-- 🔌 **多端输入融合**：采用底层状态机统一管理，同时支持屏幕触摸、鼠标点击以及 **实体游戏手柄 (Physical Gamepad)** 映射驱动，并实现虚拟 UI 反馈的实时同步。
+- 📐 **智能吸附与多维布局**：`LayoutBox` 约束系统不仅原生支持 `px`、`%`、`vh/vw` 等多种 CSS 单位，更支持通过 `stickySelector` 实现组件级吸附。它能自动追踪页面内任意 DOM 元素的位置变化并实时同步坐标，是开发游戏外挂式 UI 和浏览器扩展的终极利器。
+- 🎛️ **动态挂载**：支持在 `InputZone` 分区的任意空白处按下时**就地生成**摇杆或按键，完美契合现代移动端动作游戏习惯。
+- ⚡️ **性能原力**：拒绝昂贵的 DOM 重排。引入单例 `ResizeObserver` 监听池与 Rect 缓存机制。所有位移计算均在内存中完成，并通过 `translate3d` 强制开启硬件加速。内置 rAF 节流机制，完美适配高刷屏幕。
+- 🔌 **多端输入融合**：采用底层状态机统一管理，同时支持屏幕触摸、鼠标点击以及**实体游戏手柄**映射驱动，并实现虚拟 UI 反馈的实时同步。
 
 ---
 
@@ -120,10 +121,10 @@ import '@omnipad/vue/style.css';
       "parentId": "$ui-layer",
       "config": {
         "mapping": {
-          "up": { "code": "ArrowUp" },
-          "down": { "code": "ArrowDown" },
-          "left": { "code": "ArrowLeft" },
-          "right": { "code": "ArrowRight" }
+          "up": "ArrowUp",
+          "down": "ArrowDown",
+          "left": "ArrowLeft",
+          "right": "ArrowRight"
         },
         "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
       }
@@ -134,7 +135,7 @@ import '@omnipad/vue/style.css';
       "parentId": "$ui-layer",
       "config": {
         "label": "FIRE",
-        "mapping": { "code": "Space" },
+        "mapping": "Space",
         "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
       }
     }
@@ -196,9 +197,12 @@ GamepadManager.getInstance().start();
 
 ```json
 // 在 profile.json 的根部添加映射数组：
-"gamepadMappings":[
+"gamepadMappings": [
   {
-    "buttons": { "A": "btn-jump", "RT": "btn-fire" },
+    "buttons": { "RT": "btn-fire" }
+  },
+  {
+    "buttons": { "A": "btn-jump" },
     "leftStick": "my-joystick"
   }
 ]
@@ -260,7 +264,7 @@ registerComponent('custom-trackpad', CustomTrackpad);
 ## 🗺️ 项目状态与未来愿景 (Status & Vision)
 
 > **📢 当前状态：维护模式 (Maintenance Mode)** \
-> OmniPad (v0.5) 的核心已经完全达成了设计初衷，提供了极其稳固的底层输入状态机。由于个人精力有限，**目前我将主要负责核心 Bug 修复与稳定性维护，短期内暂无大规模新功能开发计划。**
+> OmniPad (v0.6) 的核心已经完全达成了设计初衷，提供了极其稳固的底层输入状态机。由于个人精力有限，**目前我将主要负责核心 Bug 修复与稳定性维护，短期内暂无大规模新功能开发计划。**
 >
 > 然而，OmniPad 的底层架构（Headless Core）天生具备无限的扩展可能。以下是我们认为非常有价值的演进方向，**非常欢迎社区通过 PR 参与共建**：
 

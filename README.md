@@ -28,11 +28,12 @@ Most joystick libraries (like nipple.js) only provide raw UI and coordinate calc
 ## ✨ Core Architecture & Features
 
 - 🚀 **Headless Design**: The input state machine, gesture recognition, and core scheduling are fully encapsulated in the zero-dependency `@omnipad/core`. It is natively framework-agnostic. We currently provide `@omnipad/vue`, a production-ready Vue 3 adapter.
+- 🌐 **Cross-Origin Iframe Bridge**: **A major feature in v0.6**. Built-in secure IPC communication protocol based on `postMessage`. Automatically detects `<iframe>` containers on the page to enable real-time coordinate conversion and keyboard signal tunneling, allowing games “behind the Great Firewall” to be controlled just like native web pages.
 - 🌲 **Flat Profile & Forest**: An innovative JSON parsing engine. It supports parsing a single flat configuration into multiple independent root nodes, allowing you to use native CSS Flex/Grid to build complex responsive layouts for both landscape and portrait modes.
 - 👻 **Event Penetration & Focus Protection**: Features high-fidelity synthetic event routing that elegantly penetrates the Shadow DOM boundaries of WebAssembly emulators (like Ruffle). Built-in "Auto-Focus Reclaim" logic ensures keys never get stuck or unresponsive.
+- 📐 **Smart Sticky & Adaptive Layout**: The `LayoutBox` constraint system not only natively supports various CSS units such as `px`, `%`, and `vh/vw`, but also enables component-level sticking via `stickySelector`. It automatically tracks position changes of any DOM element on the page and synchronizes coordinates in real time, making it the ultimate tool for developing game overlay UIs and browser extensions.
 - 🎛️ **Touch-to-Spawn (Dynamic Mounting)**: Supports **spawning** joysticks or buttons anywhere in an `InputZone` upon touch. This perfectly mimics the control habits of modern mobile action games.
-- ⚡️ **Performance First**: No expensive DOM reflows. All displacement calculations happen in memory, with hardware acceleration forced via `translate3d`. Built-in **rAF (requestAnimationFrame) throttling** ensures perfect synchronization with high-refresh-rate screens.
-- 📐 **Responsive Unit Support**: The `LayoutBox` constraint system natively supports `px`, `%`, `vh/vw`, and other CSS units. Combined with a flexible **Anchor** system, a single configuration can adapt to everything from an iPhone SE to an iPad Pro.
+- ⚡️ **Performance First**: No expensive DOM reflows. Introduce a singleton `ResizeObserver` pool and the Rect caching mechanism. All displacement calculations happen in memory, with hardware acceleration forced via `translate3d`. Built-in **rAF (requestAnimationFrame) throttling** ensures perfect synchronization with high-refresh-rate screens.
 - 🔌 **Input Fusion**: Managed by a unified underlying state machine, OmniPad supports simultaneous inputs from screen touch, mouse clicks, and **Physical Gamepads**, with real-time synchronized feedback on the virtual UI.
 
 ---
@@ -119,10 +120,10 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
       "parentId": "$ui-layer",
       "config": {
         "mapping": {
-          "up": { "code": "ArrowUp" },
-          "down": { "code": "ArrowDown" },
-          "left": { "code": "ArrowLeft" },
-          "right": { "code": "ArrowRight" }
+          "up": "ArrowUp",
+          "down": "ArrowDown",
+          "left": "ArrowLeft",
+          "right": "ArrowRight"
         },
         "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
       }
@@ -133,7 +134,7 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
       "parentId": "$ui-layer",
       "config": {
         "label": "FIRE",
-        "mapping": { "code": "Space" },
+        "mapping": "Space",
         "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
       }
     }
@@ -195,9 +196,12 @@ GamepadManager.getInstance().start();
 
 ```json
 // Add a mapping array at the root of profile.json:
-"gamepadMappings":[
+"gamepadMappings": [
   {
-    "buttons": { "A": "movement", "RT": "btn-fire" },
+    "buttons": { "RT": "btn-fire" }
+  },
+  {
+    "buttons": { "A": "btn-jump" },
     "leftStick": "my-joystick"
   }
 ]
@@ -259,7 +263,7 @@ After registration, you can directly use `"type": "custom-trackpad"` in your JSO
 ## 🗺️ Status & Vision
 
 > **📢 Current Status: Maintenance Mode** \
-> The core of OmniPad (v0.5) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
+> The core of OmniPad (v0.6) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
 >
 > However, OmniPad's underlying architecture (Headless Core) inherently possesses limitless scalability potential. Below are evolutionary directions we consider highly valuable, and **we warmly welcome community participation through PRs to build together**:
 
