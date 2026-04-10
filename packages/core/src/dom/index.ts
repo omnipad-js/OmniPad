@@ -8,4 +8,5 @@ export * from './sticky';
 
 export * from './ElementObserver';
 export * from './GamepadManager';
+export * from './IFrameManager';
 export * from './WindowManager';

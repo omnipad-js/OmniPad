@@ -4,7 +4,7 @@ import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
 import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
 import { ActionEmitter } from '../runtime/action';
-import { applyAxialDeadzone, clamp, isVec2Equal, lerp } from '../utils/math';
+import { clamp, isVec2Equal, lerp } from '../utils/math';
 
 const INITIAL_STATE: DPadState = {
   isActive: false,
@@ -104,10 +104,7 @@ export class DPadCore
     }
 
     // 基础向量计算 / Basic vector calculation
-    const rawVector = { x: normX, y: normY };
-
-    // 应用轴向死区 / Apply axial deadzone
-    const vector = applyAxialDeadzone(rawVector, 1.0, this.config.threshold ?? DEFAULT_THRESHOLD);
+    const vector = { x: clamp(normX, -1, 1), y: clamp(normY, -1, 1) };
 
     // 更新内部 vector 状态供适配层渲染浮标 / Update vector for floating stick rendering
     if (!isVec2Equal(vector, this.state.vector, VECTOR_DIRTY_THRESHOLD)) {

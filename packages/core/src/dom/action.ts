@@ -1,3 +1,5 @@
+import { dispatchStandardKeyboardEvent, dispatchStandardPointerEventAtPos } from './dispatch';
+import { IframeManager } from './IFrameManager';
 import { getDeepActiveElement, getDeepElement } from './query';
 
 /**
@@ -28,14 +30,14 @@ export const dispatchKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
 ) => {
-  const ev = new KeyboardEvent(type, {
-    ...payload,
-    which: payload.keyCode, // Support for legacy Flash engines
-    bubbles: true,
-    cancelable: true,
-    view: window,
-  });
-  window.dispatchEvent(ev);
+  // Get the current truly focused element (correctness guaranteed by TargetZone's `ensureFocus`)
+  const activeEl = getDeepActiveElement();
+  if (activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
+    IframeManager.getInstance().forwardKeyboardEvent(activeEl as HTMLIFrameElement, type, payload);
+    return;
+  }
+
+  dispatchStandardKeyboardEvent(type, payload);
 };
 
 /**
@@ -56,34 +58,12 @@ export const dispatchPointerEventAtPos = (
   const target = getDeepElement(x, y);
   if (!target) return;
 
-  const commonProps: PointerEventInit = {
-    bubbles: true,
-    cancelable: true,
-    composed: true, // Crucial for piercing Shadow DOM boundaries
-    clientX: x,
-    clientY: y,
-    view: window,
-    ...opts,
-  };
-
-  // If type is pointer-based, dispatch both PointerEvent and MouseEvent for 100% engine compatibility
-  if (type.startsWith('pointer')) {
-    target.dispatchEvent(
-      new PointerEvent(type, {
-        isPrimary: true,
-        pointerId: 9999,
-        pointerType: 'mouse', // Emulate mouse behavior for Flash MouseOver/Down logic
-        ...commonProps,
-      }),
-    );
-
-    // Automatically map pointer events to traditional mouse events
-    const mouseType = type.replace('pointer', 'mouse');
-    target.dispatchEvent(new MouseEvent(mouseType, commonProps));
-  } else {
-    // Fallback for direct mouse event dispatch
-    target.dispatchEvent(new MouseEvent(type, commonProps));
+  if (target.tagName.toLowerCase() === 'iframe') {
+    IframeManager.getInstance().forwardPointerEvent(target as HTMLIFrameElement, type, x, y, opts);
+    return;
   }
+
+  dispatchStandardPointerEventAtPos(target, type, x, y, opts);
 };
 
 /**

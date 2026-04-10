@@ -58,7 +58,8 @@ export const ACTION_TYPES = {
  * =================================================================
  */
 
-/** * Represents an abstract bounding box, typically used as a
+/** 
+ * Represents an abstract bounding box, typically used as a
  * lightweight alternative to the DOMRect interface.
  */
 export interface AbstractRect {
@@ -70,7 +71,8 @@ export interface AbstractRect {
   height: number;
 }
 
-/** * Represents abstract pointer data, providing a platform-agnostic
+/** 
+ * Represents abstract pointer data, providing a platform-agnostic
  * alternative to the native PointerEvent.
  */
 export interface AbstractPointerEvent {
@@ -214,6 +216,7 @@ export type AnyFunction = (...args: any[]) => void;
 export * from './configs';
 export * from './elementObserver';
 export * from './gamepad';
+export * from './ipc';
 export * from './keys';
 export * from './registry';
 export * from './state';

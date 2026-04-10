@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
-import RufflePlayer from './components/RufflePlayer.vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import { registerComponent, RootLayer } from '@omnipad/vue';
 import { Registry } from '@omnipad/core';
 import { GamepadManager, WindowManager } from '@omnipad/core/dom';
 import { parseProfileJson, parseProfileTrees, exportProfile } from '@omnipad/core';
 import CustomTrackpad from './components/CustomTrackpad.vue';
+import IFramePlayer from './components/IFramePlayer.vue';
 
 const jsonText = ref('{}'); // 文本框内容
 const forest = ref<any>(null); // 当前运行时的树根
@@ -80,10 +80,6 @@ const renderRightPad = computed(() => {
   return forest.value ? forest.value['$right-pad'] : {};
 });
 
-const renderPlayer = computed(() => {
-  return forest.value ? forest.value['$ruffle-player'] : {};
-});
-
 // 注册自定义触摸板
 onBeforeMount(() => {
   registerComponent('random-trackpad', CustomTrackpad);
@@ -138,13 +134,14 @@ onBeforeMount(() => {
 
       <!-- [中间/上方全宽] 游戏核心区 -->
       <section class="flex-item-two main-stage">
-        <RufflePlayer
+        <!-- <RufflePlayer
           :swf-url="currentSwf"
           widget-id="$ruffle-player"
           cursor-enabled
           :tree-node="renderPlayer"
           :load-count="loadCount"
-        />
+        /> -->
+        <IFramePlayer :swf-url="currentSwf"></IFramePlayer>
       </section>
 
       <!-- [右侧/下方右半] 输入分区 -->

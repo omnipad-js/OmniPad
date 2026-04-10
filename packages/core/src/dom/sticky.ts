@@ -1,4 +1,5 @@
 import { StickyProvider } from '../runtime/sticky';
+import { distillRect } from '../utils/distill';
 import { smartQuerySelector } from './query';
 
 /**
@@ -11,7 +12,7 @@ export const createWebStickyProvider = (selector: string) => {
     (el) => {
       // rectProvider
       const r = (el as Element).getBoundingClientRect();
-      return r;
+      return distillRect(r);
     },
     (el) => document.contains(el as Node), // presenceChecker
   );
