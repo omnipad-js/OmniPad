@@ -1,7 +1,10 @@
 import { Registry } from '../runtime/registry';
 import { ActionMapping, ACTION_TYPES } from '../types';
-import { KEYS } from '../types/keys';
+import { KeyMapping, KEYS } from '../types/keys';
 import { delayFrames } from './performance';
+
+const MAX_STR_LEN = 32; // 键名通常不会超过这个长度
+const MAX_KEY_CODE = 255; // 标准键盘码范围
 
 /**
  * Action Emitter Utility.
@@ -11,7 +14,7 @@ import { delayFrames } from './performance';
  */
 export class ActionEmitter {
   private isPressed = false;
-  private mapping?: ActionMapping;
+  private mapping?: KeyMapping;
   private targetId?: string;
 
   constructor(targetId?: string, action?: ActionMapping) {
@@ -33,44 +36,72 @@ export class ActionEmitter {
     }
 
     this.targetId = targetId;
-    this.mapping = this.hydrate(mapping);
+    this.mapping =
+      typeof mapping === 'string'
+        ? (KEYS[mapping as keyof typeof KEYS] ?? undefined)
+        : this.hydrate(mapping);
   }
 
   /**
-   * Hydrates partial mapping data into a full ActionMapping.
+   * Hydrates partial mapping data into a full KeyMapping.
    * Handles mouse defaults and keyboard auto-completion via STANDARD_KEYS.
    */
-  private hydrate(action?: ActionMapping): ActionMapping | undefined {
-    if (!action) return undefined;
+  private hydrate(action?: KeyMapping): KeyMapping | undefined {
+    if (!action || typeof action !== 'object') return undefined;
 
-    // 浅拷贝一份，避免修改原始配置对象 / Shallow copy to avoid mutating source config
-    const hydrated = { ...action };
+    // 1. 提取核心字段，丢弃所有杂质 (Whitelist only)
+    const { type, key, code, keyCode, button, fixedPoint } = action;
 
-    // --- 鼠标映射补全 (Mouse Hydration) ---
-    if (hydrated.type === 'mouse') {
-      hydrated.button = hydrated.button ?? 0;
-      return hydrated;
+    // --- A. 鼠标映射校验 (Mouse Sanitization) ---
+    if (type === 'mouse') {
+      return {
+        type: 'mouse',
+        // 强制约束按钮索引在 0, 1, 2 之间
+        button: typeof button === 'number' && button >= 0 && button <= 2 ? button : 0,
+        // 坐标校验（如果有）
+        fixedPoint:
+          fixedPoint && typeof fixedPoint.x === 'number'
+            ? { x: Number(fixedPoint.x), y: Number(fixedPoint.y) }
+            : undefined,
+      };
     }
 
-    // --- 键盘映射补全 (Keyboard Hydration) ---
-    // 逻辑：如果未显式声明为鼠标，且具备键盘特征，则尝试通过码表补全
-    const { key, code, keyCode } = hydrated;
-    if (key || code || keyCode) {
-      hydrated.type = 'keyboard';
+    // --- B. 键盘映射校验与补全 (Keyboard Sanitization) ---
+    // 先进行基本的“脱毒”处理
+    const safeKey = typeof key === 'string' ? key.substring(0, MAX_STR_LEN) : undefined;
+    const safeCode = typeof code === 'string' ? code.substring(0, MAX_STR_LEN) : undefined;
+    const safeKeyCode =
+      typeof keyCode === 'number' && Number.isFinite(keyCode)
+        ? Math.floor(Math.min(keyCode, MAX_KEY_CODE))
+        : undefined;
 
-      // 在标准库中寻找匹配项 / Find matching entry in KEYS
-      const standard = Object.values(KEYS).find(
-        (s) => s.code === code || s.key === key || s.keyCode === keyCode,
-      );
+    // 如果具备键盘特征，则尝试补全
+    if (safeKey || safeCode || safeKeyCode) {
+      // 寻找匹配项
+      const standard = Object.values(KEYS).find((s) => {
+        if (s.type !== 'keyboard') return false;
+        return s.code === safeCode || s.key === safeKey || s.keyCode === safeKeyCode;
+      }) as KeyMapping | undefined;
 
       if (standard) {
-        hydrated.key = key ?? standard.key;
-        hydrated.code = code ?? standard.code;
-        hydrated.keyCode = keyCode ?? standard.keyCode;
+        return {
+          type: 'keyboard',
+          key: safeKey ?? standard.key,
+          code: safeCode ?? standard.code,
+          keyCode: safeKeyCode ?? standard.keyCode,
+        };
       }
+
+      // 如果没找到标准定义，但输入了有效字段，依然返回脱毒后的版本（允许自定义非标按键）
+      return {
+        type: 'keyboard',
+        key: safeKey || 'unknown',
+        code: safeCode || 'Unknown',
+        keyCode: safeKeyCode || 0,
+      };
     }
 
-    return hydrated;
+    return undefined;
   }
 
   /**

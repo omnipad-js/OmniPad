@@ -58,7 +58,7 @@ export class JoystickCore
       right: new ActionEmitter(target, m.right),
     };
     this.stickEmitter = new ActionEmitter(target, m.stick);
-    this.cursorEmitter = new ActionEmitter(target, { type: 'mouse' });
+    this.cursorEmitter = new ActionEmitter(target, 'Mouse');
 
     // 2. 初始化手势识别器（用于杆头点击 L3）/ Gesture recognizer for stick-head tap
     this.gesture = new GestureRecognizer({

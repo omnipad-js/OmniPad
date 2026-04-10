@@ -46,7 +46,7 @@ export class TrackpadCore
     super(uid, customTypeName || CMP_TYPES.TRACKPAD, config, INITIAL_STATE);
 
     // 初始化动作发射器：默认模拟鼠标左键 / Initialize emitter, default to Left Mouse Button
-    const mouseAction = config.mapping || { type: 'mouse' };
+    const mouseAction = config.mapping || 'Mouse';
     this.emitter = new ActionEmitter(config.targetStageId, mouseAction);
 
     // Configure the gesture state machine / 配置手势状态机
