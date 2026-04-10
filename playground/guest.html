@@ -63,7 +63,9 @@
     import { initIframeReceiver } from './src/iframe-receiver-test-entry.ts';
     
     // 启动内应，开始监听父窗口的虚拟指针/键盘信号
-    initIframeReceiver();
+    initIframeReceiver({
+      allowedOrigins: [window.location.origin]
+    });
   </script>
 
 </body>
