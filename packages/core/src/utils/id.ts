@@ -1,19 +1,36 @@
 /**
- * Generates a globally unique identifier (UID) for runtime entity management and DOM keys.
+ * Generates a unique identifier (UID).
  *
- * The generated ID follows the format: `[prefix]-[timestamp_base36]-[random_string]`.
- * This ensures that components generated at different times or across multiple sessions
- * remain unique within the current page instance.
+ * Uses the Web Crypto API to ensure cryptographic randomness if available,
+ * falling back to Math.random() in insecure or legacy environments.
  *
- * @param prefix - A string prefix for the ID, typically the component type (e.g., 'btn', 'joy'). Defaults to 'omnipad'.
- * @returns A unique string identifier.
- *
- * @example
- * generateUID('button') // returns "button-m7x8k1p2-f4k2"
+ * @param prefix - A prefix string to identify the entity type (e.g., 'btn').
+ * @returns A unique string formatted as `prefix-timestamp-random`.
  */
 export const generateUID = (prefix: string = 'omnipad'): string => {
+  // 1. 生成基于时间戳的标识 / Generate timestamp part (Base36)
   const stamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 6);
+
+  // 2. 初始化 4 字节的随机缓冲区 / Initialize 4-byte random buffer
+  const bytes = new Uint8Array(4);
+  const cryptoObj = globalThis.crypto;
+
+  // 3. 优先使用加密级随机数 / Prioritize Web Crypto API
+  if (cryptoObj?.getRandomValues) {
+    cryptoObj.getRandomValues(bytes);
+  } else {
+    // 降级方案：保留逻辑形状但使用普通随机数 / Fallback to insecure random
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+
+  // 4. 将字节转换为 36 进制并截取 / Convert bytes to Base36 and slice
+  const random = Array.from(bytes)
+    .map((b) => b.toString(36).padStart(2, '0'))
+    .join('')
+    .substring(0, 4);
+
   return `${prefix}-${stamp}-${random}`;
 };
 

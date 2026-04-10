@@ -58,7 +58,7 @@ export const ACTION_TYPES = {
  * =================================================================
  */
 
-/** 
+/**
  * Represents an abstract bounding box, typically used as a
  * lightweight alternative to the DOMRect interface.
  */
@@ -71,7 +71,7 @@ export interface AbstractRect {
   height: number;
 }
 
-/** 
+/**
  * Represents abstract pointer data, providing a platform-agnostic
  * alternative to the native PointerEvent.
  */

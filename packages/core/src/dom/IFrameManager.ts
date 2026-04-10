@@ -16,7 +16,7 @@ interface IframeCache {
 
 /**
  * Global Iframe Manager.
- * 
+ *
  * Manages cross-origin communication between the host page and embedded iframes.
  * Handles coordinate transformation, security whitelisting, and spatial tracking.
  */
@@ -48,7 +48,7 @@ export class IframeManager {
 
   /**
    * Adds a domain to the trusted whitelist.
-   * 
+   *
    * @param origin - The origin to trust (e.g., "https://example.com").
    */
   public addTrustedOrigin(origin: string): void {
@@ -61,7 +61,7 @@ export class IframeManager {
 
   /**
    * Core admission logic: Checks cache -> Validates whitelist -> Starts monitoring.
-   * 
+   *
    * @internal
    * @param iframe - The iframe element to verify.
    * @returns Verified cache data or null if untrusted/invalid.
@@ -117,7 +117,7 @@ export class IframeManager {
 
   /**
    * Transforms and forwards a pointer event to the target iframe.
-   * 
+   *
    * @param iframe - The destination iframe.
    * @param type - Event type (e.g., 'pointermove').
    * @param globalX - X coordinate in the host viewport.
@@ -134,7 +134,7 @@ export class IframeManager {
     if (!iframe.contentWindow || !Number.isFinite(globalX) || !Number.isFinite(globalY)) return;
 
     const data = this.getVerifiedIframeData(iframe);
-    if (!data) return; 
+    if (!data) return;
 
     // 坐标系转换：全局坐标 - Iframe偏移 = 内部本地坐标
     // Coordinate conversion: Global - Offset = Local
@@ -154,7 +154,7 @@ export class IframeManager {
 
   /**
    * Forwards a keyboard event to the target iframe.
-   * 
+   *
    * @param iframe - The destination iframe.
    * @param type - Event type (e.g., 'keydown').
    * @param payload - Key mapping data.
@@ -215,7 +215,7 @@ export class IframeManager {
 
   /**
    * Unregisters an iframe and disconnects its observers.
-   * 
+   *
    * @param iframe - The element to remove.
    * @param uid - The unique ID associated with the iframe.
    */
