@@ -34,7 +34,6 @@
     },
     {
       "id": "$ruffle-player",
-      "parentId": "$right-pad",
       "type": "target-zone",
       "config": {
         "cursorAutoDelay": 0,

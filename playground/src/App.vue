@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from 'vue';
 import ConfigConsole from './components/ConfigConsole.vue';
-import { registerComponent, RootLayer } from '@omnipad/vue';
+import { registerComponent, RootLayer, TargetZone } from '@omnipad/vue';
 import { Registry } from '@omnipad/core';
 import { GamepadManager, WindowManager } from '@omnipad/core/dom';
 import { parseProfileJson, parseProfileTrees, exportProfile } from '@omnipad/core';
@@ -80,6 +80,10 @@ const renderRightPad = computed(() => {
   return forest.value ? forest.value['$right-pad'] : {};
 });
 
+const renderPlayer = computed(() => {
+  return forest.value ? forest.value['$ruffle-player'] : {};
+});
+
 // 注册自定义触摸板
 onBeforeMount(() => {
   registerComponent('random-trackpad', CustomTrackpad);
@@ -110,12 +114,7 @@ onBeforeMount(() => {
     <main class="game-flex-container">
       <!-- [左侧/下方左半] 输入分区 -->
       <section class="flex-item side-panel left">
-        <RootLayer
-          v-if="renderLeftPad"
-          widget-id="$left-pad"
-          :tree-node="renderLeftPad"
-          :key="`left-${loadCount}`"
-        >
+        <RootLayer v-if="renderLeftPad" :tree-node="renderLeftPad" :key="`left-${loadCount}`">
           <div v-if="renderLeftPad?.config?.hasStaticTrackpad" class="static-trackpad">
             <CustomTrackpad
               :tree-node="{ uid: 'manual_1', type: 'random-trackpad' }"
@@ -142,13 +141,17 @@ onBeforeMount(() => {
           :load-count="loadCount"
         /> -->
         <IFramePlayer :swf-url="currentSwf"></IFramePlayer>
+        <TargetZone
+          v-if="renderPlayer"
+          :tree-node="renderPlayer"
+          :key="`player-${loadCount}`"
+        ></TargetZone>
       </section>
 
       <!-- [右侧/下方右半] 输入分区 -->
       <section class="flex-item side-panel right">
         <RootLayer
           v-if="renderRightPad"
-          widget-id="$right-pad"
           :tree-node="renderRightPad"
           :key="`right-${loadCount}`"
         />
