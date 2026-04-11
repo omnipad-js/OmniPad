@@ -12,7 +12,14 @@ import { BaseEntity } from '../entities/BaseEntity';
 import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security';
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
 
+const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
+const MAX_PROFILE_SIZE = 10 * 1024 * 1024; // 10MB
+// const MAX_TREE_DEPTH = 10; // 允许的最大嵌套深度
+
 /**
+ * @deprecated Use validateProfile() instead.
+ * This function will be removed in v0.7.0.
+ *
  * Validates and normalizes raw JSON data into a standard OmniPadProfile.
  * Performs structural checks and injects default metadata.
  *
@@ -21,17 +28,46 @@ import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
  * @throws Error if the core structure is invalid.
  */
 export function parseProfileJson(raw: any): OmniPadProfile {
+  return validateProfile(raw);
+}
+
+/**
+ * Validates and normalizes raw JSON data into a standard OmniPadProfile.
+ * Performs structural checks and injects default metadata.
+ *
+ * @param raw - The raw JSON object from disk or network.
+ * @returns A validated OmniPadProfile object.
+ * @throws Error if the core structure is invalid.
+ */
+export function validateProfile(raw: any): OmniPadProfile {
   // 1. 核心结构校验
   if (!raw || typeof raw !== 'object') {
     throw new Error('[OmniPad-Validation] Profile must be a valid JSON object.');
   }
 
+  // 大小限制
+  const estimatedSize = JSON.stringify(raw).length;
+  if (estimatedSize > MAX_PROFILE_SIZE) {
+    throw new Error(`[OmniPad-Validation] Profile too large (max: ${MAX_PROFILE_SIZE} bytes)`);
+  }
+  if (!Array.isArray(raw.items) || raw.items.length > MAX_PROFILE_ITEMS) {
+    throw new Error(`[OmniPad-Security] Profile items exceed limit (${MAX_PROFILE_ITEMS}).`);
+  }
+
   // 过滤原型链污染
   raw = sanitizePrototypePollution(raw);
 
-  if (!Array.isArray(raw.items)) {
-    throw new Error('[OmniPad-Validation] "items" must be an array.');
-  }
+  // ID 唯一性检查
+  const idSet = new Set<string>();
+  raw.items.forEach((item: any, index: number) => {
+    if (!item.id || !item.type) {
+      throw new Error(`[OmniPad-Validation] Item at index ${index} missing id/type.`);
+    }
+    if (idSet.has(item.id)) {
+      throw new Error(`[OmniPad-Security] Duplicate Config ID detected: "${item.id}".`);
+    }
+    idSet.add(item.id);
+  });
 
   // 2. 补全元数据 (Metadata)
   const meta = {
@@ -41,12 +77,7 @@ export function parseProfileJson(raw: any): OmniPadProfile {
   };
 
   // 3. 项检查与基本补全
-  // 确保每一个配置项都具备基础属性，防止解析树时报错
-  const items = raw.items.map((item: any, index: number) => {
-    if (!item.id || !item.type) {
-      throw new Error(`[OmniPad-Validation] Item at index ${index} is missing "id" or "type".`);
-    }
-
+  const items = raw.items.map((item: any) => {
     return {
       id: String(item.id),
       type: String(item.type),
@@ -60,14 +91,43 @@ export function parseProfileJson(raw: any): OmniPadProfile {
     };
   });
 
-  // 4. 实体手柄配置
-  const gamepadMappings = raw.gamepadMappings;
+  // 4. 实体手柄配置校验
+  validateGamepadMapping(raw.gamepadMappings, idSet);
 
   return {
     meta,
     items,
-    gamepadMappings,
+    gamepadMappings: raw.gamepadMappings,
   };
+}
+
+/**
+ * Check whether the ID pointed to by the controller mapping exists in the current configuration.
+ */
+function validateGamepadMapping(mappings: any, validIds: Set<string>) {
+  if (!mappings || !Array.isArray(mappings)) return;
+
+  mappings.forEach((m, idx) => {
+    // 检查按钮映射
+    if (m.buttons) {
+      Object.values(m.buttons).forEach((targetId: any) => {
+        if (typeof targetId === 'string' && !targetId.startsWith('$') && !validIds.has(targetId)) {
+          throw new Error(
+            `[OmniPad-Security] Gamepad Slot ${idx}: Target ID "${targetId}" not found in items.`,
+          );
+        }
+      });
+    }
+    // 检查摇杆映射
+    ['dpad', 'leftStick', 'rightStick'].forEach((key) => {
+      const targetId = m[key];
+      if (targetId && !targetId.startsWith('$') && !validIds.has(targetId)) {
+        throw new Error(
+          `[OmniPad-Security] Gamepad Slot ${idx}: ${key} target "${targetId}" not found.`,
+        );
+      }
+    });
+  });
 }
 
 /**
@@ -86,6 +146,9 @@ export interface ParsedProfileForest {
 }
 
 /**
+ * @deprecated Use parseProfileForest() instead.
+ * This function will be removed in v0.7.0.
+ *
  * Converts a flat OmniPadProfile into a forest of ConfigTreeNodes for runtime rendering.
  * Automatically identifies all items without a parentId as root nodes.
  *
@@ -194,6 +257,40 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
     roots,
     runtimeGamepadMappings,
   };
+}
+
+/**
+ * [Recommended Entry Point]
+ * Parses raw input (JSON string or object) into a fully resolved Profile Forest.
+ *
+ * This function orchestrates:
+ * 1. JSON string parsing (if needed)
+ * 2. Structural validation & Security hardening
+ * 3. Flat-to-tree transformation & ID resolution
+ *
+ * @param raw - The raw profile data (JSON string or object).
+ * @returns A hierarchical forest structure and resolved gamepad mappings.
+ * @throws Error if parsing or validation fails.
+ */
+export function parseProfileForest(raw: string | OmniPadProfile): ParsedProfileForest {
+  let json: OmniPadProfile;
+
+  // 1. 处理输入类型 / Handle input type
+  if (typeof raw === 'string') {
+    try {
+      json = JSON.parse(raw);
+    } catch (e) {
+      throw new Error('[OmniPad-Core] Failed to parse input string as valid JSON.');
+    }
+  } else {
+    json = raw;
+  }
+
+  // 2. 初步核验 (Schema & Security) / Basic Validation
+  const profile = validateProfile(json);
+
+  // 3. 执行树形化转换 / Execute tree transformation
+  return parseProfileTrees(profile);
 }
 
 /**
