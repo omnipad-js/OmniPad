@@ -1,4 +1,4 @@
-# Security Policy
+# OmniPad Security Policy
 
 ## Supported Versions
 
@@ -8,6 +8,28 @@ As this is a community project maintained in our spare time, security updates ar
 | ------- | ------------------ |
 | latest  | :white_check_mark: |
 | < 0.6.0 | :x:                |
+
+## Security Responsibility Matrix
+
+### OmniPad Responsibilities (Core)
+
+- ✅ Prototype chain pollution protection
+- ✅ XSS protection (DOM strings)
+- ✅ IFrame origin validation
+- ✅ Configuration structure validation
+
+### Application Responsibilities (User)
+
+- ✅ Enable origin verification (load from trusted sources)
+- ✅ Explicitly configure the iframe whitelist
+- ✅ Use Content Security Policy (CSP)
+- ✅ Update OmniPad regularly
+
+### IFrame Application Responsibilities
+
+- ✅ Verify the `signature` field of `postMessage`
+- ✅ Verify `event.origin`
+- ✅ Implement your own configuration isolation
 
 ## Reporting a Vulnerability
 
