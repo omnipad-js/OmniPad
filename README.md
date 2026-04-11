@@ -147,12 +147,12 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
 ```vue
 <script setup>
 import { computed } from 'vue';
-import { parseProfileJson, parseProfileTrees } from '@omnipad/core/utils';
+import { parseProfileForest } from '@omnipad/core';
 import { RootLayer } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // Analyze flat configuration and build the runtime component forest
-const forest = computed(() => parseProfileTrees(parseProfileJson(profileRaw)));
+const forest = computed(() => parseProfileForest(profileRaw));
 </script>
 
 <template>

@@ -148,12 +148,12 @@ import '@omnipad/vue/style.css';
 ```vue
 <script setup>
 import { computed, onMounted } from 'vue';
-import { parseProfileJson, parseProfileTrees } from '@omnipad/core/utils';
+import { parseProfileForest } from '@omnipad/core';
 import { RootLayer } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // 解析扁平配置并构建运行时组件森林
-const forest = computed(() => parseProfileTrees(parseProfileJson(profileRaw)));
+const forest = computed(() => parseProfileForest(profileRaw));
 </script>
 
 <template>
