@@ -49,15 +49,15 @@ export class IframeManager {
   /**
    * Adds a domain to the trusted whitelist.
    *
-   * @param origin - The origin to trust (e.g., "https://coocoodaegap.com").
+   * @param origin - The origin to trust (e.g., "https://game-provider.com").
    */
   public addTrustedOrigin(origin: string): void {
     if (origin === '*') {
-      if (!import.meta.env?.DEV)
-        throw new Error(
-          '[OmniPad-Security] Wildcard origin is not allowed. ' +
-            'Please specify explicit origins (e.g., "https://coocoodaegap.com").',
-        );
+      console.error('[OmniPad-IPC] Using wildcard origin is UNSAFE!');
+      console.error('For production, use: addTrustedOrigin("https://game-provider.com")');
+      if (!import.meta.env?.DEV) {
+        throw new Error('Wildcard origin forbidden in production.');
+      }
     }
     // 验证 origin 格式
     if (!/^https?:\/\//.test(origin)) {
