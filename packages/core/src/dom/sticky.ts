@@ -14,6 +14,6 @@ export const createWebStickyProvider = (selector: string) => {
       const r = (el as Element).getBoundingClientRect();
       return distillRect(r);
     },
-    (el) => document.contains(el as Node), // presenceChecker
+    (el) => el.isConnected, // presenceChecker
   );
 };

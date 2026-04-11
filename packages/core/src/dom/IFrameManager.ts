@@ -49,12 +49,19 @@ export class IframeManager {
   /**
    * Adds a domain to the trusted whitelist.
    *
-   * @param origin - The origin to trust (e.g., "https://example.com").
+   * @param origin - The origin to trust (e.g., "https://coocoodaegap.com").
    */
   public addTrustedOrigin(origin: string): void {
     if (origin === '*') {
-      if (import.meta.env?.DEV)
-        console.warn('[OmniPad-Security] Wildcard origin "*" is dangerous!');
+      if (!import.meta.env?.DEV)
+        throw new Error(
+          '[OmniPad-Security] Wildcard origin is not allowed. ' +
+            'Please specify explicit origins (e.g., "https://coocoodaegap.com").',
+        );
+    }
+    // 验证 origin 格式
+    if (!/^https?:\/\//.test(origin)) {
+      throw new Error('[OmniPad-Security] Origin must be a valid HTTP(S) URL.');
     }
     this.trustedOrigins.add(origin);
   }
@@ -68,6 +75,7 @@ export class IframeManager {
    */
   private getVerifiedIframeData(iframe: HTMLIFrameElement): IframeCache | null {
     // 1. 检查是否在已管理列表 (快速通行) / Check managed list (Fast path)
+    if (!iframe.isConnected) return null;
     const cached = this.managedIframes.get(iframe);
     if (cached) return cached;
 
@@ -203,7 +211,7 @@ export class IframeManager {
 
     this.managedIframes.forEach((data, iframe) => {
       // 1. 自动执行“墓地清理” / Perform "Graveyard Cleanup" for detached elements
-      if (!document.contains(iframe)) {
+      if (!iframe.isConnected) {
         this.unmanageIframe(iframe, data.uid);
         return;
       }
