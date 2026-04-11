@@ -24,14 +24,14 @@ export interface ReceiverOptions {
  * @param options - Security configuration for the receiver.
  */
 export function initIframeReceiver(options: ReceiverOptions): void {
-  // 防止重复初始化，确保全局只有一个监听器 / Prevent multiple initializations; ensures only one listener per window
+  // Prevent multiple initializations; ensures only one listener per window
   if (_isInitialized) return;
 
   _allowedOrigins = options.allowedOrigins;
   _isInitialized = true;
 
   window.addEventListener('message', (event: MessageEvent) => {
-    // 1. 安全校验：验证消息来源是否在白名单内 / Security: Verify sender's origin
+    // Security: Verify sender's origin
     if (_allowedOrigins !== '*') {
       if (!_allowedOrigins.includes(event.origin)) {
         if (import.meta.env?.DEV) {
@@ -47,10 +47,13 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
     const data = event.data as IpcMessage;
 
-    // 2. 签名校验，防止处理来自其他插件或脚本的干扰消息 / Signature validation to ignore unrelated or malicious messages
-    if (data?.signature !== OMNIPAD_IPC_SIGNATURE) return;
+    // Signature validation to ignore unrelated or malicious messages
+    if (data?.signature !== OMNIPAD_IPC_SIGNATURE) {
+      console.warn('[OmniPad-IPC] Blocked message with invalid signature.');
+      return;
+    }
 
-    // 3. 指令执行：将虚拟信号转化为本地真实事件 / Execution: Materialize signals into events
+    // Execution: Materialize signals into events
     try {
       if (data.type === 'pointer') {
         const { x, y, opts } = data.payload;
@@ -59,11 +62,10 @@ export function initIframeReceiver(options: ReceiverOptions): void {
           return;
         }
 
-        // 此时 x, y 已经是 Host 端根据 Iframe 偏移量换算好的本地像素坐标
         // The x and y coordinates are already translated to local pixels by the Host
         dispatchLocalPointerEventAtPos(data.action, x, y, opts);
       } else if (data.type === 'keyboard') {
-        // 处理全局广播的键盘信号 / Handle globally broadcasted keyboard signals
+        // Handle globally broadcasted keyboard signals
         dispatchLocalKeyboardEvent(data.action, data.payload);
       }
     } catch (err) {
