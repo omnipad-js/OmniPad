@@ -3,6 +3,7 @@ import { ISpatial, IConfigurable, IStateful } from '../types/traits';
 import { Registry } from '../runtime/registry';
 import { SimpleEmitter } from '../runtime/emitter';
 import { AbstractRect, EntityType } from '../types';
+import { altDeepClone } from '../utils/object';
 
 /**
  * Base abstract class for all logic entities in the system.
@@ -53,7 +54,8 @@ export abstract class BaseEntity<TConfig, TState>
 
   public updateConfig(newConfig: Partial<TConfig>): void {
     // 合并新配置项 / Merge new configuration items
-    this.config = { ...this.config, ...newConfig };
+    const mergedConfig = { ...this.config, ...newConfig };
+    this.config = altDeepClone(mergedConfig);
 
     // 配置变更可能导致 UI 需要重新计算，重新分发当前状态
     // Config changes may require UI recalculation, re-dispatch current state

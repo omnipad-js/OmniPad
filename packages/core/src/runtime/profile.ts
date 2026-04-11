@@ -1,6 +1,5 @@
 import { generateUID, isGlobalID } from '../utils/id';
 import {
-  AnyConfig,
   ConfigTreeNode,
   FlatConfigItem,
   GamepadMappingConfig,
@@ -11,6 +10,7 @@ import { Registry } from '../runtime/registry';
 import { BaseEntity } from '../entities/BaseEntity';
 import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security';
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
+import { altDeepClone } from '../utils/object';
 
 const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
 const MAX_PROFILE_SIZE = 512 * 1024; // 512kB
@@ -235,8 +235,8 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
 
     globalVisited.add(item.id);
 
-    // 获取扁平业务配置。注意：此处不直接修改原 item.config 以保持纯净性
-    const runtimeConfig = { ...item.config } as AnyConfig;
+    // 深拷贝扁平业务配置
+    const runtimeConfig = altDeepClone({ ...item.config });
 
     // --- ID 转换逻辑：将磁盘 CID 转换为运行时 UID ---
     // A. 转换目标舞台指向

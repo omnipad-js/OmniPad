@@ -1,4 +1,23 @@
 /**
+ * Creates a deep clone of the given object using the native `structuredClone` API.
+ * Falls back to `JSON.parse(JSON.stringify())` in environments where `structuredClone`
+ * is unavailable (e.g., older browsers or Node.js versions).
+ *
+ * @param object - The source object to be cloned.
+ * @returns A deep copy of the original object.
+ *
+ * @remarks
+ * - If `structuredClone` is used, it supports circular references and complex types like `Map`, `Set`, and `Date`.
+ * - If the JSON fallback is used, functions, Symbols, and circular references will cause errors or data loss.
+ * - This function does not clone class instances (prototypes) or functions.
+ */
+export function altDeepClone(object: Record<string, any>) {
+  return object && typeof structuredClone === 'function'
+    ? structuredClone(object)
+    : JSON.parse(JSON.stringify(object));
+}
+
+/**
  * Filters an object by removing undefined values and specific excluded keys.
  *
  * @param obj - The source object.
@@ -71,7 +90,7 @@ export function getObjectDiff(
  * @param objects - A list of objects to merge.
  * @returns The merged object as type T.
  */
-export function mergeObjects<T>(...objects: (Record<string, any> | undefined | null)[]): T {
+export function mergeObjects<T>(...objects: Record<string, any>[]): T {
   return objects.reduce((acc, obj) => {
     if (!obj) return acc;
     return { ...acc, ...obj };
