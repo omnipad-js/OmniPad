@@ -13,7 +13,7 @@ import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security'
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
 
 const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
-const MAX_PROFILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_PROFILE_SIZE = 512 * 1024; // 512kB
 const MAX_TREE_DEPTH = 10; // 允许的最大嵌套深度
 
 /**
@@ -271,7 +271,7 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
   if (globalVisited.size < items.length) {
     const unreachable = items.filter((i) => !globalVisited.has(i.id)).map((i) => i.id);
 
-    console.warn(
+    throw new Error(
       `[OmniPad-Integrity] Found ${unreachable.length} unreachable nodes (orphans or isolated loops). ` +
         `These nodes will NOT be rendered: ${unreachable.join(', ')}`,
     );
