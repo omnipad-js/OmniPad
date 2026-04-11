@@ -14,7 +14,7 @@ import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
 
 const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
 const MAX_PROFILE_SIZE = 10 * 1024 * 1024; // 10MB
-// const MAX_TREE_DEPTH = 10; // 允许的最大嵌套深度
+const MAX_TREE_DEPTH = 10; // 允许的最大嵌套深度
 
 /**
  * @deprecated Use validateProfile() instead.
@@ -215,11 +215,22 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
   });
 
   // 4. 递归构建函数，包含循环引用保护
-  const buildNode = (item: FlatConfigItem, visitedCids: Set<string>): ConfigTreeNode => {
-    if (visitedCids.has(item.id)) {
-      throw new Error(`[OmniPad-Core] Circular dependency detected at node: ${item.id}`);
+  // 用于追踪整个森林构建过程中被消耗的节点 / Track consumed nodes across the entire forest
+  const globalVisited = new Set<string>();
+  const buildNode = (item: FlatConfigItem, depth: number): ConfigTreeNode => {
+    // 嵌套深度检测
+    if (depth > MAX_TREE_DEPTH) {
+      throw new Error(`[OmniPad-Security] Profile exceeds max depth of ${MAX_TREE_DEPTH}.`);
     }
-    visitedCids.add(item.id);
+
+    // 循环引用检测
+    if (globalVisited.has(item.id)) {
+      throw new Error(
+        `[OmniPad-Security] Critical layout error. Node "${item.id}" is either part of a loop or has multiple parents.`,
+      );
+    }
+
+    globalVisited.add(item.id);
 
     // 获取扁平业务配置。注意：此处不直接修改原 item.config 以保持纯净性
     const runtimeConfig = { ...item.config } as AnyConfig;
@@ -237,7 +248,7 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
     // 查找并递归构建子节点树
     const rawChildren = childrenMap.get(item.id) || [];
     // 递归子节点时，传递当前的 visited 集合的副本
-    const children = rawChildren.map((child) => buildNode(child, new Set(visitedCids)));
+    const children = rawChildren.map((c) => buildNode(c, depth + 1));
 
     return {
       uid: getUid(item.id),
@@ -250,8 +261,18 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
   // 5. 生成森林 (Forest of root nodes)
   const roots: Record<string, ConfigTreeNode> = {};
   rootItems.forEach((rootItem) => {
-    roots[rootItem.id] = buildNode(rootItem, new Set());
+    roots[rootItem.id] = buildNode(rootItem, 0);
   });
+
+  // 孤儿节点检测
+  if (globalVisited.size < items.length) {
+    const unreachable = items.filter((i) => !globalVisited.has(i.id)).map((i) => i.id);
+
+    console.warn(
+      `[OmniPad-Integrity] Found ${unreachable.length} unreachable nodes (orphans or isolated loops). ` +
+        `These nodes will NOT be rendered: ${unreachable.join(', ')}`,
+    );
+  }
 
   return {
     roots,
