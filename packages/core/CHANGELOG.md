@@ -1,5 +1,11 @@
 # @omnipad/core
 
+## 0.6.1
+
+### Patch Changes
+
+- fix: profile parsing logic hardening
+
 ## 0.6.0
 
 ### Minor Changes

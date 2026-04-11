@@ -1,5 +1,14 @@
 # playground
 
+## 0.6.1
+
+### Patch Changes
+
+- fix: profile parsing logic hardening
+- Updated dependencies
+  - @omnipad/core@0.6.1
+  - @omnipad/vue@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@omnipad/vue",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "",
   "main": "./dist/omnipad-vue.umd.js",
   "module": "./dist/omnipad-vue.mjs",
