@@ -74,6 +74,7 @@ export function validateProfile(raw: any): OmniPadProfile {
     name: raw.meta?.name || 'Untitled Profile',
     version: raw.meta?.version || '1.0.0',
     author: raw.meta?.author || 'Unknown',
+    description: raw.meta?.description || 'Enter text.',
   };
 
   // 3. 项检查与基本补全
@@ -135,6 +136,8 @@ function validateGamepadMapping(mappings: any, validIds: Set<string>) {
  * Contains a map of root nodes and a runtime-ready gamepad mapping table.
  */
 export interface ParsedProfileForest {
+  meta: OmniPadProfile['meta'];
+
   /** Root nodes indexed by their original Config ID. */
   roots: Record<string, ConfigTreeNode>;
 
@@ -156,7 +159,7 @@ export interface ParsedProfileForest {
  * @returns A record map of root nodes, keyed by their original configuration ID.
  */
 export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest {
-  const { items, gamepadMappings } = profile;
+  const { meta, items, gamepadMappings } = profile;
 
   // 1. 建立 CID -> UID 的映射表
   // 保证在此次解析周期内，同一个 CID 永远映射到同一个 UID，处理 ID 引用关系
@@ -275,6 +278,7 @@ export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest 
   }
 
   return {
+    meta,
     roots,
     runtimeGamepadMappings,
   };
