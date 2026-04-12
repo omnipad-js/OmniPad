@@ -183,7 +183,7 @@ const forest = computed(() => parseProfileForest(profileRaw));
 
 ---
 
-## 🕹️ 进阶拓展：实体手柄接入 (Gamepad API)
+## 🕹️ 实体手柄接入 (Gamepad API)
 
 想在网页里使用 Xbox 或 PlayStation 手柄？只需在配置中添加映射表，OmniPad 将自动接管手柄轮询。当你在实体手柄上按下按键时，屏幕上对应的虚拟按钮将**同步触发**按下动画，提供完美的交互回馈。
 
@@ -209,6 +209,77 @@ GamepadManager.getInstance().start();
 ```
 
 > _💡 Tip：支持映射数组结构，完美兼容双人同屏 (Local Co-op) 的多手柄场景！Player 1 与 Player 2 互不干扰。_
+
+---
+
+## 🌐 Iframe 穿透与安全指南 (Iframe Penetration & Security Guide)
+
+OmniPad 引入了强大的跨域 Iframe 穿透能力。为了防止恶意脚本劫持输入信号，我们采用了一套 **“双向握手 + 白名单校验”** 的安全机制。
+
+### 步骤 1：在主文档（Host）中配置白名单
+主文档是存放虚拟手柄 UI 的页面。出于安全考虑，`IframeManager` **不会**向未经授权的域名发送任何坐标或按键信号。
+
+```typescript
+import { IframeManager } from '@omnipad/core/dom';
+
+const iframeMgr = IframeManager.getInstance();
+
+// 1. 默认情况下，IframeManager 已经信任了当前域名 (window.location.origin)
+// 2. 如果游戏运行在其他域名，请显式添加信任：
+iframeMgr.addTrustedOrigin('https://game-provider.com');
+
+// ⚠️ 警告：在生产环境中，禁止使用 '*' 通配符。(会被 IframeManager 直接拒绝)
+```
+
+### 步骤 2：在 Iframe 内部（Guest）初始化接收器
+你需要将一段轻量的接收器脚本注入到游戏所在的 Iframe 环境中。为了防止恶意网站通过 Iframe 控制游戏，接收器也需要配置白名单。
+
+```typescript
+// 在 Iframe 内部运行的脚本
+import { initIframeReceiver } from '@omnipad/core/guest';
+
+initIframeReceiver({
+  // 核心安全：只接收来自你主站点的信号，拒绝其他任何来源的 postMessage
+  allowedOrigins: ['https://your-main-site.com'] 
+});
+```
+
+### 步骤 3：配置 CSP（内容安全策略）
+作为浏览器层面的终极防御，建议在游戏服务器响应头或 Meta 标签中设置 `frame-ancestors`，限制谁可以嵌套这个游戏页面。
+
+```html
+<!-- 仅允许被当前域和信任的主站嵌套 -->
+<meta http-equiv="Content-Security-Policy" 
+      content="frame-ancestors 'self' https://your-main-site.com">
+```
+
+### 🔒 安全机制深度解析 (FAQ)
+
+#### Q: 什么是 "Trusted Sources" (信任的源)？
+**A:** 在 Web 安全中，源（Origin）由 `协议 + 域名 + 端口` 组成。
+*   **Host 端白名单**：防止手柄坐标（可能包含用户隐私）被发送到页面中不相关的广告 Iframe 或恶意第三方容器中。
+*   **Guest 端白名单**：防止非法网页伪装成主站通过 `postMessage` 向游戏下达按键指令（例如模拟点击内购按钮）。
+
+#### Q: 为什么 Iframe 应用还要校验 "Signature" (签名)？
+**A:** 一个网页中可能运行着数十个插件（如翻译助手、广告拦截）。它们都在使用 `postMessage` 进行通信。
+`OMNIPAD_IPC_SIGNATURE`（即 `__OMNIPAD_IPC_V1__`）像是一把**专用的钥匙**。它能确保 Guest 接收器只处理属于 OmniPad 的协议数据，而不会因为误读了其他插件的消息而导致逻辑错误或崩溃。
+
+#### Q: 为什么不能直接使用 `*` 通配符？
+**A:** 使用 `*` 意味着你向全互联网敞开了大门。
+1.  **Host 侧**：如果你的页面被植入了恶意 Iframe，它能捕获你所有的手柄操作。
+2.  **Guest 侧**：任何网页只要嵌套了你的游戏，都能通过 JS 脚本完全控制游戏角色的行为。
+**在生产环境下，显式配置白名单是绕不开的安全义务。**
+
+### 🛠️ 常见问题排查
+
+1.  **信号发不出去？**
+    *   检查主页面是否调用了 `IframeManager.getInstance().addTrustedOrigin()`。
+    *   确认传入的字符串是否包含完整的协议和域名（如 `https://`）。
+2.  **Iframe 内部没反应？**
+    *   检查 Iframe 内部是否正确执行了 `initIframeReceiver`。
+    *   检查浏览器控制台，看是否有 `[OmniPad-Security] Blocking untrusted iframe from origin` 警告。
+3.  **坐标偏移不对？**
+    *   确保 `IframeManager` 能够正确获取 Iframe 标签的 `getBoundingClientRect`。如果 Iframe 存在复杂的 CSS 变换（如 `scale`），请确保在 `v0.5+` 的吸附逻辑下运行。
 
 ---
 
