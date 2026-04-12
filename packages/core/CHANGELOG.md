@@ -1,5 +1,11 @@
 # @omnipad/core
 
+## 0.6.2
+
+### Patch Changes
+
+- minor fixes
+
 ## 0.6.1
 
 ### Patch Changes
