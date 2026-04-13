@@ -216,6 +216,7 @@ GamepadManager.getInstance().start();
 OmniPad provides robust cross-origin iframe penetration capabilities. To prevent malicious scripts from hijacking input signals, we implement a **"Double-Handshake + Whitelist Validation"** security mechanism.
 
 ### Step 1: Configure Whitelist in the Host Document
+
 The **Host** is the main page where your virtual gamepad UI resides. For security reasons, the `IframeManager` will **NOT** send coordinates or key signals to unauthorized domains.
 
 ```typescript
@@ -231,6 +232,7 @@ iframeMgr.addTrustedOrigin('https://game-provider.com');
 ```
 
 ### Step 2: Initialize the Receiver in the Guest (Iframe)
+
 You must inject a lightweight receiver script into the environment where the game (Iframe) is running. To prevent unauthorized sites from controlling the game, the receiver also requires a whitelist.
 
 ```typescript
@@ -240,46 +242,54 @@ import { initIframeReceiver } from '@omnipad/core/guest';
 initIframeReceiver({
   // CORE SECURITY: Only accept signals from your main site.
   // Reject postMessage from any other sources.
-  allowedOrigins: ['https://your-main-site.com'] 
+  allowedOrigins: ['https://your-main-site.com'],
 });
 ```
 
 ### Step 3: Configure CSP (Content Security Policy)
+
 As a final layer of browser-level defense, it is recommended to set the `frame-ancestors` directive in the game server's response headers or via a Meta tag to restrict which sites can embed the game.
 
 ```html
 <!-- Only allow embedding by the current domain and your trusted host -->
-<meta http-equiv="Content-Security-Policy" 
-      content="frame-ancestors 'self' https://your-main-site.com">
+<meta
+  http-equiv="Content-Security-Policy"
+  content="frame-ancestors 'self' https://your-main-site.com"
+/>
 ```
 
 ### 🔒 Security Deep Dive (FAQ)
 
 #### Q: What are "Trusted Sources"?
+
 **A:** In Web Security, an **Origin** consists of `Protocol + Domain + Port`.
-*   **Host-side Whitelist**: Prevents gamepad coordinates (which may contain user interaction data) from being leaked to unrelated ad iframes or malicious third-party containers.
-*   **Guest-side Whitelist**: Prevents unauthorized websites from masquerading as the host to send input commands (e.g., simulating clicks on "Buy Now" buttons) to the game.
+
+- **Host-side Whitelist**: Prevents gamepad coordinates (which may contain user interaction data) from being leaked to unrelated ad iframes or malicious third-party containers.
+- **Guest-side Whitelist**: Prevents unauthorized websites from masquerading as the host to send input commands (e.g., simulating clicks on "Buy Now" buttons) to the game.
 
 #### Q: Why does the Iframe application need to verify a "Signature"?
+
 **A:** A single web page may run dozens of extensions (translators, ad blockers, etc.), many of which use `postMessage` for communication.
 The `OMNIPAD_IPC_SIGNATURE` (e.g., `__OMNIPAD_IPC_V1__`) acts as a **private key**. It ensures the Guest receiver only processes valid OmniPad protocol data and ignores noise from other scripts, preventing logic errors or crashes.
 
 #### Q: Why is the `*` wildcard prohibited?
+
 **A:** Using `*` opens a door to the entire internet.
+
 1.  **Host side**: If a malicious iframe is injected into your page, it could capture all your gamepad interactions.
 2.  **Guest side**: Any website embedding your game could use simple scripts to take full control of the game character.
-**In production, explicit whitelist configuration is a mandatory security obligation.**
+    **In production, explicit whitelist configuration is a mandatory security obligation.**
 
 ### 🛠️ Troubleshooting
 
 1.  **Signals not being sent?**
-    *   Verify the host page calls `IframeManager.getInstance().addTrustedOrigin()`.
-    *   Ensure the string includes the full protocol (e.g., `https://`).
+    - Verify the host page calls `IframeManager.getInstance().addTrustedOrigin()`.
+    - Ensure the string includes the full protocol (e.g., `https://`).
 2.  **No response inside the Iframe?**
-    *   Ensure `initIframeReceiver` is executed correctly within the iframe.
-    *   Check the browser console for `[OmniPad-Security] Blocking untrusted iframe from origin` warnings.
+    - Ensure `initIframeReceiver` is executed correctly within the iframe.
+    - Check the browser console for `[OmniPad-Security] Blocking untrusted iframe from origin` warnings.
 3.  **Coordinate offsets are incorrect?**
-    *   Ensure the `IframeManager` can accurately retrieve the Iframe element's `getBoundingClientRect`. If the Iframe has complex CSS transforms (like `scale`), ensure you are using the **Sticky Layout** logic introduced in `v0.5+`.
+    - Ensure the `IframeManager` can accurately retrieve the Iframe element's `getBoundingClientRect`. If the Iframe has complex CSS transforms (like `scale`), ensure you are using the **Sticky Layout** logic introduced in `v0.5+`.
 
 ---
 
