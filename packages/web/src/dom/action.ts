@@ -75,7 +75,7 @@ export const dispatchPointerEventAtPos = (
  *
  * @param x - The horizontal coordinate relative to the viewport.
  * @param y - The vertical coordinate relative to the viewport.
- * @returns True if the focus was successfully moved to the target; false if it was already focused or no target found.
+ * @param callback - The function called when the focus is to be reclaimed.
  */
 export const reclaimFocusAtPos = (x: number, y: number, callback: () => void): void => {
   // Find the deepest element at coordinates, penetrating Shadow DOM boundaries

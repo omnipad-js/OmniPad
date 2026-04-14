@@ -8,13 +8,7 @@ import {
   type LayoutBox,
   type TargetZoneConfig,
 } from '@omnipad/core';
-import { resolveLayoutStyle, projectPercentToBox } from '@omnipad/web';
-import {
-  supportsContainerQueries,
-  dispatchKeyboardEvent,
-  dispatchPointerEventAtPos,
-  reclaimFocusAtPos,
-} from '@omnipad/web';
+import { resolveLayoutStyle, projectPercentToBox, supportsContainerQueries } from '@omnipad/web';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface TargetZoneProps {
@@ -44,11 +38,11 @@ const defaultProps = {
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
   useWidgetSetup<TargetZoneCore, CursorState, TargetZoneConfig>(OmniPad.Types.TARGET_ZONE, props, {
     defaultProps,
-    initialDelegates: {
-      dispatchKeyboardEvent: dispatchKeyboardEvent,
-      dispatchPointerEventAtPos: dispatchPointerEventAtPos,
-      reclaimFocusAtPos: reclaimFocusAtPos,
-    },
+    // initialDelegates: {
+    //   dispatchKeyboardEvent: dispatchKeyboardEvent,
+    //   dispatchPointerEventAtPos: dispatchPointerEventAtPos,
+    //   reclaimFocusAtPos: reclaimFocusAtPos,
+    // },
   });
 
 const containerStyle = computed(() => {

@@ -6,6 +6,15 @@ import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
 import { createRafThrottler } from '../runtime/performance';
 import { BaseEntity } from './BaseEntity';
 import { ACTION_TYPES, CMP_TYPES } from '../constants';
+import { DispatcherProvider, getDispatcher } from '../runtime/dispatch';
+
+let _defaultDispatcher: DispatcherProvider | null = null;
+
+const getDefaultDispatcher = () => {
+  if (_defaultDispatcher) return _defaultDispatcher;
+  _defaultDispatcher = getDispatcher() as DispatcherProvider;
+  return _defaultDispatcher;
+};
 
 /**
  * Interface for delegating DOM operations within a target zone.
@@ -45,9 +54,12 @@ export class TargetZoneCore
   private throttledMoveExecution: (payload: any) => void;
 
   private delegates: TargetZoneDelegates = {
-    dispatchKeyboardEvent: () => {},
-    dispatchPointerEventAtPos: () => {},
-    reclaimFocusAtPos: () => {},
+    dispatchKeyboardEvent: (type: string, payload: any) =>
+      getDefaultDispatcher()?.dispatchKeyboard(type, payload),
+    dispatchPointerEventAtPos: (type: string, x: number, y: number, opts: any) =>
+      getDefaultDispatcher()?.dispatchPointerAtPos(type, x, y, opts),
+    reclaimFocusAtPos: (x: number, y: number, callback: () => void) =>
+      getDefaultDispatcher()?.reclaimFocus(x, y, callback),
   };
 
   constructor(uid: string, config: TargetZoneConfig, customTypeName?: EntityType) {
