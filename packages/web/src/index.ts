@@ -4,8 +4,11 @@ import {
   setGamepadProvider,
   setGlobalSignalHandler,
   setRafProvider,
+  setSecurityPolicy,
 } from '@omnipad/core';
 import { dispatchKeyboardEvent } from './dom/action';
+import { sanitizeCssClass, sanitizePrototypePollution } from './ts/security';
+import { validateLayoutBox } from './ts/layout';
 
 export * from './dom';
 export * from './ts';
@@ -38,3 +41,15 @@ if (typeof navigator !== 'undefined' && navigator.getGamepads) {
     return gamepadSnapshot;
   });
 }
+
+setSecurityPolicy({
+  sanitizeObject: (obj) => sanitizePrototypePollution(obj),
+
+  validateConfig: (_, config) => {
+    return {
+      ...config,
+      layout: validateLayoutBox(config.layout),
+      cssClass: sanitizeCssClass(config.cssClass),
+    };
+  },
+});

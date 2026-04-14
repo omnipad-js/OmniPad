@@ -9,8 +9,37 @@ import {
 import { Registry } from '../singletons/Registry';
 import { BaseEntity } from '../entities/BaseEntity';
 import { altDeepClone } from '../utils/object';
-import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security';
-import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
+import { compressLayoutBox } from '../utils/layout';
+
+/**
+ * Interface defining the security and validation strategy for the engine.
+ * Decouples core logic from platform-specific checks (like CSS validation).
+ */
+export interface SecurityPolicy {
+  /**
+   * Scans and sanitizes the raw object (e.g., preventing prototype pollution).
+   */
+  sanitizeObject: <T>(raw: T) => T;
+
+  /**
+   * Validates and normalizes the config object of an item.
+   * This is where platform-specific checks (CSS units, class names) should live.
+   */
+  validateConfig: (type: string, config: any) => any;
+}
+
+/** Default "Pass-through" policy for non-secure or test environments */
+let _currentPolicy: SecurityPolicy = {
+  sanitizeObject: (obj) => obj,
+  validateConfig: (_, cfg) => cfg,
+};
+
+/**
+ * Injects a security policy into the core engine.
+ */
+export function setSecurityPolicy(policy: Partial<SecurityPolicy>) {
+  _currentPolicy = { ..._currentPolicy, ...policy };
+}
 
 const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
 const MAX_PROFILE_SIZE = 512 * 1024; // 512kB
@@ -40,7 +69,7 @@ export function validateProfile(raw: any): OmniPadProfile {
   }
 
   // 过滤原型链污染
-  raw = sanitizePrototypePollution(raw);
+  raw = _currentPolicy.sanitizeObject(raw);
 
   // ID 唯一性检查
   const idSet = new Set<string>();
@@ -68,12 +97,12 @@ export function validateProfile(raw: any): OmniPadProfile {
       id: String(item.id),
       type: String(item.type),
       parentId: item.parentId ? String(item.parentId) : undefined,
-      // 确保 config 存在，业务参数平铺于此
-      config: {
-        ...item.config,
-        layout: validateLayoutBox(item.config.layout),
-        cssClass: sanitizeCssClass(item.config.cssClass),
-      },
+      config: _currentPolicy.validateConfig(item.type, item.config || {}),
+      // config: {
+      //   ...item.config,
+      //   layout: validateLayoutBox(item.config.layout),
+      //   cssClass: sanitizeCssClass(item.config.cssClass),
+      // },
     };
   });
 

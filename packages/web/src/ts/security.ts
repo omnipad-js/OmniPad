@@ -1,8 +1,3 @@
-/**
- * Simple DOM string sanitizer to prevent CSS/JS injection.
- * Validates selectors and class names.
- */
-
 const SAFE_SELECTOR_PATTERN = /^[a-zA-Z0-9\s._#$\-*>+~]+$/;
 
 export const PROTO_POLLUTION_KEYS = Object.freeze([

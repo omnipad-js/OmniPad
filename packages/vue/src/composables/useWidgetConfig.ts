@@ -35,7 +35,10 @@ export function useWidgetConfig<T extends BaseConfig>(
   const treeNode = validateWidgetNode(props.treeNode, requiredType);
 
   // 确定父节点编号
-  const injectedParentId = inject<Ref<string | undefined>>(OmniPad.Context.PARENT_ID_KEY, ref(undefined));
+  const injectedParentId = inject<Ref<string | undefined>>(
+    OmniPad.Context.PARENT_ID_KEY,
+    ref(undefined),
+  );
   const parentId = computed(() => {
     return props.parentId || treeNode?.config?.parentId || injectedParentId.value;
   });

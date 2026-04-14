@@ -8,7 +8,7 @@ import {
   Vec2,
   OmniPad,
 } from '@omnipad/core';
-import { clamp } from '@omnipad/core/utils';
+import { clamp, lengthToCss } from '@omnipad/core/utils';
 import { sanitizeDomString } from './security';
 
 /**
@@ -67,13 +67,6 @@ export const sanitizeParsedLength = (parsed: ParsedLength): ParsedLength => {
 };
 
 /**
- * Convert the ParsedLength back to a CSS string
- */
-export const lengthToCss = (parsed: ParsedLength | undefined): string | undefined => {
-  return parsed == null ? undefined : `${parsed.value}${parsed.unit}`;
-};
-
-/**
  * Validate a raw LayoutBox config.
  */
 export function validateLayoutBox(raw: LayoutBox): LayoutBox {
@@ -87,21 +80,6 @@ export function validateLayoutBox(raw: LayoutBox): LayoutBox {
     height: parseLength(raw.height),
     // 关键：对选择器和类名进行脱毒处理 / Critical: Sanitize selector and class names
     stickySelector: sanitizeDomString(raw.stickySelector),
-  };
-}
-
-/**
- * Compress layout properties into css strings.
- */
-export function compressLayoutBox(raw: LayoutBox): LayoutBox {
-  return {
-    ...raw,
-    left: lengthToCss(raw.left as any),
-    top: lengthToCss(raw.top as any),
-    right: lengthToCss(raw.right as any),
-    bottom: lengthToCss(raw.bottom as any),
-    width: lengthToCss(raw.width as any),
-    height: lengthToCss(raw.height as any),
   };
 }
 

@@ -86,7 +86,7 @@ export type FlexibleLength = ParsedLength | string | number;
 /**
  * Anchor position used to determine the alignment of an element relative to its coordinates.
  */
-export type AnchorPoint = typeof STANDARD_ANCHORS[number];
+export type AnchorPoint = (typeof STANDARD_ANCHORS)[number];
 
 /**
  * =================================================================
