@@ -1,20 +1,16 @@
 /**
- * Creates a deep clone of the given object using the native `structuredClone` API.
- * Falls back to `JSON.parse(JSON.stringify())` in environments where `structuredClone`
- * is unavailable (e.g., older browsers or Node.js versions).
+ * Creates a deep clone of the given object.
  *
  * @param object - The source object to be cloned.
  * @returns A deep copy of the original object.
- *
- * @remarks
- * - If `structuredClone` is used, it supports circular references and complex types like `Map`, `Set`, and `Date`.
- * - If the JSON fallback is used, functions, Symbols, and circular references will cause errors or data loss.
- * - This function does not clone class instances (prototypes) or functions.
  */
 export function altDeepClone(object: Record<string, any>) {
-  return object && typeof structuredClone === 'function'
-    ? structuredClone(object)
-    : JSON.parse(JSON.stringify(object));
+  try {
+    return JSON.parse(JSON.stringify(object));
+  } catch (e) {
+    console.error('[OmniPad-Core] Config serialization failed. Check for circular refs.', e);
+    return object;
+  }
 }
 
 /**
