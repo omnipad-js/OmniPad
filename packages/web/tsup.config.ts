@@ -18,5 +18,5 @@ export default defineConfig({
   splitting: true,
   treeshake: true,
   outDir: 'dist',
-  external: [],
+  external: ['@omnipad/core'],
 });

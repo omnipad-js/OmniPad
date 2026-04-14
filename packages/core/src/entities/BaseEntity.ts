@@ -1,6 +1,6 @@
 import { ICoreEntity, IResettable } from '../types/traits';
 import { ISpatial, IConfigurable, IStateful } from '../types/traits';
-import { Registry } from '../runtime/registry';
+import { Registry } from '../singletons/Registry';
 import { SimpleEmitter } from '../runtime/emitter';
 import { AbstractRect, EntityType } from '../types';
 import { altDeepClone } from '../utils/object';

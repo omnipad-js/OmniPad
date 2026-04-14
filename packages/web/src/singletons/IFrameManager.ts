@@ -1,6 +1,7 @@
-import { AbstractRect, ACTION_TYPES, IpcMessage, OMNIPAD_IPC_SIGNATURE } from '@omnipad/core';
+import { AbstractRect, ACTION_TYPES } from '@omnipad/core';
 import { distillRect, generateUID } from '@omnipad/core/utils';
 import { ElementObserver } from './ElementObserver';
+import { IpcMessage, OMNIPAD_IPC_SIGNATURE } from '../guest/ipc';
 
 /** Unique symbol key for the global IframeManager instance. */
 const IFRAME_MANAGER_KEY = Symbol.for('omnipad.iframe_manager.instance');

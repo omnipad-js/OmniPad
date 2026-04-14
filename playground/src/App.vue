@@ -2,10 +2,8 @@
 import { ref, computed, onBeforeMount } from 'vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import { registerComponent, RootLayer, TargetZone } from '@omnipad/vue';
-import { parseProfileForest, Registry } from '@omnipad/core';
-import { GamepadManager } from '@omnipad/core/dom';
+import { GamepadManager, Registry, parseProfileForest, exportProfile } from '@omnipad/core';
 import { WindowManager } from '@omnipad/web';
-import { exportProfile } from '@omnipad/core';
 import CustomTrackpad from './components/CustomTrackpad.vue';
 import IFramePlayer from './components/IFramePlayer.vue';
 

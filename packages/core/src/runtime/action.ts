@@ -1,4 +1,4 @@
-import { Registry } from '../runtime/registry';
+import { Registry } from '../singletons/Registry';
 import { ActionMapping, ACTION_TYPES } from '../types';
 import { KeyMapping, KEYS } from '../types/keys';
 import { delayFrames } from './performance';

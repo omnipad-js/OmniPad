@@ -16,16 +16,6 @@
       "types": "./dist/utils/index.d.ts",
       "import": "./dist/utils/index.mjs",
       "require": "./dist/utils/index.cjs"
-    },
-    "./dom": {
-      "types": "./dist/dom/index.d.ts",
-      "import": "./dist/dom/index.mjs",
-      "require": "./dist/dom/index.cjs"
-    },
-    "./guest": {
-      "types": "./dist/guest/index.d.ts",
-      "import": "./dist/guest/index.mjs",
-      "require": "./dist/guest/index.cjs"
     }
   },
   "typesVersions": {
@@ -35,12 +25,6 @@
       ],
       "utils": [
         "./dist/utils/index.d.ts"
-      ],
-      "dom": [
-        "./dist/dom/index.d.ts"
-      ],
-      "guest": [
-        "./dist/guest/index.d.ts"
       ]
     }
   },

@@ -2,7 +2,7 @@ import { AbstractRect, ICoreEntity, IResettable, ISpatial } from '@omnipad/core'
 import { createCachedProvider, distillRect } from '@omnipad/core/utils';
 import { smartQuerySelector } from './query';
 import { StickyProvider } from '../ts/spatial';
-import { ElementObserver } from '../managers/ElementObserver';
+import { ElementObserver } from '../singletons/ElementObserver';
 
 /**
  * Creates a StickyProvider pre-configured for the Web environment.

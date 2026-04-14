@@ -12,6 +12,9 @@ export { RootLayerCore } from './entities/RootLayerCore';
 export { TargetZoneCore } from './entities/TargetZoneCore';
 export { TrackpadCore } from './entities/TrackpadCore';
 
+export { Registry } from './singletons/Registry';
+export { GamepadManager } from './singletons/GamepadManager';
+
 export const OmniPad = {
   ActionTypes: ACTION_TYPES,
   Context: CONTEXT,

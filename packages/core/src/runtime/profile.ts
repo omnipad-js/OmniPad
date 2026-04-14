@@ -6,30 +6,15 @@ import {
   OmniPadProfile,
   StandardButton,
 } from '../types';
-import { Registry } from '../runtime/registry';
+import { Registry } from '../singletons/Registry';
 import { BaseEntity } from '../entities/BaseEntity';
+import { altDeepClone } from '../utils/object';
 import { sanitizeCssClass, sanitizePrototypePollution } from '../utils/security';
 import { compressLayoutBox, validateLayoutBox } from '../utils/layout';
-import { altDeepClone } from '../utils/object';
 
 const MAX_PROFILE_ITEMS = 100; // 单个配置允许的最大组件数
 const MAX_PROFILE_SIZE = 512 * 1024; // 512kB
 const MAX_TREE_DEPTH = 10; // 允许的最大嵌套深度
-
-/**
- * @deprecated Use validateProfile() instead.
- * This function will be removed in v0.7.0.
- *
- * Validates and normalizes raw JSON data into a standard OmniPadProfile.
- * Performs structural checks and injects default metadata.
- *
- * @param raw - The raw JSON object from disk or network.
- * @returns A validated OmniPadProfile object.
- * @throws Error if the core structure is invalid.
- */
-export function parseProfileJson(raw: any): OmniPadProfile {
-  return validateProfile(raw);
-}
 
 /**
  * Validates and normalizes raw JSON data into a standard OmniPadProfile.
@@ -149,16 +134,13 @@ export interface ParsedProfileForest {
 }
 
 /**
- * @deprecated Use parseProfileForest() instead.
- * This function will be removed in v0.7.0.
- *
  * Converts a flat OmniPadProfile into a forest of ConfigTreeNodes for runtime rendering.
  * Automatically identifies all items without a parentId as root nodes.
  *
  * @param profile - The normalized profile data.
  * @returns A record map of root nodes, keyed by their original configuration ID.
  */
-export function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest {
+function parseProfileTrees(profile: OmniPadProfile): ParsedProfileForest {
   const { meta, items, gamepadMappings } = profile;
 
   // 1. 建立 CID -> UID 的映射表

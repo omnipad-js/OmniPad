@@ -1,4 +1,4 @@
-import { Registry } from '../runtime/registry';
+import { Registry } from './Registry';
 import { ICoreEntity, IPointerHandler, IProgrammatic } from '../types/traits';
 import { GamepadMappingConfig, StandardButton } from '../types/gamepad';
 
@@ -88,17 +88,17 @@ export class GamepadManager {
     this.isRunning = true;
 
     // Listen for hardware connection updates / 监听硬件连接更新
-    window.addEventListener('gamepadconnected', (e) => {
-      if (import.meta.env?.DEV) {
-        console.log('[OmniPad-DOM] Gamepad Connected:', e.gamepad.id);
-      }
-    });
+    // window.addEventListener('gamepadconnected', (e) => {
+    //   if (import.meta.env?.DEV) {
+    //     console.log('[OmniPad-DOM] Gamepad Connected:', e.gamepad.id);
+    //   }
+    // });
 
-    window.addEventListener('gamepaddisconnected', () => {
-      if (import.meta.env?.DEV) {
-        console.log('[OmniPad-DOM] Gamepad disconnected.');
-      }
-    });
+    // window.addEventListener('gamepaddisconnected', () => {
+    //   if (import.meta.env?.DEV) {
+    //     console.log('[OmniPad-DOM] Gamepad disconnected.');
+    //   }
+    // });
 
     this.loop();
   }

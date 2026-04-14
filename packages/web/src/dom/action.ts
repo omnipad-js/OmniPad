@@ -1,5 +1,5 @@
 import { dispatchStandardKeyboardEvent, dispatchStandardPointerEventAtPos } from './dispatch';
-import { IframeManager } from '../managers/IFrameManager';
+import { IframeManager } from '../singletons/IFrameManager';
 import { getDeepActiveElement, getDeepElement } from './query';
 
 /**
