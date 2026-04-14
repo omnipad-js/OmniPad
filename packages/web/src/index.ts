@@ -1,6 +1,6 @@
 import {
   AbstractGamepad,
-  ACTION_TYPES,
+  OmniPad,
   setGamepadProvider,
   setGlobalSignalHandler,
   setRafProvider,
@@ -22,7 +22,7 @@ if (typeof window !== 'undefined') {
 }
 
 setGlobalSignalHandler((signal) => {
-  if (signal.type === ACTION_TYPES.KEYDOWN || signal.type === ACTION_TYPES.KEYUP) {
+  if (signal.type === OmniPad.ActionTypes.KEYDOWN || signal.type === OmniPad.ActionTypes.KEYUP) {
     dispatchKeyboardEvent(signal.type as any, signal.payload as any);
   }
 });

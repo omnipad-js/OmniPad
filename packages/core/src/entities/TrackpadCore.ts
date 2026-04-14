@@ -2,10 +2,11 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler } from '../types/traits';
 import { TrackpadConfig } from '../types/configs';
 import { TrackpadState } from '../types/state';
-import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
+import { AbstractPointerEvent, EntityType } from '../types';
 import { GestureRecognizer } from '../runtime/gesture';
 import { isVec2Equal } from '../utils/math';
 import { ActionEmitter } from '../runtime/action';
+import { CMP_TYPES } from '../constants';
 
 /**
  * Initial state for the trackpad.

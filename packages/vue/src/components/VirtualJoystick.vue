@@ -2,7 +2,7 @@
 import { ref, watchEffect } from 'vue';
 import {
   JoystickCore,
-  CMP_TYPES,
+  OmniPad,
   type ConfigTreeNode,
   type JoystickConfig,
   type JoystickState,
@@ -55,7 +55,7 @@ const defaultProps = {
 };
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
-  useWidgetSetup<JoystickCore, JoystickState, JoystickConfig>(CMP_TYPES.JOYSTICK, props, {
+  useWidgetSetup<JoystickCore, JoystickState, JoystickConfig>(OmniPad.Types.JOYSTICK, props, {
     defaultProps,
   });
 

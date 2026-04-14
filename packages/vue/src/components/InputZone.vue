@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, useSlots, VNode, watch } from 'vue';
 import {
   InputZoneCore,
-  CMP_TYPES,
+  OmniPad,
   type ConfigTreeNode,
   type InputZoneConfig,
   type InputZoneState,
@@ -40,7 +40,7 @@ const slots = useSlots() as {
 const dynamicWidgetRef = ref<any>(null);
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef, bindDelegates } =
-  useWidgetSetup<InputZoneCore, InputZoneState, InputZoneConfig>(CMP_TYPES.INPUT_ZONE, props, {
+  useWidgetSetup<InputZoneCore, InputZoneState, InputZoneConfig>(OmniPad.Types.INPUT_ZONE, props, {
     domEventOptions: {
       requireDirectHit: true,
     },

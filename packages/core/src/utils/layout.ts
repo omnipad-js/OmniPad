@@ -1,4 +1,5 @@
-import { LayoutBox, VALID_UNITS, CssUnit, ParsedLength, FlexibleLength } from '../types';
+import { VALID_UNITS } from '../constants';
+import { LayoutBox, CssUnit, ParsedLength, FlexibleLength } from '../types';
 import { sanitizeDomString } from './security';
 
 /**

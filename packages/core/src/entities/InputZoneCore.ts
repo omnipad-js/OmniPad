@@ -2,8 +2,9 @@ import { BaseEntity } from './BaseEntity';
 import { IDependencyBindable, IPointerHandler } from '../types/traits';
 import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
-import { Vec2, CMP_TYPES, AnyFunction, AbstractPointerEvent, EntityType } from '../types';
+import { Vec2, AnyFunction, AbstractPointerEvent, EntityType } from '../types';
 import { pxToPercent } from '../utils/math';
+import { CMP_TYPES } from '../constants';
 
 interface InputZoneDelegates {
   dynamicWidgetPointerDown: (e: AbstractPointerEvent) => void;

@@ -1,11 +1,11 @@
 import { computed, inject, provide, ref, Ref } from 'vue';
 import {
+  OmniPad,
   getOverrideProps,
   mergeWidgetConfig,
   validateWidgetNode,
   type BaseConfig,
   type EntityType,
-  CONTEXT,
 } from '@omnipad/core';
 import { generateUID } from '@omnipad/core/utils';
 
@@ -35,7 +35,7 @@ export function useWidgetConfig<T extends BaseConfig>(
   const treeNode = validateWidgetNode(props.treeNode, requiredType);
 
   // 确定父节点编号
-  const injectedParentId = inject<Ref<string | undefined>>(CONTEXT.PARENT_ID_KEY, ref(undefined));
+  const injectedParentId = inject<Ref<string | undefined>>(OmniPad.Context.PARENT_ID_KEY, ref(undefined));
   const parentId = computed(() => {
     return props.parentId || treeNode?.config?.parentId || injectedParentId.value;
   });
@@ -43,7 +43,7 @@ export function useWidgetConfig<T extends BaseConfig>(
   // 确定 UID
   // 优先级：Prop 传入的 widgetId > treeNode 里的 UID > 随机生成
   const uid = computed(() => props.widgetId || treeNode?.uid || generateUID(requiredType));
-  provide(CONTEXT.PARENT_ID_KEY, uid);
+  provide(OmniPad.Context.PARENT_ID_KEY, uid);
 
   // 组合最终的忽略集合
   const skip = new Set([...BASE_INTERNAL_PROPS, ...extraSkipProps]);

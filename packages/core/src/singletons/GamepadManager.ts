@@ -2,35 +2,13 @@ import { Registry } from './Registry';
 import { ICoreEntity, IPointerHandler, IProgrammatic } from '../types/traits';
 import { AbstractGamepad, GamepadMappingConfig, StandardButton } from '../types/gamepad';
 import { createTicker } from '../runtime/performance';
+import { BUTTON_MAP } from '../constants/gamepad';
 
 /**
  * Unique symbol key for the global GameManager instance to ensure
  * singleton persistence across different modules.
  */
 const GAMEPAD_MANAGER_KEY = Symbol.for('omnipad.gamepad_manager.instance');
-
-/**
- * Standard Gamepad Button Index Mapping (Standard Mapping).
- * Maps human-readable button names to browser Gamepad API indices.
- */
-const BUTTON_MAP: Record<StandardButton, number> = {
-  A: 0,
-  B: 1,
-  X: 2,
-  Y: 3,
-  LB: 4,
-  RB: 5,
-  LT: 6,
-  RT: 7,
-  Select: 8,
-  Start: 9,
-  L3: 10,
-  R3: 11,
-  Up: 12,
-  Down: 13,
-  Left: 14,
-  Right: 15,
-};
 
 // 注入点：默认返回空数组，确保非浏览器环境测试不报错
 // Injection Point: Default to an empty array for safe non-browser execution.

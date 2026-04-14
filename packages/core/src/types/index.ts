@@ -1,62 +1,4 @@
-/**
- * =================================================================
- * 1. Constants Definition
- * Used for runtime logic and as a baseline for type definitions.
- * =================================================================
- */
-
-/**
- * Core entity types supported by the library.
- */
-export const CMP_TYPES = {
-  // --- Zones ---
-  /** Area responsible for capturing touches and spawning dynamic widgets */
-  INPUT_ZONE: 'input-zone',
-  /** Area responsible for receiving signals and simulating DOM events */
-  TARGET_ZONE: 'target-zone',
-
-  // --- Widgets ---
-  BUTTON: 'button',
-  /** Simulates a physical keyboard key press */
-  KEYBOARD_BUTTON: 'keyboard-button',
-  /** Simulates a mouse button click/hold */
-  MOUSE_BUTTON: 'mouse-button',
-  /** A joystick that outputs 360-degree or locked direction vectors */
-  JOYSTICK: 'joystick',
-  /** Classic 4/8-way directional pad */
-  D_PAD: 'd-pad',
-  /** Trackpad-style relative movement area */
-  TRACKPAD: 'trackpad',
-
-  // --- Virtual Helpers ---
-  /** Logic for the on-screen visual cursor */
-  VIRTUAL_CURSOR: 'virtual-cursor',
-  /** The top-level managed container */
-  ROOT_LAYER: 'root-layer',
-} as const;
-
-/**
- * Standardized input action types for the signal protocol.
- */
-export const ACTION_TYPES = {
-  KEYDOWN: 'keydown',
-  KEYUP: 'keyup',
-  POINTER: 'pointer',
-  POINTERMOVE: 'pointermove',
-  POINTERDOWN: 'pointerdown',
-  POINTERUP: 'pointerup',
-  MOUSE: 'mouse',
-  MOUSEMOVE: 'mousemove',
-  MOUSEDOWN: 'mousedown',
-  MOUSEUP: 'mouseup',
-  CLICK: 'click',
-} as const;
-
-/**
- * =================================================================
- * 2. Type Definitions
- * =================================================================
- */
+import { ACTION_TYPES, CMP_TYPES, STANDARD_ANCHORS, VALID_UNITS } from '../constants';
 
 /**
  * Represents an abstract bounding box, typically used as a
@@ -123,12 +65,6 @@ export type BuiltInActionType = (typeof ACTION_TYPES)[keyof typeof ACTION_TYPES]
 export type InputActionType = BuiltInActionType | (string & {});
 
 /**
- * Supported CSS units for layout calculation.
- * Using a constant array for runtime validation.
- */
-export const VALID_UNITS = ['px', '%', 'vh', 'vw', 'vmin', 'vmax', 'rem', 'em'] as const;
-
-/**
  * Derived type for type safety in TS
  */
 export type CssUnit = (typeof VALID_UNITS)[number];
@@ -150,20 +86,11 @@ export type FlexibleLength = ParsedLength | string | number;
 /**
  * Anchor position used to determine the alignment of an element relative to its coordinates.
  */
-export type AnchorPoint =
-  | 'top-left'
-  | 'top-center'
-  | 'top-right'
-  | 'center-left'
-  | 'center'
-  | 'center-right'
-  | 'bottom-left'
-  | 'bottom-center'
-  | 'bottom-right';
+export type AnchorPoint = typeof STANDARD_ANCHORS[number];
 
 /**
  * =================================================================
- * 3. Signal Protocol
+ * Signal Protocol
  * Data structure for communication between Widgets and Stages.
  * =================================================================
  */
@@ -197,14 +124,6 @@ export interface InputActionSignal {
     [key: string]: any;
   };
 }
-
-/**
- * Cross-framework context keys for dependency injection (e.g., Provide/Inject).
- */
-export const CONTEXT = {
-  /** The key used to propagate Parent IDs through the component tree */
-  PARENT_ID_KEY: 'omnipad-parent-id-link',
-} as const;
 
 /**
  * A safe alternative to the global 'Function' type.

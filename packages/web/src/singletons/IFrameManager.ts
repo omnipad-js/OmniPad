@@ -1,4 +1,4 @@
-import { AbstractRect, ACTION_TYPES } from '@omnipad/core';
+import { AbstractRect, OmniPad } from '@omnipad/core';
 import { distillRect, generateUID } from '@omnipad/core/utils';
 import { ElementObserver } from './ElementObserver';
 import { IpcMessage, OMNIPAD_IPC_SIGNATURE } from '../guest/ipc';
@@ -116,7 +116,7 @@ export class IframeManager {
       if (!visible) {
         if (import.meta.env?.DEV)
           console.debug(`[OmniPad-IPC] Iframe ${uid} hidden, sending safety reset.`);
-        this.forwardKeyboardEvent(iframe, ACTION_TYPES.KEYUP, { all: true });
+        this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
       }
     });
 

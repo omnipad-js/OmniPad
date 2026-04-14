@@ -1,21 +1,10 @@
-/** Standard buttons for Gamepad API */
-export type StandardButton =
-  | 'A'
-  | 'B'
-  | 'X'
-  | 'Y'
-  | 'LB'
-  | 'RB'
-  | 'LT'
-  | 'RT'
-  | 'Select'
-  | 'Start'
-  | 'L3'
-  | 'R3'
-  | 'Up'
-  | 'Down'
-  | 'Left'
-  | 'Right';
+import { BUTTON_MAP } from '../constants/gamepad';
+
+/**
+ * Standard button names derived directly from the BUTTON_MAP keys.
+ * Result: 'A' | 'B' | 'X' | ... | 'Right'
+ */
+export type StandardButton = keyof typeof BUTTON_MAP;
 
 export interface GamepadMappingConfig {
   /**

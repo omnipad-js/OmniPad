@@ -2,9 +2,10 @@ import { BaseEntity } from './BaseEntity';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { DPadConfig } from '../types/configs';
 import { DPadState } from '../types/state';
-import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
+import { AbstractPointerEvent, EntityType } from '../types';
 import { ActionEmitter } from '../runtime/action';
 import { clamp, isVec2Equal, lerp } from '../utils/math';
+import { CMP_TYPES } from '../constants';
 
 const INITIAL_STATE: DPadState = {
   isActive: false,

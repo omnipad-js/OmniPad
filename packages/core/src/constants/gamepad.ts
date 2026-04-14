@@ -1,0 +1,18 @@
+export const BUTTON_MAP = {
+  A: 0,
+  B: 1,
+  X: 2,
+  Y: 3,
+  LB: 4,
+  RB: 5,
+  LT: 6,
+  RT: 7,
+  Select: 8,
+  Start: 9,
+  L3: 10,
+  R3: 11,
+  Up: 12,
+  Down: 13,
+  Left: 14,
+  Right: 15,
+} as const;

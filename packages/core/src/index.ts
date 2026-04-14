@@ -1,4 +1,4 @@
-import { CONTEXT, KEYS, CMP_TYPES, ACTION_TYPES } from './types';
+import { ACTION_TYPES, BUTTON_MAP, CMP_TYPES, CONTEXT, STANDARD_ANCHORS, STANDARD_KEYS, VALID_UNITS } from './constants';
 
 export * from './runtime';
 export * from './types';
@@ -18,6 +18,9 @@ export * from './singletons/GamepadManager';
 export const OmniPad = {
   ActionTypes: ACTION_TYPES,
   Context: CONTEXT,
-  Keys: KEYS,
+  CssUnits: VALID_UNITS,
+  GamepadKeys: BUTTON_MAP,
+  Keys: STANDARD_KEYS,
+  StandardAnchors: STANDARD_ANCHORS,
   Types: CMP_TYPES,
 };

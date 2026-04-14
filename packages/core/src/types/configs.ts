@@ -1,4 +1,5 @@
-import { AnchorPoint, FlexibleLength, CMP_TYPES } from '.';
+import { AnchorPoint, FlexibleLength } from '.';
+import { CMP_TYPES } from '../constants';
 import { GamepadMappingConfig } from './gamepad';
 import { ActionMapping } from './keys';
 

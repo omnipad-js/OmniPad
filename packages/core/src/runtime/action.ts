@@ -1,6 +1,7 @@
+import { ACTION_TYPES, STANDARD_KEYS } from '../constants';
 import { Registry } from '../singletons/Registry';
-import { ActionMapping, ACTION_TYPES } from '../types';
-import { KeyMapping, KEYS } from '../types/keys';
+import { ActionMapping } from '../types';
+import { KeyMapping } from '../types/keys';
 import { delayFrames } from './performance';
 
 const MAX_STR_LEN = 32; // 键名通常不会超过这个长度
@@ -38,7 +39,7 @@ export class ActionEmitter {
     this.targetId = targetId;
     this.mapping =
       typeof mapping === 'string'
-        ? (KEYS[mapping as keyof typeof KEYS] ?? undefined)
+        ? (STANDARD_KEYS[mapping as keyof typeof STANDARD_KEYS] ?? undefined)
         : this.hydrate(mapping);
   }
 
@@ -78,7 +79,7 @@ export class ActionEmitter {
     // 如果具备键盘特征，则尝试补全
     if (safeKey || safeCode || safeKeyCode) {
       // 寻找匹配项
-      const standard = Object.values(KEYS).find((s) => {
+      const standard = Object.values(STANDARD_KEYS).find((s) => {
         if (s.type !== 'keyboard') return false;
         return s.code === safeCode || s.key === safeKey || s.keyCode === safeKeyCode;
       }) as KeyMapping | undefined;

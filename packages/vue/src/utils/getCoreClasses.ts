@@ -1,5 +1,5 @@
 import {
-  CMP_TYPES,
+  OmniPad,
   ButtonCore,
   JoystickCore,
   DPadCore,
@@ -10,13 +10,13 @@ import {
 } from '@omnipad/core';
 
 const CORE_MAP: Record<string, any> = {
-  [CMP_TYPES.BUTTON]: ButtonCore,
-  [CMP_TYPES.JOYSTICK]: JoystickCore,
-  [CMP_TYPES.D_PAD]: DPadCore,
-  [CMP_TYPES.TRACKPAD]: TrackpadCore,
-  [CMP_TYPES.INPUT_ZONE]: InputZoneCore,
-  [CMP_TYPES.TARGET_ZONE]: TargetZoneCore,
-  [CMP_TYPES.ROOT_LAYER]: RootLayerCore,
+  [OmniPad.Types.BUTTON]: ButtonCore,
+  [OmniPad.Types.JOYSTICK]: JoystickCore,
+  [OmniPad.Types.D_PAD]: DPadCore,
+  [OmniPad.Types.TRACKPAD]: TrackpadCore,
+  [OmniPad.Types.INPUT_ZONE]: InputZoneCore,
+  [OmniPad.Types.TARGET_ZONE]: TargetZoneCore,
+  [OmniPad.Types.ROOT_LAYER]: RootLayerCore,
 };
 
 /**

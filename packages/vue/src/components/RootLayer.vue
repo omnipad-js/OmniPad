@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   RootLayerCore,
-  CMP_TYPES,
+  OmniPad,
   type BaseConfig,
   type ConfigTreeNode,
   type LayoutBox,
@@ -27,7 +27,7 @@ const { uid, effectiveConfig, effectiveLayout, elementRef } = useWidgetSetup<
   RootLayerCore,
   LayerState,
   BaseConfig
->(CMP_TYPES.ROOT_LAYER, props);
+>(OmniPad.Types.ROOT_LAYER, props);
 
 const containerStyle = computed(() => {
   return effectiveLayout.value ? resolveLayoutStyle(effectiveLayout.value) : {};

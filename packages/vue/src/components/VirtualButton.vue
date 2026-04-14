@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   ButtonCore,
-  CMP_TYPES,
+  OmniPad,
   type ButtonConfig,
   type ButtonState,
   type ConfigTreeNode,
@@ -35,7 +35,7 @@ const defaultProps = {
 };
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
-  useWidgetSetup<ButtonCore, ButtonState, ButtonConfig>(CMP_TYPES.BUTTON, props, { defaultProps });
+  useWidgetSetup<ButtonCore, ButtonState, ButtonConfig>(OmniPad.Types.BUTTON, props, { defaultProps });
 
 // 转发交互
 const onPointerDown = (e: PointerEvent) => domEvents?.onPointerDown?.(e);

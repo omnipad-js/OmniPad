@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   TrackpadCore,
-  CMP_TYPES,
+  OmniPad,
   type ActionMapping,
   type ConfigTreeNode,
   type LayoutBox,
@@ -41,7 +41,7 @@ const defaultProps = {
 };
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
-  useWidgetSetup<TrackpadCore, TrackpadState, TrackpadConfig>(CMP_TYPES.TRACKPAD, props, {
+  useWidgetSetup<TrackpadCore, TrackpadState, TrackpadConfig>(OmniPad.Types.TRACKPAD, props, {
     defaultProps,
   });
 

@@ -2,7 +2,7 @@
 import { ref, watchEffect } from 'vue';
 import {
   DPadCore,
-  CMP_TYPES,
+  OmniPad,
   type ConfigTreeNode,
   type DPadConfig,
   type DPadState,
@@ -54,7 +54,7 @@ const defaultProps = {
 };
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
-  useWidgetSetup<DPadCore, DPadState, DPadConfig>(CMP_TYPES.D_PAD, props, { defaultProps });
+  useWidgetSetup<DPadCore, DPadState, DPadConfig>(OmniPad.Types.D_PAD, props, { defaultProps });
 
 const canUseNativeCQ = supportsContainerQueries();
 

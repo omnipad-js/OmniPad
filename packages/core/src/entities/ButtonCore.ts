@@ -3,7 +3,8 @@ import { ButtonState } from '../types/state';
 import { IPointerHandler, IProgrammatic } from '../types/traits';
 import { BaseEntity } from './BaseEntity';
 import { ActionEmitter } from '../runtime/action';
-import { AbstractPointerEvent, CMP_TYPES, EntityType } from '../types';
+import { AbstractPointerEvent, EntityType } from '../types';
+import { CMP_TYPES } from '../constants';
 
 const INITIAL_STATE: ButtonState = {
   isActive: false,

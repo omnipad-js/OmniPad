@@ -1,12 +1,12 @@
 import {
   LayoutBox,
   AnchorPoint,
-  VALID_UNITS,
   CssUnit,
   ParsedLength,
   FlexibleLength,
   AbstractRect,
   Vec2,
+  OmniPad,
 } from '@omnipad/core';
 import { clamp } from '@omnipad/core/utils';
 import { sanitizeDomString } from './security';
@@ -57,7 +57,7 @@ export function parseLength(input: FlexibleLength | undefined): ParsedLength | u
 export const sanitizeParsedLength = (parsed: ParsedLength): ParsedLength => {
   const { value, unit } = parsed;
 
-  if (!isNaN(value) && (VALID_UNITS as readonly string[]).includes(unit)) {
+  if (!isNaN(value) && (OmniPad.CssUnits as readonly string[]).includes(unit)) {
     return { value, unit };
   }
 

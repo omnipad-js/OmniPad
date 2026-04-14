@@ -1,18 +1,11 @@
-import {
-  ACTION_TYPES,
-  InputActionSignal,
-  Vec2,
-  CMP_TYPES,
-  AnyFunction,
-  AbstractPointerEvent,
-  EntityType,
-} from '../types';
+import { InputActionSignal, Vec2, AnyFunction, AbstractPointerEvent, EntityType } from '../types';
 import { TargetZoneConfig } from '../types/configs';
 import { CursorState } from '../types/state';
 import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/traits';
 import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
 import { createRafThrottler } from '../runtime/performance';
 import { BaseEntity } from './BaseEntity';
+import { ACTION_TYPES, CMP_TYPES } from '../constants';
 
 /**
  * Interface for delegating DOM operations within a target zone.

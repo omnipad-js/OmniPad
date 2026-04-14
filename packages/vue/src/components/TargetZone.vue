@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import {
   TargetZoneCore,
-  CMP_TYPES,
+  OmniPad,
   type ConfigTreeNode,
   type CursorState,
   type LayoutBox,
@@ -42,7 +42,7 @@ const defaultProps = {
 };
 
 const { uid, core, state, domEvents, effectiveConfig, effectiveLayout, elementRef } =
-  useWidgetSetup<TargetZoneCore, CursorState, TargetZoneConfig>(CMP_TYPES.TARGET_ZONE, props, {
+  useWidgetSetup<TargetZoneCore, CursorState, TargetZoneConfig>(OmniPad.Types.TARGET_ZONE, props, {
     defaultProps,
     initialDelegates: {
       dispatchKeyboardEvent: dispatchKeyboardEvent,
