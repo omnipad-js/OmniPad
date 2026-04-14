@@ -1,6 +1,7 @@
 import { Registry } from './Registry';
 import { ICoreEntity, IPointerHandler, IProgrammatic } from '../types/traits';
-import { GamepadMappingConfig, StandardButton } from '../types/gamepad';
+import { AbstractGamepad, GamepadMappingConfig, StandardButton } from '../types/gamepad';
+import { createTicker } from '../runtime/performance';
 
 /**
  * Unique symbol key for the global GameManager instance to ensure
@@ -31,9 +32,20 @@ const BUTTON_MAP: Record<StandardButton, number> = {
   Right: 15,
 };
 
+// 注入点：默认返回空数组，确保非浏览器环境测试不报错
+// Injection Point: Default to an empty array for safe non-browser execution.
+export type GamepadProvider = () => (AbstractGamepad | null)[];
+let _getGamepads: GamepadProvider = () => [];
+
 /**
- * GamepadManager
- *
+ * Injects the gamepad data source.
+ * In a web environment, pass `() => navigator.getGamepads()`.
+ */
+export function setGamepadProvider(provider: GamepadProvider) {
+  _getGamepads = provider;
+}
+
+/**
  * A singleton service that polls the browser Gamepad API via requestAnimationFrame.
  * It translates physical hardware inputs into programmatic signals sent to
  * virtual entities registered in the system.
@@ -44,14 +56,17 @@ const BUTTON_MAP: Record<StandardButton, number> = {
  * 3. Analog stick deadzone processing.
  */
 export class GamepadManager {
-  private isRunning = false;
   private config: GamepadMappingConfig[] | null = null;
 
   // Stores the state of buttons from the previous frame to detect changes
   // 记录上一帧的状态，用于判定按下/抬起边缘
   private lastButtonStates: boolean[][] = [];
 
-  private constructor() {}
+  private ticker: ReturnType<typeof createTicker>;
+
+  private constructor() {
+    this.ticker = createTicker(() => this.tick());
+  }
 
   /**
    * Retrieves the global singleton instance of the GamepadManager.
@@ -79,44 +94,23 @@ export class GamepadManager {
   public getConfig(): Readonly<GamepadMappingConfig[] | null> {
     return this.config;
   }
-
   /**
    * Starts the polling loop and listens for gamepad connection events.
    */
+
   public start() {
-    if (this.isRunning) return;
-    this.isRunning = true;
-
-    // Listen for hardware connection updates / 监听硬件连接更新
-    // window.addEventListener('gamepadconnected', (e) => {
-    //   if (import.meta.env?.DEV) {
-    //     console.log('[OmniPad-DOM] Gamepad Connected:', e.gamepad.id);
-    //   }
-    // });
-
-    // window.addEventListener('gamepaddisconnected', () => {
-    //   if (import.meta.env?.DEV) {
-    //     console.log('[OmniPad-DOM] Gamepad disconnected.');
-    //   }
-    // });
-
-    this.loop();
+    this.ticker.start();
   }
 
   /**
    * Stops the polling loop.
    */
   public stop() {
-    this.isRunning = false;
+    this.ticker.stop();
   }
 
-  /**
-   * The core polling loop executing at the browser's refresh rate.
-   */
-  private loop = () => {
-    if (!this.isRunning) return;
-
-    const gamepads = navigator.getGamepads();
+  private tick = () => {
+    const gamepads = _getGamepads();
 
     this.config?.forEach((mapping, index) => {
       const pad = gamepads[index]; // Gamepad API 保证 index 是固定的物理插槽
@@ -130,14 +124,12 @@ export class GamepadManager {
         this.processAxes(pad, mapping);
       }
     });
-
-    requestAnimationFrame(this.loop);
   };
 
   /**
    * Process binary button inputs with edge detection.
    */
-  private processButtons(pad: Gamepad, mapping: GamepadMappingConfig, padIndex: number) {
+  private processButtons(pad: AbstractGamepad, mapping: GamepadMappingConfig, padIndex: number) {
     if (!mapping.buttons) return;
 
     Object.entries(mapping.buttons).forEach(([btnName, targetCid]) => {
@@ -161,7 +153,7 @@ export class GamepadManager {
   /**
    * Translates physical D-Pad buttons into a normalized vector.
    */
-  private processDPad(pad: Gamepad, mapping: GamepadMappingConfig) {
+  private processDPad(pad: AbstractGamepad, mapping: GamepadMappingConfig) {
     const targetUid = mapping?.dpad;
     if (!targetUid) return;
 
@@ -180,7 +172,7 @@ export class GamepadManager {
   /**
    * Process analog stick movements with deadzone logic.
    */
-  private processAxes(pad: Gamepad, mapping: GamepadMappingConfig) {
+  private processAxes(pad: AbstractGamepad, mapping: GamepadMappingConfig) {
     const deadzone = mapping?.deadzone ?? 0.1;
 
     // Left Stick (Axis 0, 1)

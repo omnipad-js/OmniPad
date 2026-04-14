@@ -43,3 +43,24 @@ export interface GamepadMappingConfig {
    */
   deadzone?: number;
 }
+
+/**
+ * Represents the state of a single button on an abstract gamepad.
+ */
+export interface AbstractGamepadButton {
+  pressed: boolean;
+  value: number; // 0.0 - 1.0, 某些高级逻辑可能需要
+}
+
+/**
+ * Platform-agnostic representation of a physical or virtual gamepad.
+ * Derived from the W3C Gamepad API but decoupled from the environment.
+ */
+export interface AbstractGamepad {
+  /** Whether the gamepad is still connected to the system. */
+  connected: boolean;
+  /** The state of all buttons on the gamepad. */
+  buttons: ReadonlyArray<AbstractGamepadButton>;
+  /** The current positions of all axes (analog sticks), ranging from -1.0 to 1.0. */
+  axes: ReadonlyArray<number>;
+}

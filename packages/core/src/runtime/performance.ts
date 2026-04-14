@@ -1,19 +1,24 @@
 /**
- * Internal safe reference to requestAnimationFrame.
- * Fallbacks to setTimeout for non-browser environments (e.g., Node.js, Vitest).
+ * Types for frame request and cancellation.
+ * Compatible with both Web and custom engine timings.
  */
-const rAF =
-  typeof globalThis !== 'undefined' && globalThis.requestAnimationFrame
-    ? globalThis.requestAnimationFrame.bind(globalThis)
-    : (cb: () => void): number => setTimeout(cb, 16) as unknown as number;
+export type FrameRequestCallback = (time: number) => void;
+export type RequestFrameFn = (callback: FrameRequestCallback) => any;
+export type CancelFrameFn = (handle: any) => void;
+
+// 默认提供一个基于 setTimeout 的降级方案，确保在 Node.js 环境下测试不报错
+// Default fallback using setTimeout to ensure compatibility in Node.js/Non-browser environments.
+let _requestFrame: RequestFrameFn = (cb) => setTimeout(() => cb(Date.now()), 16);
+let _cancelFrame: CancelFrameFn = (id) => clearTimeout(id);
 
 /**
- * Internal safe reference to cancelAnimationFrame.
+ * Injects a custom timing provider (e.g., window.requestAnimationFrame).
+ * Highly recommended for Web environments and H5 Game Engines to ensure 60fps+ performance.
  */
-const cAF =
-  typeof globalThis !== 'undefined' && globalThis.cancelAnimationFrame
-    ? globalThis.cancelAnimationFrame.bind(globalThis)
-    : (id: any) => clearTimeout(id);
+export function setRafProvider(request: RequestFrameFn, cancel: CancelFrameFn) {
+  _requestFrame = request;
+  _cancelFrame = cancel;
+}
 
 /**
  * Creates a throttled version of a function that only executes once per animation frame.
@@ -23,7 +28,7 @@ const cAF =
  * @param callback - The function to execute.
  * @returns A throttled function receiving the latest payload.
  */
-export function createRafThrottler<T = any>(callback: (payload: T) => void) {
+export function createRafThrottler<T = any>(callback: (payload: T, timestamp: number) => void) {
   let ticking = false;
   let latestPayload: T | undefined;
 
@@ -33,8 +38,8 @@ export function createRafThrottler<T = any>(callback: (payload: T) => void) {
     if (!ticking) {
       ticking = true;
 
-      rAF(() => {
-        callback(latestPayload as T);
+      _requestFrame((timestamp) => {
+        callback(latestPayload as T, timestamp);
         ticking = false;
       });
     }
@@ -53,7 +58,7 @@ export function createTicker(callback: () => void) {
 
   const loop = () => {
     callback();
-    tickId = rAF(loop);
+    tickId = _requestFrame(loop);
   };
 
   return {
@@ -62,7 +67,7 @@ export function createTicker(callback: () => void) {
     },
     stop: () => {
       if (tickId !== null) {
-        cAF(tickId as any);
+        _cancelFrame(tickId as any);
         tickId = null;
       }
     },
@@ -73,13 +78,13 @@ export function createTicker(callback: () => void) {
  * Delay the specified number of rendering frames.
  * @param frames Count of frames to delay.
  */
-export const delayFrames = (frames: number = 2): Promise<void> => {
+export const delayFrames = (frames: number = 1): Promise<void> => {
   return new Promise((resolve) => {
     let count = 0;
     const loop = () => {
       if (++count >= frames) resolve();
-      else rAF(loop);
+      else _requestFrame(loop);
     };
-    rAF(loop);
+    _requestFrame(loop);
   });
 };
