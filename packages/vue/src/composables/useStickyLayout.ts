@@ -1,13 +1,6 @@
 import { shallowRef, watch, onUnmounted, Ref, ComputedRef } from 'vue';
-import {
-  type ICoreEntity,
-  type ISpatial,
-  type IResettable,
-  type BaseConfig,
-  StickyController,
-  StickyProvider,
-} from '@omnipad/core';
-import { createWebStickyProvider, ElementObserver } from '@omnipad/core/dom';
+import { type ICoreEntity, type ISpatial, type IResettable, type BaseConfig } from '@omnipad/core';
+import { StickyController, StickyProvider, createWebStickyProvider } from '@omnipad/web';
 
 /**
  * A sub-composable to manage sticky layout logic.
@@ -38,11 +31,7 @@ export function useStickyLayout<C extends BaseConfig>(
 
       // 懒加载初始化控制器 / Lazy-initialize the controller
       if (!stickyController) {
-        stickyController = new StickyController(
-          ElementObserver.getInstance(),
-          core.value,
-          onUpdate,
-        );
+        stickyController = new StickyController(core.value, onUpdate);
       }
 
       // 执行选择器切换策略 / Perform selector switching strategy

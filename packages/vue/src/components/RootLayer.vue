@@ -7,7 +7,7 @@ import {
   type LayoutBox,
   LayerState,
 } from '@omnipad/core';
-import { resolveLayoutStyle } from '@omnipad/core/utils';
+import { resolveLayoutStyle } from '@omnipad/web';
 import VirtualLayerBase from './VirtualLayerBase.vue';
 import { computed } from 'vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';

@@ -8,13 +8,13 @@ import {
   type LayoutBox,
   type TargetZoneConfig,
 } from '@omnipad/core';
-import { resolveLayoutStyle, projectPercentToBox } from '@omnipad/core/utils';
+import { resolveLayoutStyle, projectPercentToBox } from '@omnipad/web';
 import {
   supportsContainerQueries,
   dispatchKeyboardEvent,
   dispatchPointerEventAtPos,
   reclaimFocusAtPos,
-} from '@omnipad/core/dom';
+} from '@omnipad/web';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
 
 interface TargetZoneProps {

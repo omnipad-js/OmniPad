@@ -10,7 +10,7 @@ import {
   type IStateful,
 } from '@omnipad/core';
 import { getObjectDiff } from '@omnipad/core/utils';
-import { WindowManager, createPointerBridge } from '@omnipad/core/dom';
+import { WindowManager, createPointerBridge } from '@omnipad/web';
 
 /**
  * Bridges a Vue component with its corresponding Headless Core logic entity.

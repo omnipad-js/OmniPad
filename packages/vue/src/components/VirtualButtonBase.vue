@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { type LayoutBox } from '@omnipad/core';
-import { resolveLayoutStyle } from '@omnipad/core/utils';
+import { resolveLayoutStyle } from '@omnipad/web';
 
 const props = defineProps<{
   layout?: LayoutBox;

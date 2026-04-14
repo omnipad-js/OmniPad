@@ -35,7 +35,8 @@
     "vue": "^3.2.0"
   },
   "dependencies": {
-    "@omnipad/core": "workspace:*"
+    "@omnipad/core": "workspace:*",
+    "@omnipad/web": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

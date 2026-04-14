@@ -10,8 +10,7 @@ import {
   filterNotDynamicChildren,
   resolveDynamicWidget,
 } from '@omnipad/core';
-import { resolveLayoutStyle, projectPercentToBox } from '@omnipad/core/utils';
-import { supportsContainerQueries } from '@omnipad/core/dom';
+import { projectPercentToBox, resolveLayoutStyle, supportsContainerQueries } from '@omnipad/web';
 import { getComponent } from '../utils/componentRegistry';
 import VirtualLayerBase from './VirtualLayerBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';

@@ -5,7 +5,7 @@ import { useWidgetConfig } from './useWidgetConfig';
 import { useCoreEntity } from './useCoreEntity';
 import { useStickyLayout } from './useStickyLayout';
 import { createManualTrigger } from '../utils/createManualTrigger';
-import { flattenToHostLayout } from '@omnipad/core/dom';
+import { flattenToHostLayout } from '@omnipad/web';
 import { useSpatialObserver } from './useSpatialObserver';
 
 /**

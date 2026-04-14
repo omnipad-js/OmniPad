@@ -8,7 +8,7 @@ import {
   type DPadState,
   type LayoutBox,
 } from '@omnipad/core';
-import { supportsContainerQueries } from '@omnipad/core/dom';
+import { supportsContainerQueries } from '@omnipad/web';
 import VirtualAxisBase from './VirtualAxisBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
 

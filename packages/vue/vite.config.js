@@ -27,6 +27,8 @@ export default defineConfig({
         '@omnipad/core/utils',
         '@omnipad/core/dom',
         /^@omnipad\/core\/.*/,
+        '@omnipad/web',
+        /^@omnipad\/web\/.*/,
       ],
       output: {
         globals: {
@@ -34,6 +36,7 @@ export default defineConfig({
           '@omnipad/core': 'OmniPadCore',
           '@omnipad/core/utils': 'OmniPadCoreUtils',
           '@omnipad/core/dom': 'OmniPadCoreDom',
+          '@omnipad/web': 'OmniPadWeb',
         },
         exports: 'named',
       },
