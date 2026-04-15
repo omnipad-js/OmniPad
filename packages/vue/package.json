@@ -1,7 +1,7 @@
 {
   "name": "@omnipad/vue",
-  "version": "0.6.2",
-  "description": "",
+  "version": "0.7.0",
+  "description": "Vue 3 adapter and component library for OmniPad. Build highly customizable virtual gamepads for web-based games with ease.",
   "main": "./dist/omnipad-vue.umd.js",
   "module": "./dist/omnipad-vue.mjs",
   "types": "./dist/index.d.ts",

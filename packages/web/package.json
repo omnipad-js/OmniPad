@@ -1,7 +1,7 @@
 {
   "name": "@omnipad/web",
-  "version": "0.6.2",
-  "description": "",
+  "version": "0.7.0",
+  "description": "Web-specific drivers and DOM interaction layer for OmniPad. Handles Iframe penetration, Shadow DOM support, and high-fidelity event simulation.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

@@ -1,7 +1,7 @@
 {
   "name": "@omnipad/core",
-  "version": "0.6.2",
-  "description": "",
+  "version": "0.7.0",
+  "description": "Headless core logic and state machines for the OmniPad input engine. Platform-agnostic, zero-dependency, and high-performance.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
