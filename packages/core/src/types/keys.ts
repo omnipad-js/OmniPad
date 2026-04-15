@@ -1,5 +1,5 @@
 import { Vec2 } from '.';
-import { STANDARD_KEYS } from '../constants';
+import { STANDARD_KEYS } from '../constants/keys';
 
 /**
  * Interface defining the structure of key mapping.

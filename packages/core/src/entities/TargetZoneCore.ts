@@ -5,7 +5,7 @@ import { IDependencyBindable, IPointerHandler, ISignalReceiver } from '../types/
 import { clamp, isVec2Equal, percentToPx, pxToPercent } from '../utils/math';
 import { createRafThrottler } from '../runtime/performance';
 import { BaseEntity } from './BaseEntity';
-import { ACTION_TYPES, CMP_TYPES } from '../constants';
+import { ACTION_TYPES, CMP_TYPES } from '../constants/basic';
 import { DispatcherProvider, getDispatcher } from '../runtime/dispatch';
 
 let _defaultDispatcher: DispatcherProvider | null = null;

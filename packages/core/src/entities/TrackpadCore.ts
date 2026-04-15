@@ -6,7 +6,7 @@ import { AbstractPointerEvent, EntityType } from '../types';
 import { GestureRecognizer } from '../runtime/gesture';
 import { isVec2Equal } from '../utils/math';
 import { ActionEmitter } from '../runtime/action';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 
 /**
  * Initial state for the trackpad.

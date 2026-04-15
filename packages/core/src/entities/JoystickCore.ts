@@ -7,7 +7,7 @@ import { ActionEmitter } from '../runtime/action';
 import { GestureRecognizer } from '../runtime/gesture';
 import { createTicker } from '../runtime/performance';
 import { clamp, applyRadialDeadzone, isVec2Equal, lerp } from '../utils/math';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 
 const INITIAL_STATE: JoystickState = {
   isActive: false,

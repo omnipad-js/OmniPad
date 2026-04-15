@@ -4,7 +4,7 @@ import { InputZoneConfig } from '../types/configs';
 import { InputZoneState } from '../types/state';
 import { Vec2, AnyFunction, AbstractPointerEvent, EntityType } from '../types';
 import { pxToPercent } from '../utils/math';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 
 interface InputZoneDelegates {
   dynamicWidgetPointerDown: (e: AbstractPointerEvent) => void;

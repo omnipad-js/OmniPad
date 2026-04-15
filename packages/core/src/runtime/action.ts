@@ -1,4 +1,5 @@
-import { ACTION_TYPES, STANDARD_KEYS } from '../constants';
+import { ACTION_TYPES } from '../constants/basic';
+import { STANDARD_KEYS } from '../constants/keys';
 import { Registry } from '../singletons/Registry';
 import { ActionMapping } from '../types';
 import { KeyMapping } from '../types/keys';

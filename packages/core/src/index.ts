@@ -1,13 +1,3 @@
-import {
-  ACTION_TYPES,
-  BUTTON_MAP,
-  CMP_TYPES,
-  CONTEXT,
-  STANDARD_ANCHORS,
-  STANDARD_KEYS,
-  VALID_UNITS,
-} from './constants';
-
 export * from './runtime';
 export * from './types';
 
@@ -23,12 +13,4 @@ export { TrackpadCore } from './entities/TrackpadCore';
 export * from './singletons/Registry';
 export * from './singletons/GamepadManager';
 
-export const OmniPad = {
-  ActionTypes: ACTION_TYPES,
-  Context: CONTEXT,
-  CssUnits: VALID_UNITS,
-  GamepadKeys: BUTTON_MAP,
-  Keys: STANDARD_KEYS,
-  StandardAnchors: STANDARD_ANCHORS,
-  Types: CMP_TYPES,
-};
+export * from './constants';

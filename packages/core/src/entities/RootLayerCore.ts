@@ -1,7 +1,7 @@
 import { BaseEntity } from './BaseEntity';
 import { BaseConfig } from '../types/configs';
 import { LayerState, EntityType } from '../types';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 
 /**
  * Initial state for the Root Layer.

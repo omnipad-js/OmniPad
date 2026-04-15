@@ -5,7 +5,7 @@ import { DPadState } from '../types/state';
 import { AbstractPointerEvent, EntityType } from '../types';
 import { ActionEmitter } from '../runtime/action';
 import { clamp, isVec2Equal, lerp } from '../utils/math';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 
 const INITIAL_STATE: DPadState = {
   isActive: false,

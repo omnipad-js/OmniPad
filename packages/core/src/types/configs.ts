@@ -1,40 +1,7 @@
-import { AnchorPoint, FlexibleLength } from '.';
-import { CMP_TYPES } from '../constants';
+import { CMP_TYPES } from '../constants/basic';
 import { GamepadMappingConfig } from './gamepad';
 import { ActionMapping } from './keys';
-
-/**
- * Defines the spatial properties of a component.
- * Supports various CSS units (px, %, vh, vw) via FlexibleLength.
- */
-export interface LayoutBox {
-  /** Offset from the left edge of the parent container. */
-  left?: FlexibleLength;
-  /** Offset from the top edge of the parent container. */
-  top?: FlexibleLength;
-  /** Offset from the right edge of the parent container. */
-  right?: FlexibleLength;
-  /** Offset from the bottom edge of the parent container. */
-  bottom?: FlexibleLength;
-  /** Width of the component. */
-  width?: FlexibleLength;
-  /** Height of the component. */
-  height?: FlexibleLength;
-  /** Whether equal width and length. (aspect-ratio: 1/1) */
-  isSquare?: boolean;
-  /**
-   * The alignment point of the component relative to its (left, top) coordinates.
-   * @example 'center' will center the component on its position.
-   */
-  anchor?: AnchorPoint;
-  /** Z-index for layering control. */
-  zIndex?: number;
-  /**
-   * CSS selector for the target element (e.g., "#game-canvas").
-   * If provided, the component switches to "Sticky" mode and positions itself relative to this element.
-   */
-  stickySelector?: string;
-}
+import { LayoutBox } from './layout';
 
 /**
  * Base configuration interface for all components.
