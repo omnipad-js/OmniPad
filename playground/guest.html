@@ -1,72 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmniPad Guest Environment</title>
   <style>
-    html, body {
-      margin: 0; padding: 0; width: 100%; height: 100%;
-      background-color: #000; overflow: hidden;
-    }
-    #ruffle-container {
-      width: 100%; height: 100%;
-    }
+    html, body { margin: 0; width: 100vw; height: 100vh; 
+      background: rgba(255, 0, 0, 0); overflow: hidden; border: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    iframe { width: 100%; height: 100%; }
   </style>
-  <!-- 1. 引入 Ruffle -->
-  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 </head>
 <body>
-  
-  <div id="ruffle-container"></div>
+  <iframe src="./player.html"></iframe>
 
-  <!-- 2. 业务逻辑：接收父窗口发来的 SWF 地址并让 Ruffle 加载 -->
-  <script>
-    let rufflePlayer = null;
-
-    function initRuffle() {
-      const container = document.getElementById('ruffle-container');
-      const ruffle = window.RufflePlayer.newest();
-      rufflePlayer = ruffle.createPlayer();
-      rufflePlayer.style.width = '100%';
-      rufflePlayer.style.height = '100%';
-      container.appendChild(rufflePlayer);
-    }
-
-    window.addEventListener('message', (event) => {
-      // 业务指令：加载游戏
-      if (event.data && event.data.type === 'BUSINESS_LOAD_SWF') {
-        if (!rufflePlayer) initRuffle();
-        
-        console.log('[Guest] Received SWF URL, loading...');
-        rufflePlayer.load({
-          url: event.data.url,
-          allowScriptAccess: true,
-          backgroundColor: '#000000',
-          letterbox: 'on',
-          forceScale: true
-        });
-      }
-    });
-  </script>
-
-  <!-- 3. 信号接收器：监听虚拟手柄信号 -->
-  <!-- 
-    在真实的插件场景中，这段脚本是通过 Content Script 动态注入的。
-    在我们的测试环境里，我们通过 esm 模块引入它。
-    由于 public 目录无法直接用 TypeScript，我们需要把接收器编译好的 JS 拿过来，
-    或者在开发时用 Vite 的特性引入它。
-  -->
   <script type="module">
-    // 假设你在 @omnipad/core 导出了 initIframeReceiver
-    // 在 Vite dev 环境中，可以直接请求 src 下的文件
     import { initIframeReceiver } from './src/iframe-receiver-test-entry.ts';
-    
-    // 启动内应，开始监听父窗口的虚拟指针/键盘信号
     initIframeReceiver({
       allowedOrigins: [window.location.origin]
     });
-  </script>
 
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'BUSINESS_LOAD_SWF') {
+        const subIframe = document.querySelector('iframe');
+
+        console.log(event)
+
+        if (subIframe && subIframe.contentWindow) {
+          subIframe.contentWindow.postMessage(event.data, window.location.origin);
+        }
+      }
+  });
+  </script>
 </body>
 </html>

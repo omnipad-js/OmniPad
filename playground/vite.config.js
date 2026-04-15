@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         guest: resolve(__dirname, 'guest.html'),
+        player: resolve(__dirname, 'player.html'),
       },
     },
   },

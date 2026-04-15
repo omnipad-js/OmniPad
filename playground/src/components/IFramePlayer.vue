@@ -23,7 +23,7 @@ const loadSwfIntoIframe = (url: string) => {
         type: 'BUSINESS_LOAD_SWF',
         url: url,
       },
-      '*',
+      window.location.origin,
     );
   }
 };

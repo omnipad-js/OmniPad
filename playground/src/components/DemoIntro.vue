@@ -42,6 +42,9 @@
   text-align: center;
   padding: 40px;
   box-sizing: border-box;
+
+  pointer-events: none;
+  user-select: none;
 }
 
 .content {
