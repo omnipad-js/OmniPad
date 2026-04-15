@@ -4,7 +4,9 @@ import { LayoutBox, ParsedLength } from '../types';
  * Convert the ParsedLength back to a CSS string
  */
 export const lengthToCss = (parsed: ParsedLength | undefined): string | undefined => {
-  return parsed == null ? undefined : `${parsed.value}${parsed.unit}`;
+  return parsed == null || (parsed.value == null && parsed.unit == null)
+    ? undefined
+    : `${parsed.value}${parsed.unit}`;
 };
 
 /**
