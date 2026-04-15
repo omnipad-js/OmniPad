@@ -1,5 +1,8 @@
-import { dispatchKeyboardEvent, dispatchPointerEventAtPos, reclaimFocusAtPos } from '../dom/action';
-import { WindowManager } from '../singletons/WindowManager';
+import {
+  dispatchCustomKeyboardEvent,
+  dispatchCustomPointerEventAtPos,
+  reclaimCustomFocusAtPos,
+} from '../dom/dispatch';
 
 /**
  * A unique signature used to identify and verify that messages received via
@@ -55,8 +58,14 @@ export interface ReceiverOptions {
 
 let _isInitialized = false;
 let _allowedOrigins: string[] | '*' = [];
+let _currentRect: DOMRect | null = null;
 
 const MAX_PENETRATION_DEPTH = 3;
+
+const getCurrentRect = (el: HTMLElement) => {
+  if (_currentRect == null) _currentRect = el.getBoundingClientRect();
+  return _currentRect;
+};
 
 /**
  * Initializes the Iframe IPC receiver.
@@ -70,7 +79,6 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
   _allowedOrigins = options.allowedOrigins;
   _isInitialized = true;
-  WindowManager.getInstance().init();
 
   window.addEventListener('message', (event: MessageEvent) => {
     // Security: Verify sender's origin
@@ -112,9 +120,27 @@ export function initIframeReceiver(options: ReceiverOptions): void {
           return;
         }
 
-        reclaimFocusAtPos(x, y);
-      }
-      if (data.type === 'pointer') {
+        reclaimCustomFocusAtPos(x, y, (a, b, c) => {
+          // Focus logic is executed before each discrete operation.
+          // Thus, clear the cache to prepare for the next operation.
+          _currentRect = null;
+
+          const localX = b - getCurrentRect(a).left;
+          const localY = c - getCurrentRect(a).top;
+
+          a.contentWindow?.postMessage(
+            {
+              signature: OMNIPAD_IPC_SIGNATURE,
+              type: 'focus',
+              action: 'reclaim',
+              payload: { x: localX, y: localY },
+
+              depth: data.depth + 1,
+            } as IpcMessage,
+            '*',
+          );
+        });
+      } else if (data.type === 'pointer') {
         const { x, y, opts } = data.payload;
 
         if (!Number.isFinite(x) || !Number.isFinite(y)) {
@@ -122,10 +148,35 @@ export function initIframeReceiver(options: ReceiverOptions): void {
         }
 
         // The x and y coordinates are already translated to local pixels by the Host
-        dispatchPointerEventAtPos(data.action, x, y, opts);
+        dispatchCustomPointerEventAtPos(data.action, x, y, opts, (a, b, c, d, e) => {
+          const localX = c - getCurrentRect(a).left;
+          const localY = d - getCurrentRect(a).top;
+
+          a.contentWindow?.postMessage(
+            {
+              signature: OMNIPAD_IPC_SIGNATURE,
+              type: 'pointer',
+              action: b,
+              payload: { x: localX, y: localY, e },
+              depth: data.depth + 1,
+            } as IpcMessage,
+            '*',
+          );
+        });
       } else if (data.type === 'keyboard') {
         // Handle globally broadcasted keyboard signals
-        dispatchKeyboardEvent(data.action, data.payload);
+        dispatchCustomKeyboardEvent(data.action, data.payload, (a, b, c) => {
+          a.contentWindow?.postMessage(
+            {
+              signature: OMNIPAD_IPC_SIGNATURE,
+              type: 'keyboard',
+              action: b,
+              payload: c,
+              depth: data.depth + 1,
+            } as IpcMessage,
+            '*',
+          );
+        });
       }
     } catch (err) {
       console.error('[OmniPad-IPC] Error dispatching guest event:', err);

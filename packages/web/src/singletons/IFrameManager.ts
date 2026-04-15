@@ -138,7 +138,6 @@ export class IframeManager {
     globalX: number,
     globalY: number,
     opts: any,
-    currentDepth: number = 0,
   ) {
     if (!iframe.contentWindow || !Number.isFinite(globalX) || !Number.isFinite(globalY)) return;
 
@@ -156,7 +155,7 @@ export class IframeManager {
         type: 'pointer',
         action: type,
         payload: { x: localX, y: localY, opts },
-        depth: currentDepth + 1,
+        depth: 1,
       } as IpcMessage,
       data.origin,
     );
@@ -169,12 +168,7 @@ export class IframeManager {
    * @param type - Event type (e.g., 'keydown').
    * @param payload - Key mapping data.
    */
-  public forwardKeyboardEvent(
-    iframe: HTMLIFrameElement,
-    type: string,
-    payload: any,
-    currentDepth: number = 0,
-  ) {
+  public forwardKeyboardEvent(iframe: HTMLIFrameElement, type: string, payload: any) {
     if (!iframe.contentWindow) return;
 
     const data = this.getVerifiedIframeData(iframe);
@@ -186,7 +180,7 @@ export class IframeManager {
         type: 'keyboard',
         action: type,
         payload,
-        depth: currentDepth + 1,
+        depth: 1,
       } as IpcMessage,
       data.origin,
     );
@@ -199,12 +193,7 @@ export class IframeManager {
    * @param globalX - X coordinate in the host viewport.
    * @param globalY - Y coordinate in the host viewport.
    */
-  public forwardFocusReclaim(
-    iframe: HTMLIFrameElement,
-    globalX: number,
-    globalY: number,
-    currentDepth: number = 0,
-  ) {
+  public forwardFocusReclaim(iframe: HTMLIFrameElement, globalX: number, globalY: number) {
     if (!iframe.contentWindow) return;
 
     const data = this.getVerifiedIframeData(iframe);
@@ -221,7 +210,7 @@ export class IframeManager {
         action: 'reclaim',
         payload: { x: localX, y: localY },
 
-        depth: currentDepth + 1,
+        depth: 1,
       } as IpcMessage,
       data.origin,
     );
