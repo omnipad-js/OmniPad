@@ -11,30 +11,50 @@
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
 
-> **Break the device barrier: Wrap any Web game for mobile with a single configuration.**
+> **The "Wall-Breaker" for Cross-Platform Web Game Input: Revive PC web games on mobile devices with a single JSON configuration.**
 
-OmniPad is a **high-performance, headless** virtual input engine specifically designed for Web-based games (HTML5 Canvas, Ruffle Flash Emulator, Godot Web exports, etc.).
+**OmniPad** is a **headless virtual input engine** specifically designed for **Web games** (HTML5 Canvas, Ruffle Flash emulator, Godot Web exports, etc.).
 
-It provides a comprehensive orchestration system that translates "Touch Gestures / Physical Gamepad Inputs" into "Native Browser Keyboard / Mouse Events." Without modifying a single line of your game's core source code, OmniPad empowers legacy web games with a native-mobile-like control experience.
+It is far more than just a UI library; it is a comprehensive **input protocol translation system**. It provides a complete dispatch layer that translates "screen touches and physical gamepads" into "native browser keyboard and mouse events." Without modifying the game's core source code, OmniPad empowers legacy web games with a native, mobile-grade control experience.
 
 🚨 **[Live Demo: Try it on your Mobile Device](https://omnipad-demo.coocoodaegap.com)** 🚨
 
 ---
 
-## 🆚 Why OmniPad?
+## 🛠️ What Pain Points Does It Solve?
 
-Most joystick libraries (like nipple.js) only provide raw UI and coordinate calculations. OmniPad is a **complete input adaptation layer**: We don't just provide the UI; we solve the "end-game" pain points of web game porting, such as **Shadow DOM isolation**, **browser focus loss**, and **multi-touch conflicts**.
+| Pain Point                       | OmniPad Solution                                             |
+| :------------------------------- | :----------------------------------------------------------- |
+| **Shadow DOM Isolation**         | Recursive probing logic that penetrates the physical boundaries of WebComponents (e.g., Ruffle). |
+| **Cross-Origin Iframe Barriers** | Secure IPC via `postMessage` with automated coordinate transformation for multi-layered nested iframes. |
+| **Browser Focus Loss**           | An "Target Zone" focus-reclamation mechanism that prevents input failure caused by UI clicks or unexpected events. |
+| **Multi-touch Conflicts**        | State-locking based on the `Pointer Capture API`, ensuring joysticks and buttons never interfere during rapid combos. |
 
-## ✨ Core Architecture & Features
+---
 
-- 🚀 **Headless Design**: The input state machine, gesture recognition, and core scheduling are fully encapsulated in the zero-dependency `@omnipad/core`. It is natively framework-agnostic. We currently provide `@omnipad/vue`, a production-ready Vue 3 adapter.
-- 🌐 **Cross-Origin Iframe Bridge**: **A major feature in v0.6**. Built-in secure IPC communication protocol based on `postMessage`. Automatically detects `<iframe>` containers on the page to enable real-time coordinate conversion and keyboard signal tunneling, allowing games “behind the Great Firewall” to be controlled just like native web pages.
-- 🌲 **Flat Profile & Forest**: An innovative JSON parsing engine. It supports parsing a single flat configuration into multiple independent root nodes, allowing you to use native CSS Flex/Grid to build complex responsive layouts for both landscape and portrait modes.
-- 👻 **Event Penetration & Focus Protection**: Features high-fidelity synthetic event routing that elegantly penetrates the Shadow DOM boundaries of WebAssembly emulators (like Ruffle). Built-in "Auto-Focus Reclaim" logic ensures keys never get stuck or unresponsive.
-- 📐 **Smart Sticky & Adaptive Layout**: The `LayoutBox` constraint system not only natively supports various CSS units such as `px`, `%`, and `vh/vw`, but also enables component-level sticking via `stickySelector`. It automatically tracks position changes of any DOM element on the page and synchronizes coordinates in real time, making it the ultimate tool for developing game overlay UIs and browser extensions.
-- 🎛️ **Touch-to-Spawn (Dynamic Mounting)**: Supports **spawning** joysticks or buttons anywhere in an `InputZone` upon touch. This perfectly mimics the control habits of modern mobile action games.
-- ⚡️ **Performance First**: No expensive DOM reflows. Introduce a singleton `ResizeObserver` pool and the Rect caching mechanism. All displacement calculations happen in memory, with hardware acceleration forced via `translate3d`. Built-in **rAF (requestAnimationFrame) throttling** ensures perfect synchronization with high-refresh-rate screens.
-- 🔌 **Input Fusion**: Managed by a unified underlying state machine, OmniPad supports simultaneous inputs from screen touch, mouse clicks, and **Physical Gamepads**, with real-time synchronized feedback on the virtual UI.
+## ✨ Core Features
+
+### 🧠 Pure Headless Architecture
+
+*   **Logic Engine (`@omnipad/core`)**: Implemented in pure TypeScript with **zero DOM dependencies**. Handles mathematical calculations, gesture recognition, entity communication, and signal dispatching.
+*   **Environment Drivers (`@omnipad/web`)**: Dynamically injects `rAF` timing, `Gamepad API` access, and `DOM side-effects` into the core. Runs anywhere: Mini-programs, Electron, or Browser Extensions.
+*   **Adapter Layer (`@omnipad/vue`)**: The official Vue 3 adapter, providing a UI base with 100% Slot-based customization.
+
+### 📐 Declarative JSON-Driven
+
+*   **LayoutBox System**: Native support for `px`, `%`, `vh`, and `vw`. Uses a flexible **Anchor** system to adapt a single configuration to any screen aspect ratio (from iPhone SE to iPad Pro).
+*   **Component-Level "Sticky"**: Bind virtual widgets to dynamic elements on a page via `stickySelector`. Automatically tracks movement and scaling—essential for browser extension overlays.
+*   **Flat Profile Forest**: An innovative JSON parsing engine that defines multiple independent root nodes in a single file, leveraging native CSS Flex/Grid for macro-responsive layouts.
+
+### ⚡ Extreme Performance Optimization
+
+*   **Touch-to-Spawn**: Dynamically generate joysticks or buttons at any touch point within an `InputZone` with seamless Pointer Capture handovers.
+*   **Zero-Reflow Rendering**: All displacement calculations are performed in memory; rendering is hardware-accelerated via forced GPU `translate3d` transforms.
+*   **Execution-Side Throttling**: Implements `rAF` throttling at the `TargetZone` layer to maintain ultra-low CPU usage even on high-polling rate (120Hz+) devices.
+
+### 🎮 Hardware-Grade Integration
+
+*   Seamlessly merges touch-screen, mouse-click, and **Physical Gamepad (Gamepad API)** inputs. Supports **multi-slot parallel mapping (Local Co-op)** with real-time visual feedback sync on the virtual UI, bringing a "Console-like" experience to the web.
 
 ---
 
@@ -43,7 +63,7 @@ Most joystick libraries (like nipple.js) only provide raw UI and coordinate calc
 Ensure you have Vue 3 installed in your project (`peerDependencies`).
 
 ```bash
-npm install @omnipad/core @omnipad/vue
+npm install @omnipad/vue
 ```
 
 > ⚠️ **Note**: Don't forget to import the base styles in your entry file (e.g., `main.ts` or `App.vue`): `import '@omnipad/vue/style.css';`
@@ -187,7 +207,7 @@ const forest = computed(() => parseProfileForest(profileRaw));
 Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniPad automatically handles controller polling. When you press a physical button, the corresponding virtual button on the screen will **synchronously trigger** its press animation, providing perfect haptic feedback.
 
 ```typescript
-import { GamepadManager } from '@omnipad/core/dom';
+import { GamepadManager } from '@omnipad/core';
 
 // Start global physical gamepad monitoring
 GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
@@ -220,7 +240,7 @@ OmniPad provides robust cross-origin iframe penetration capabilities. To prevent
 The **Host** is the main page where your virtual gamepad UI resides. For security reasons, the `IframeManager` will **NOT** send coordinates or key signals to unauthorized domains.
 
 ```typescript
-import { IframeManager } from '@omnipad/core/dom';
+import { IframeManager } from '@omnipad/web';
 
 const iframeMgr = IframeManager.getInstance();
 
@@ -237,7 +257,7 @@ You must inject a lightweight receiver script into the environment where the gam
 
 ```typescript
 // Script running INSIDE the game Iframe
-import { initIframeReceiver } from '@omnipad/core/guest';
+import { initIframeReceiver } from '@omnipad/web/guest';
 
 initIframeReceiver({
   // CORE SECURITY: Only accept signals from your main site.
@@ -345,7 +365,7 @@ After registration, you can directly use `"type": "custom-trackpad"` in your JSO
 ## 🗺️ Status & Vision
 
 > **📢 Current Status: Maintenance Mode** \
-> The core of OmniPad (v0.6) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
+> The core of OmniPad (v0.7) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
 >
 > However, OmniPad's underlying architecture (Headless Core) inherently possesses limitless scalability potential. Below are evolutionary directions we consider highly valuable, and **we warmly welcome community participation through PRs to build together**:
 
