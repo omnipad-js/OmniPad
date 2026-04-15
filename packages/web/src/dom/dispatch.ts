@@ -1,4 +1,25 @@
-import { getDeepElement } from './query';
+import { getDeepActiveElement, getDeepElement } from './query';
+
+export const focusElement = (el: HTMLElement) => {
+  // Skip if already focused
+  if (getDeepActiveElement() === el) return;
+
+  // Set tabindex if missing to make element focusable
+  if (!el.hasAttribute('tabindex')) {
+    el.setAttribute('tabindex', '-1');
+  }
+  el.focus({ preventScroll: true });
+};
+
+export const reclaimLocalFocusAtPos = (x: number, y: number): void => {
+  const target = getDeepElement(x, y) as HTMLElement;
+  if (!target) return;
+
+  const currentActive = getDeepActiveElement();
+  if (currentActive !== target) {
+    focusElement(target);
+  }
+};
 
 export const dispatchLocalKeyboardEvent = (
   type: string,

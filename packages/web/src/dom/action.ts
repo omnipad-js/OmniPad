@@ -1,24 +1,10 @@
-import { dispatchStandardKeyboardEvent, dispatchStandardPointerEventAtPos } from './dispatch';
+import {
+  dispatchStandardKeyboardEvent,
+  dispatchStandardPointerEventAtPos,
+  focusElement,
+} from './dispatch';
 import { IframeManager } from '../singletons/IFrameManager';
 import { getDeepActiveElement, getDeepElement } from './query';
-
-/**
- * Forcefully focuses an element.
- * Automatically handles the 'tabindex' attribute to ensure non-focusable elements (like Canvas)
- * can receive focus.
- *
- * @param el - The target HTMLElement to focus.
- */
-export const focusElement = (el: HTMLElement) => {
-  // Skip if already focused
-  if (getDeepActiveElement() === el) return;
-
-  // Set tabindex if missing to make element focusable
-  if (!el.hasAttribute('tabindex')) {
-    el.setAttribute('tabindex', '-1');
-  }
-  el.focus();
-};
 
 /**
  * Dispatches a synthetic KeyboardEvent to the window object.
@@ -91,6 +77,11 @@ export const reclaimFocusAtPos = (x: number, y: number, callback: () => void): v
   // 如果当前焦点不在目标元素上，则执行强制夺回逻辑
   if (currentActive !== target) {
     focusElement(target);
+
+    if (target.tagName.toLowerCase() === 'iframe') {
+      IframeManager.getInstance().forwardFocusReclaim(target as HTMLIFrameElement, x, y);
+    }
+
     callback();
   }
 };

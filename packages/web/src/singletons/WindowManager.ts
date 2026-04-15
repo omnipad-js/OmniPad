@@ -55,6 +55,11 @@ export class WindowManager {
   };
 
   private handleBlurReset = (): void => {
+    // Prevent blur caused by reclaiming focus on an iframe element.
+    const activeEl = document.activeElement;
+    if (activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
+      return;
+    }
     this.handleGlobalReset();
   };
 

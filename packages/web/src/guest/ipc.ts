@@ -1,4 +1,8 @@
-import { dispatchLocalPointerEventAtPos, dispatchLocalKeyboardEvent } from '../dom/dispatch';
+import {
+  dispatchLocalPointerEventAtPos,
+  dispatchLocalKeyboardEvent,
+  reclaimLocalFocusAtPos,
+} from '../dom/dispatch';
 
 /**
  * A unique signature used to identify and verify that messages received via
@@ -18,7 +22,7 @@ export interface IpcMessage {
    * The broad category of the input event.
    * Distinguishes between spatial interactions and discrete key signals.
    */
-  type: 'pointer' | 'keyboard';
+  type: 'pointer' | 'keyboard' | 'focus';
 
   /**
    * The specific event action name.
@@ -88,6 +92,15 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
     // Execution: Materialize signals into events
     try {
+      if (data.type === 'focus' && data.action === 'reclaim') {
+        const { x, y } = data.payload;
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+          return;
+        }
+
+        reclaimLocalFocusAtPos(x, y);
+      }
       if (data.type === 'pointer') {
         const { x, y, opts } = data.payload;
 

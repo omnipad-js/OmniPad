@@ -184,6 +184,34 @@ export class IframeManager {
     );
   }
 
+  /**
+   * Forwards a focus reclaim event to the target iframe.
+   *
+   * @param iframe - The destination iframe.
+   * @param globalX - X coordinate in the host viewport.
+   * @param globalY - Y coordinate in the host viewport.
+   */
+  public forwardFocusReclaim(iframe: HTMLIFrameElement, globalX: number, globalY: number) {
+    if (!iframe.contentWindow) return;
+
+    const data = this.getVerifiedIframeData(iframe);
+    if (!data) return;
+
+    // 换算 Iframe 内部坐标
+    const localX = globalX - data.rect.left;
+    const localY = globalY - data.rect.top;
+
+    iframe.contentWindow.postMessage(
+      {
+        signature: OMNIPAD_IPC_SIGNATURE,
+        type: 'focus',
+        action: 'reclaim',
+        payload: { x: localX, y: localY },
+      } as IpcMessage,
+      data.origin,
+    );
+  }
+
   // --- Helpers & Cleanup ---
 
   private captureRect(iframe: HTMLIFrameElement): AbstractRect {
@@ -210,13 +238,15 @@ export class IframeManager {
       console.debug('[OmniPad-IPC] Refreshing all iframe rects due to environment change.');
 
     this.managedIframes.forEach((data, iframe) => {
-      // 1. 自动执行“墓地清理” / Perform "Graveyard Cleanup" for detached elements
+      // 1. 强制重置按键状态防止卡死 / reset keys to prevent sticking
+      this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
+      // 2. 自动执行“墓地清理” / Perform "Graveyard Cleanup" for detached elements
       if (!iframe.isConnected) {
         this.unmanageIframe(iframe, data.uid);
         return;
       }
 
-      // 2. 强制实时重算 Rect / Force immediate gBCR re-calibration
+      // 3. 强制实时重算 Rect / Force immediate gBCR re-calibration
       data.rect = this.captureRect(iframe);
     });
   }
