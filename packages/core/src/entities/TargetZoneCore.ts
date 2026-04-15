@@ -131,8 +131,19 @@ export class TargetZoneCore
   public handleSignal(signal: InputActionSignal): void {
     const { type, payload } = signal;
 
-    // 每一条信号触发前，先确保焦点回归游戏区域 / Ensure focus is reclaimed before processing any signal
-    this.ensureFocus();
+    // 只有离散的意图性动作才触发回焦检查，确保焦点回归游戏区域：
+    // 键盘按键、鼠标按下、或者是第一次移动时
+    // Only discrete, intentional actions trigger a focus check to ensure the focus returns to the game area: 
+    // keyboard presses, mouse clicks, or the first movement.
+    const isIntentionalAction =
+      type === ACTION_TYPES.KEYDOWN ||
+      type === ACTION_TYPES.MOUSEDOWN ||
+      type === ACTION_TYPES.CLICK ||
+      (type === ACTION_TYPES.MOUSEMOVE && !this.state.isPointerDown && !this.state.isVisible);
+
+    if (isIntentionalAction) {
+      this.ensureFocus();
+    }
 
     // 调度执行不同的输入动作 / Dispatch and execute different input actions
     switch (type) {

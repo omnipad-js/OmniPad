@@ -69,6 +69,12 @@ export const reclaimFocusAtPos = (x: number, y: number, callback?: () => void): 
   const target = getDeepElement(x, y) as HTMLElement;
   if (!target) return;
 
+  // If an iframe is found, first send a reclaim request to the iframe
+  // 如果找到的是 iframe，先往 iframe 发送回焦请求
+  if (target.tagName.toLowerCase() === 'iframe') {
+    IframeManager.getInstance().forwardFocusReclaim(target as HTMLIFrameElement, x, y);
+  }
+
   // Identify the current truly active element across all Shadow Roots
   // 识别当前页面中真正获得焦点的最深层元素（跨越所有 Shadow Root）
   const currentActive = getDeepActiveElement();
@@ -77,10 +83,6 @@ export const reclaimFocusAtPos = (x: number, y: number, callback?: () => void): 
   // 如果当前焦点不在目标元素上，则执行强制夺回逻辑
   if (currentActive !== target) {
     focusElement(target);
-
-    if (target.tagName.toLowerCase() === 'iframe') {
-      IframeManager.getInstance().forwardFocusReclaim(target as HTMLIFrameElement, x, y);
-    }
 
     callback?.();
   }
