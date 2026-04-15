@@ -21,9 +21,9 @@ const getDefaultDispatcher = () => {
  * Provides an abstraction layer for event dispatching and focus management.
  */
 interface TargetZoneDelegates {
-  dispatchKeyboardEvent: (type: string, payload: any) => void;
-  dispatchPointerEventAtPos: (type: string, x: number, y: number, opts: any) => void;
-  reclaimFocusAtPos: (x: number, y: number, callback: () => void) => void;
+  dispatchKeyboardEvent: (type: string, payload: any) => boolean;
+  dispatchPointerEventAtPos: (type: string, x: number, y: number, opts: any) => boolean;
+  reclaimFocusAtPos: (x: number, y: number) => boolean;
 }
 
 /**
@@ -58,8 +58,7 @@ export class TargetZoneCore
       getDefaultDispatcher()?.dispatchKeyboard(type, payload),
     dispatchPointerEventAtPos: (type: string, x: number, y: number, opts: any) =>
       getDefaultDispatcher()?.dispatchPointerAtPos(type, x, y, opts),
-    reclaimFocusAtPos: (x: number, y: number, callback: () => void) =>
-      getDefaultDispatcher()?.reclaimFocus(x, y, callback),
+    reclaimFocusAtPos: (x: number, y: number) => getDefaultDispatcher()?.reclaimFocus(x, y),
   };
 
   constructor(uid: string, config: TargetZoneConfig, customTypeName?: EntityType) {
@@ -243,7 +242,9 @@ export class TargetZoneCore
     );
 
     // 发起焦点夺回请求 / Send request of focus reclaim
-    this.delegates.reclaimFocusAtPos?.(px, py, () => this.triggerFocusFeedback());
+    if (this.delegates.reclaimFocusAtPos?.(px, py)) {
+      this.triggerFocusFeedback();
+    }
   }
 
   /**

@@ -1,10 +1,9 @@
 import {
-  dispatchStandardKeyboardEvent,
-  dispatchStandardPointerEventAtPos,
-  focusElement,
+  dispatchCustomKeyboardEvent,
+  dispatchCustomPointerEventAtPos,
+  reclaimCustomFocusAtPos,
 } from './dispatch';
 import { IframeManager } from '../singletons/IFrameManager';
-import { getDeepActiveElement, getDeepElement } from './query';
 
 /**
  * Dispatches a synthetic KeyboardEvent to the window object.
@@ -15,15 +14,10 @@ import { getDeepActiveElement, getDeepElement } from './query';
 export const dispatchKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
-) => {
-  // Get the current truly focused element (correctness guaranteed by TargetZone's `ensureFocus`)
-  const activeEl = getDeepActiveElement();
-  if (activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
-    IframeManager.getInstance().forwardKeyboardEvent(activeEl as HTMLIFrameElement, type, payload);
-    return;
-  }
-
-  dispatchStandardKeyboardEvent(type, payload);
+): boolean => {
+  return dispatchCustomKeyboardEvent(type, payload, (a, b, c) => {
+    IframeManager.getInstance().forwardKeyboardEvent(a, b, c);
+  });
 };
 
 /**
@@ -41,15 +35,9 @@ export const dispatchPointerEventAtPos = (
   y: number,
   opts: { button: number; buttons: number; pressure: number },
 ) => {
-  const target = getDeepElement(x, y);
-  if (!target) return;
-
-  if (target.tagName.toLowerCase() === 'iframe') {
-    IframeManager.getInstance().forwardPointerEvent(target as HTMLIFrameElement, type, x, y, opts);
-    return;
-  }
-
-  dispatchStandardPointerEventAtPos(target, type, x, y, opts);
+  return dispatchCustomPointerEventAtPos(type, x, y, opts, (a, b, c, d, e) => {
+    IframeManager.getInstance().forwardPointerEvent(a, b, c, d, e);
+  });
 };
 
 /**
@@ -61,29 +49,9 @@ export const dispatchPointerEventAtPos = (
  *
  * @param x - The horizontal coordinate relative to the viewport.
  * @param y - The vertical coordinate relative to the viewport.
- * @param callback - The function called when the focus is to be reclaimed.
  */
-export const reclaimFocusAtPos = (x: number, y: number, callback?: () => void): void => {
-  // Find the deepest element at coordinates, penetrating Shadow DOM boundaries
-  // 在指定坐标处寻找最深层元素，穿透 Shadow DOM 边界
-  const target = getDeepElement(x, y) as HTMLElement;
-  if (!target) return;
-
-  // If an iframe is found, first send a reclaim request to the iframe
-  // 如果找到的是 iframe，先往 iframe 发送回焦请求
-  if (target.tagName.toLowerCase() === 'iframe') {
-    IframeManager.getInstance().forwardFocusReclaim(target as HTMLIFrameElement, x, y);
-  }
-
-  // Identify the current truly active element across all Shadow Roots
-  // 识别当前页面中真正获得焦点的最深层元素（跨越所有 Shadow Root）
-  const currentActive = getDeepActiveElement();
-
-  // If the target is not currently focused, forcefully reclaim focus
-  // 如果当前焦点不在目标元素上，则执行强制夺回逻辑
-  if (currentActive !== target) {
-    focusElement(target);
-
-    callback?.();
-  }
+export const reclaimFocusAtPos = (x: number, y: number): boolean => {
+  return reclaimCustomFocusAtPos(x, y, (a, b, c) => {
+    IframeManager.getInstance().forwardFocusReclaim(a, b, c);
+  });
 };

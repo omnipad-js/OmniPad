@@ -3,7 +3,7 @@ import { getDeepActiveElement, getDeepElement } from './query';
 export const dispatchStandardKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
-) => {
+): boolean => {
   const ev = new KeyboardEvent(type, {
     ...payload,
     which: payload.keyCode, // Support for legacy Flash engines
@@ -11,20 +11,20 @@ export const dispatchStandardKeyboardEvent = (
     cancelable: true,
     view: window,
   });
-  window.dispatchEvent(ev);
+  return window.dispatchEvent(ev);
 };
 
 export const dispatchCustomKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
   forwardFn?: (activeEl: HTMLIFrameElement, type: string, payload: any) => void,
-) => {
+): boolean => {
   const activeEl = getDeepActiveElement();
   if (typeof forwardFn === 'function' && activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
     forwardFn(activeEl as HTMLIFrameElement, type, payload);
-    return;
+    return true;
   }
-  dispatchStandardKeyboardEvent(type, payload);
+  return dispatchStandardKeyboardEvent(type, payload);
 };
 
 export const dispatchCustomPointerEventAtPos = (
@@ -33,16 +33,16 @@ export const dispatchCustomPointerEventAtPos = (
   y: number,
   opts: { button: number; buttons: number; pressure: number },
   forwardFn?: (target: HTMLIFrameElement, type: string, x: number, y: number, opts: any) => void,
-) => {
+): boolean => {
   const target = getDeepElement(x, y);
-  if (!target) return;
+  if (!target) return false;
 
   if (typeof forwardFn === 'function' && target.tagName.toLowerCase() === 'iframe') {
     forwardFn(target as HTMLIFrameElement, type, x, y, opts);
-    return;
+    return true;
   }
 
-  dispatchStandardPointerEventAtPos(target, type, x, y, opts);
+  return dispatchStandardPointerEventAtPos(target, type, x, y, opts);
 };
 
 export const dispatchStandardPointerEventAtPos = (
@@ -51,10 +51,10 @@ export const dispatchStandardPointerEventAtPos = (
   x: number,
   y: number,
   opts: { button: number; buttons: number; pressure: number },
-) => {
+): boolean => {
   // Defensive Interception: Preventing Illegal Floating-Point Injection (NaN/Infinity Protection)
   if (!Number.isFinite(x) || !Number.isFinite(y)) {
-    return;
+    return false;
   }
 
   const commonProps: PointerEventInit = {
@@ -80,10 +80,10 @@ export const dispatchStandardPointerEventAtPos = (
 
     // Automatically map pointer events to traditional mouse events
     const mouseType = type.replace('pointer', 'mouse');
-    target.dispatchEvent(new MouseEvent(mouseType, commonProps));
+    return target.dispatchEvent(new MouseEvent(mouseType, commonProps));
   } else {
     // Fallback for direct mouse event dispatch
-    target.dispatchEvent(new MouseEvent(type, commonProps));
+    return target.dispatchEvent(new MouseEvent(type, commonProps));
   }
 };
 
@@ -91,27 +91,31 @@ export const reclaimCustomFocusAtPos = (
   x: number,
   y: number,
   forwardFn?: (target: HTMLIFrameElement, x: number, y: number) => void,
-): void => {
+): boolean => {
+  // Find the deepest element at coordinates, penetrating Shadow DOM boundaries
+  // 在指定坐标处寻找最深层元素，穿透 Shadow DOM 边界
   const target = getDeepElement(x, y) as HTMLElement;
-  if (!target) return;
+  if (!target) return false;
 
+  // If an iframe is found, first send a reclaim request to the iframe
+  // 如果找到的是 iframe，先往 iframe 发送回焦请求
   if (typeof forwardFn === 'function' && target.tagName.toLowerCase() === 'iframe') {
     forwardFn(target as HTMLIFrameElement, x, y);
   }
 
-  const currentActive = getDeepActiveElement();
-  if (currentActive !== target) {
-    focusElement(target);
-  }
+  return focusElement(target);
 };
 
-export const focusElement = (el: HTMLElement) => {
-  // Skip if already focused
-  if (getDeepActiveElement() === el) return;
+export const focusElement = (el: HTMLElement): boolean => {
+  // Identify the current truly active element across all Shadow Roots
+  // 识别当前页面中真正获得焦点的最深层元素（跨越所有 Shadow Root）
+  if (getDeepActiveElement() === el) return false;
 
-  // Set tabindex if missing to make element focusable
+  // If the target is not currently focused, forcefully reclaim focus
+  // 如果当前焦点不在目标元素上，则执行强制夺回逻辑
   if (!el.hasAttribute('tabindex')) {
     el.setAttribute('tabindex', '-1');
   }
   el.focus({ preventScroll: true });
+  return true;
 };

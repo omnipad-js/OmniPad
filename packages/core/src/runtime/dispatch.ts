@@ -8,7 +8,7 @@ export interface DispatcherProvider {
    * @param type - The action type (e.g., 'keydown', 'keyup').
    * @param payload - Keyboard event data containing key, code, and keyCode.
    */
-  dispatchKeyboard: (type: string, payload: any) => void;
+  dispatchKeyboard: (type: string, payload: any) => boolean;
 
   /**
    * Simulates a pointer or mouse event at a specific viewport coordinate.
@@ -18,7 +18,7 @@ export interface DispatcherProvider {
    * @param y - Absolute viewport Y coordinate in pixels.
    * @param opts - Additional pointer event options like buttons or pressure.
    */
-  dispatchPointerAtPos: (type: string, x: number, y: number, opts: any) => void;
+  dispatchPointerAtPos: (type: string, x: number, y: number, opts: any) => boolean;
 
   /**
    * Reclaims and forces focus back to the interaction target at the specified position.
@@ -26,7 +26,7 @@ export interface DispatcherProvider {
    * @param x - Viewport X coordinate in pixels.
    * @param y - Viewport Y coordinate in pixels.
    */
-  reclaimFocus: (x: number, y: number, callback: () => void) => void;
+  reclaimFocus: (x: number, y: number) => boolean;
 }
 
 /** Internal storage for the active dispatcher implementation. */
