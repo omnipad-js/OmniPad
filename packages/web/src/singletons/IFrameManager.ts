@@ -1,4 +1,4 @@
-import { AbstractRect, OmniPad } from '@omnipad/core';
+import { AbstractRect } from '@omnipad/core';
 import { distillRect, generateUID } from '@omnipad/core/utils';
 import { ElementObserver } from './ElementObserver';
 import { IpcMessage, OMNIPAD_IPC_SIGNATURE } from '../guest/ipc';
@@ -113,11 +113,11 @@ export class IframeManager {
       data.isVisible = visible;
 
       // 如果 Iframe 突然消失，强制重置按键状态防止卡死 / If Iframe hidden, reset keys to prevent sticking
-      if (!visible) {
-        if (import.meta.env?.DEV)
-          console.debug(`[OmniPad-IPC] Iframe ${uid} hidden, sending safety reset.`);
-        this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
-      }
+      // if (!visible) {
+      //   if (import.meta.env?.DEV)
+      //     console.debug(`[OmniPad-IPC] Iframe ${uid} hidden, sending safety reset.`);
+      //   this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
+      // }
     });
 
     return data;
@@ -138,6 +138,7 @@ export class IframeManager {
     globalX: number,
     globalY: number,
     opts: any,
+    currentDepth: number = 0,
   ) {
     if (!iframe.contentWindow || !Number.isFinite(globalX) || !Number.isFinite(globalY)) return;
 
@@ -155,6 +156,7 @@ export class IframeManager {
         type: 'pointer',
         action: type,
         payload: { x: localX, y: localY, opts },
+        depth: currentDepth + 1,
       } as IpcMessage,
       data.origin,
     );
@@ -167,7 +169,12 @@ export class IframeManager {
    * @param type - Event type (e.g., 'keydown').
    * @param payload - Key mapping data.
    */
-  public forwardKeyboardEvent(iframe: HTMLIFrameElement, type: string, payload: any) {
+  public forwardKeyboardEvent(
+    iframe: HTMLIFrameElement,
+    type: string,
+    payload: any,
+    currentDepth: number = 0,
+  ) {
     if (!iframe.contentWindow) return;
 
     const data = this.getVerifiedIframeData(iframe);
@@ -179,6 +186,7 @@ export class IframeManager {
         type: 'keyboard',
         action: type,
         payload,
+        depth: currentDepth + 1,
       } as IpcMessage,
       data.origin,
     );
@@ -191,7 +199,12 @@ export class IframeManager {
    * @param globalX - X coordinate in the host viewport.
    * @param globalY - Y coordinate in the host viewport.
    */
-  public forwardFocusReclaim(iframe: HTMLIFrameElement, globalX: number, globalY: number) {
+  public forwardFocusReclaim(
+    iframe: HTMLIFrameElement,
+    globalX: number,
+    globalY: number,
+    currentDepth: number = 0,
+  ) {
     if (!iframe.contentWindow) return;
 
     const data = this.getVerifiedIframeData(iframe);
@@ -207,6 +220,8 @@ export class IframeManager {
         type: 'focus',
         action: 'reclaim',
         payload: { x: localX, y: localY },
+
+        depth: currentDepth + 1,
       } as IpcMessage,
       data.origin,
     );
@@ -238,15 +253,16 @@ export class IframeManager {
       console.debug('[OmniPad-IPC] Refreshing all iframe rects due to environment change.');
 
     this.managedIframes.forEach((data, iframe) => {
-      // 1. 强制重置按键状态防止卡死 / reset keys to prevent sticking
-      this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
-      // 2. 自动执行“墓地清理” / Perform "Graveyard Cleanup" for detached elements
+      // 强制重置按键状态防止卡死 / reset keys to prevent sticking
+      // this.forwardKeyboardEvent(iframe, OmniPad.ActionTypes.KEYUP, { all: true });
+
+      // 自动执行“墓地清理” / Perform "Graveyard Cleanup" for detached elements
       if (!iframe.isConnected) {
         this.unmanageIframe(iframe, data.uid);
         return;
       }
 
-      // 3. 强制实时重算 Rect / Force immediate gBCR re-calibration
+      // 强制实时重算 Rect / Force immediate gBCR re-calibration
       data.rect = this.captureRect(iframe);
     });
   }

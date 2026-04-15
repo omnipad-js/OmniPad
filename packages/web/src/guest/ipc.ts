@@ -33,6 +33,11 @@ export interface IpcMessage {
    * For 'keyboard' type: Contains key mapping data {key, code, keyCode}.
    */
   payload: any;
+
+  /**
+   * The penetration depth of the event.
+   */
+  depth: number;
 }
 
 /**
@@ -50,6 +55,8 @@ export interface ReceiverOptions {
 
 let _isInitialized = false;
 let _allowedOrigins: string[] | '*' = [];
+
+const MAX_PENETRATION_DEPTH = 3;
 
 /**
  * Initializes the Iframe IPC receiver.
@@ -85,6 +92,14 @@ export function initIframeReceiver(options: ReceiverOptions): void {
     // Signature validation to ignore unrelated or malicious messages
     if (data?.signature !== OMNIPAD_IPC_SIGNATURE) {
       console.warn('[OmniPad-IPC] Blocked message with invalid signature.');
+      return;
+    }
+
+    // depth validation to prevent excessive iframe nesting
+    if (!Number.isFinite(data?.depth) || data?.depth >= MAX_PENETRATION_DEPTH) {
+      console.warn(
+        `[OmniPad-IPC] Max penetration depth (${MAX_PENETRATION_DEPTH}) reached. Dropping signal.`,
+      );
       return;
     }
 
