@@ -1,8 +1,5 @@
-import {
-  dispatchLocalPointerEventAtPos,
-  dispatchLocalKeyboardEvent,
-  reclaimLocalFocusAtPos,
-} from '../dom/dispatch';
+import { dispatchKeyboardEvent, dispatchPointerEventAtPos, reclaimFocusAtPos } from '../dom/action';
+import { WindowManager } from '../singletons/WindowManager';
 
 /**
  * A unique signature used to identify and verify that messages received via
@@ -66,6 +63,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
   _allowedOrigins = options.allowedOrigins;
   _isInitialized = true;
+  WindowManager.getInstance().init();
 
   window.addEventListener('message', (event: MessageEvent) => {
     // Security: Verify sender's origin
@@ -99,7 +97,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
           return;
         }
 
-        reclaimLocalFocusAtPos(x, y);
+        reclaimFocusAtPos(x, y);
       }
       if (data.type === 'pointer') {
         const { x, y, opts } = data.payload;
@@ -109,10 +107,10 @@ export function initIframeReceiver(options: ReceiverOptions): void {
         }
 
         // The x and y coordinates are already translated to local pixels by the Host
-        dispatchLocalPointerEventAtPos(data.action, x, y, opts);
+        dispatchPointerEventAtPos(data.action, x, y, opts);
       } else if (data.type === 'keyboard') {
         // Handle globally broadcasted keyboard signals
-        dispatchLocalKeyboardEvent(data.action, data.payload);
+        dispatchKeyboardEvent(data.action, data.payload);
       }
     } catch (err) {
       console.error('[OmniPad-IPC] Error dispatching guest event:', err);

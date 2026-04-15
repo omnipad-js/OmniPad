@@ -63,7 +63,7 @@ export const dispatchPointerEventAtPos = (
  * @param y - The vertical coordinate relative to the viewport.
  * @param callback - The function called when the focus is to be reclaimed.
  */
-export const reclaimFocusAtPos = (x: number, y: number, callback: () => void): void => {
+export const reclaimFocusAtPos = (x: number, y: number, callback?: () => void): void => {
   // Find the deepest element at coordinates, penetrating Shadow DOM boundaries
   // 在指定坐标处寻找最深层元素，穿透 Shadow DOM 边界
   const target = getDeepElement(x, y) as HTMLElement;
@@ -82,6 +82,6 @@ export const reclaimFocusAtPos = (x: number, y: number, callback: () => void): v
       IframeManager.getInstance().forwardFocusReclaim(target as HTMLIFrameElement, x, y);
     }
 
-    callback();
+    callback?.();
   }
 };
