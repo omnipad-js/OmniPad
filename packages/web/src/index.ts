@@ -1,6 +1,5 @@
 import {
   AbstractGamepad,
-  OmniPad,
   setDispatcherProvider,
   setGamepadProvider,
   setGlobalSignalHandler,
@@ -10,6 +9,7 @@ import {
 import { dispatchKeyboardEvent, dispatchPointerEventAtPos, reclaimFocusAtPos } from './dom/action';
 import { sanitizeCssClass, sanitizePrototypePollution } from './ts/security';
 import { validateLayoutBox } from './ts/layout';
+import { OmniPad } from '@omnipad/core/const';
 
 export * from './dom';
 export * from './ts';

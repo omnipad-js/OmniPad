@@ -2,7 +2,6 @@
 import { ref, watchEffect } from 'vue';
 import {
   JoystickCore,
-  OmniPad,
   type ConfigTreeNode,
   type JoystickConfig,
   type JoystickState,
@@ -12,6 +11,7 @@ import { supportsContainerQueries } from '@omnipad/web';
 import VirtualAxisBase from './VirtualAxisBase.vue';
 import VirtualButtonBase from './VirtualButtonBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 interface VirtualJoystickProps {
   /** The runtime tree node for automatic setup. */

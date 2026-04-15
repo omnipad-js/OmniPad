@@ -21,8 +21,6 @@
       if (event.data && event.data.type === 'BUSINESS_LOAD_SWF') {
         const subIframe = document.querySelector('iframe');
 
-        console.log(event)
-
         if (subIframe && subIframe.contentWindow) {
           subIframe.contentWindow.postMessage(event.data, window.location.origin);
         }

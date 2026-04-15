@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   RootLayerCore,
-  OmniPad,
   type BaseConfig,
   type ConfigTreeNode,
   type LayoutBox,
@@ -11,6 +10,7 @@ import { resolveLayoutStyle } from '@omnipad/web';
 import VirtualLayerBase from './VirtualLayerBase.vue';
 import { computed } from 'vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 const props = defineProps<{
   /** The runtime tree node for automatic setup. */

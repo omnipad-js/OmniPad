@@ -2,7 +2,6 @@
 import { computed, nextTick, ref, useSlots, VNode, watch } from 'vue';
 import {
   InputZoneCore,
-  OmniPad,
   type ConfigTreeNode,
   type InputZoneConfig,
   type InputZoneState,
@@ -14,6 +13,7 @@ import { projectPercentToBox, resolveLayoutStyle, supportsContainerQueries } fro
 import { getComponent } from '../utils/componentRegistry';
 import VirtualLayerBase from './VirtualLayerBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 interface InputZoneProps {
   /** The runtime tree node for automatic setup. */

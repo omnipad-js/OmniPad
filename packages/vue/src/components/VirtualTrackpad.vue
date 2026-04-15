@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   TrackpadCore,
-  OmniPad,
   type ActionMapping,
   type ConfigTreeNode,
   type LayoutBox,
@@ -10,6 +9,7 @@ import {
 } from '@omnipad/core';
 import VirtualButtonBase from './VirtualButtonBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 interface VirtualTrackpadProps {
   /** The runtime tree node for automatic setup. */

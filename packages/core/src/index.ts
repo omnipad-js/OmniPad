@@ -12,5 +12,3 @@ export { TrackpadCore } from './entities/TrackpadCore';
 
 export * from './singletons/Registry';
 export * from './singletons/GamepadManager';
-
-export * from './constants';

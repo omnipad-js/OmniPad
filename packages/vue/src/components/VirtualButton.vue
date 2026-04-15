@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ButtonCore,
-  OmniPad,
   type ButtonConfig,
   type ButtonState,
   type ConfigTreeNode,
@@ -9,6 +8,7 @@ import {
 } from '@omnipad/core';
 import VirtualButtonBase from './VirtualButtonBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 interface VirtualButtonProps {
   /** The runtime tree node for automatic setup. */

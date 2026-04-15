@@ -2,7 +2,6 @@
 import { ref, watchEffect } from 'vue';
 import {
   DPadCore,
-  OmniPad,
   type ConfigTreeNode,
   type DPadConfig,
   type DPadState,
@@ -11,6 +10,7 @@ import {
 import { supportsContainerQueries } from '@omnipad/web';
 import VirtualAxisBase from './VirtualAxisBase.vue';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 /**
  * Props for the Virtual D-Pad component.

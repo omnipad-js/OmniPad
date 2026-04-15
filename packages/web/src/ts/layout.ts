@@ -6,10 +6,10 @@ import {
   FlexibleLength,
   AbstractRect,
   Vec2,
-  OmniPad,
 } from '@omnipad/core';
 import { clamp, lengthToCss } from '@omnipad/core/utils';
 import { sanitizeDomString } from './security';
+import { OmniPad } from '@omnipad/core/const';
 
 /**
  * Convert the length input into a sanitized ParsedLength

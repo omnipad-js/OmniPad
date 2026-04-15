@@ -1,5 +1,4 @@
 import {
-  OmniPad,
   ButtonCore,
   JoystickCore,
   DPadCore,
@@ -8,6 +7,7 @@ import {
   InputZoneCore,
   TargetZoneCore,
 } from '@omnipad/core';
+import { OmniPad } from '@omnipad/core/const';
 
 const CORE_MAP: Record<string, any> = {
   [OmniPad.Types.BUTTON]: ButtonCore,

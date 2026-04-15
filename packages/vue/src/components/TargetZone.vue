@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import {
   TargetZoneCore,
-  OmniPad,
   type ConfigTreeNode,
   type CursorState,
   type LayoutBox,
@@ -10,6 +9,7 @@ import {
 } from '@omnipad/core';
 import { resolveLayoutStyle, projectPercentToBox, supportsContainerQueries } from '@omnipad/web';
 import { useWidgetSetup } from '../composables/useWidgetSetup';
+import { OmniPad } from '@omnipad/core/const';
 
 interface TargetZoneProps {
   /** The runtime tree node for automatic setup. */

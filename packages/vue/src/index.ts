@@ -9,7 +9,7 @@ import VirtualButton from './components/VirtualButton.vue';
 import VirtualDPad from './components/VirtualDPad.vue';
 import VirtualTrackpad from './components/VirtualTrackpad.vue';
 import VirtualJoystick from './components/VirtualJoystick.vue';
-import { OmniPad } from '@omnipad/core';
+import { OmniPad } from '@omnipad/core/const';
 
 registerComponent(OmniPad.Types.BUTTON, VirtualButton);
 registerComponent(OmniPad.Types.INPUT_ZONE, InputZone);

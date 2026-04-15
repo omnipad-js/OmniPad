@@ -1,6 +1,5 @@
 import { computed, inject, provide, ref, Ref } from 'vue';
 import {
-  OmniPad,
   getOverrideProps,
   mergeWidgetConfig,
   validateWidgetNode,
@@ -8,6 +7,7 @@ import {
   type EntityType,
 } from '@omnipad/core';
 import { generateUID } from '@omnipad/core/utils';
+import { OmniPad } from '@omnipad/core/const';
 
 const BASE_INTERNAL_PROPS = Object.freeze(['treeNode', 'widgetId', 'parentId']);
 
