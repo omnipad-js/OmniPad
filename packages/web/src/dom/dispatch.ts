@@ -1,33 +1,5 @@
 import { getDeepActiveElement, getDeepElement } from './query';
 
-export const focusElement = (el: HTMLElement) => {
-  // Skip if already focused
-  if (getDeepActiveElement() === el) return;
-
-  // Set tabindex if missing to make element focusable
-  if (!el.hasAttribute('tabindex')) {
-    el.setAttribute('tabindex', '-1');
-  }
-  el.focus({ preventScroll: true });
-};
-
-export const reclaimLocalFocusAtPos = (x: number, y: number): void => {
-  const target = getDeepElement(x, y) as HTMLElement;
-  if (!target) return;
-
-  const currentActive = getDeepActiveElement();
-  if (currentActive !== target) {
-    focusElement(target);
-  }
-};
-
-export const dispatchLocalKeyboardEvent = (
-  type: string,
-  payload: { key: string; code: string; keyCode: number },
-) => {
-  dispatchStandardKeyboardEvent(type, payload);
-};
-
 export const dispatchStandardKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
@@ -42,14 +14,33 @@ export const dispatchStandardKeyboardEvent = (
   window.dispatchEvent(ev);
 };
 
-export const dispatchLocalPointerEventAtPos = (
+export const dispatchCustomKeyboardEvent = (
+  type: string,
+  payload: { key: string; code: string; keyCode: number },
+  forwardFn?: (activeEl: HTMLIFrameElement, type: string, payload: any) => void,
+) => {
+  const activeEl = getDeepActiveElement();
+  if (typeof forwardFn === 'function' && activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
+    forwardFn(activeEl as HTMLIFrameElement, type, payload);
+    return;
+  }
+  dispatchStandardKeyboardEvent(type, payload);
+};
+
+export const dispatchCustomPointerEventAtPos = (
   type: string,
   x: number,
   y: number,
   opts: { button: number; buttons: number; pressure: number },
+  forwardFn?: (target: HTMLIFrameElement, type: string, x: number, y: number, opts: any) => void,
 ) => {
   const target = getDeepElement(x, y);
   if (!target) return;
+
+  if (typeof forwardFn === 'function' && target.tagName.toLowerCase() === 'iframe') {
+    forwardFn(target as HTMLIFrameElement, type, x, y, opts);
+    return;
+  }
 
   dispatchStandardPointerEventAtPos(target, type, x, y, opts);
 };
@@ -94,4 +85,33 @@ export const dispatchStandardPointerEventAtPos = (
     // Fallback for direct mouse event dispatch
     target.dispatchEvent(new MouseEvent(type, commonProps));
   }
+};
+
+export const reclaimCustomFocusAtPos = (
+  x: number,
+  y: number,
+  forwardFn?: (target: HTMLIFrameElement, x: number, y: number) => void,
+): void => {
+  const target = getDeepElement(x, y) as HTMLElement;
+  if (!target) return;
+
+  if (typeof forwardFn === 'function' && target.tagName.toLowerCase() === 'iframe') {
+    forwardFn(target as HTMLIFrameElement, x, y);
+  }
+
+  const currentActive = getDeepActiveElement();
+  if (currentActive !== target) {
+    focusElement(target);
+  }
+};
+
+export const focusElement = (el: HTMLElement) => {
+  // Skip if already focused
+  if (getDeepActiveElement() === el) return;
+
+  // Set tabindex if missing to make element focusable
+  if (!el.hasAttribute('tabindex')) {
+    el.setAttribute('tabindex', '-1');
+  }
+  el.focus({ preventScroll: true });
 };

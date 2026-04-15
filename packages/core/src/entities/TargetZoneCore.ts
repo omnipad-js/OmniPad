@@ -133,7 +133,7 @@ export class TargetZoneCore
 
     // 只有离散的意图性动作才触发回焦检查，确保焦点回归游戏区域：
     // 键盘按键、鼠标按下、或者是第一次移动时
-    // Only discrete, intentional actions trigger a focus check to ensure the focus returns to the game area: 
+    // Only discrete, intentional actions trigger a focus check to ensure the focus returns to the game area:
     // keyboard presses, mouse clicks, or the first movement.
     const isIntentionalAction =
       type === ACTION_TYPES.KEYDOWN ||
