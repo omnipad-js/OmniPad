@@ -1,6 +1,19 @@
 import { getDeepActiveElement, getDeepElement } from './query';
 
-export const dispatchStandardKeyboardEvent = (
+export const dispatchKeyboardEventForward = (
+  type: string,
+  payload: { key: string; code: string; keyCode: number },
+  forwardFn?: (activeEl: HTMLIFrameElement, type: string, payload: any) => void,
+): boolean => {
+  const activeEl = getDeepActiveElement();
+  if (typeof forwardFn === 'function' && activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
+    forwardFn(activeEl as HTMLIFrameElement, type, payload);
+    return true;
+  }
+  return dispatchStandardKeyboardEvent(type, payload);
+};
+
+const dispatchStandardKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
 ): boolean => {
@@ -14,20 +27,7 @@ export const dispatchStandardKeyboardEvent = (
   return window.dispatchEvent(ev);
 };
 
-export const dispatchCustomKeyboardEvent = (
-  type: string,
-  payload: { key: string; code: string; keyCode: number },
-  forwardFn?: (activeEl: HTMLIFrameElement, type: string, payload: any) => void,
-): boolean => {
-  const activeEl = getDeepActiveElement();
-  if (typeof forwardFn === 'function' && activeEl && activeEl.tagName.toLowerCase() === 'iframe') {
-    forwardFn(activeEl as HTMLIFrameElement, type, payload);
-    return true;
-  }
-  return dispatchStandardKeyboardEvent(type, payload);
-};
-
-export const dispatchCustomPointerEventAtPos = (
+export const dispatchPointerEventAtPosForward = (
   type: string,
   x: number,
   y: number,
@@ -45,7 +45,7 @@ export const dispatchCustomPointerEventAtPos = (
   return dispatchStandardPointerEventAtPos(target, type, x, y, opts);
 };
 
-export const dispatchStandardPointerEventAtPos = (
+const dispatchStandardPointerEventAtPos = (
   target: Element,
   type: string,
   x: number,
@@ -87,7 +87,7 @@ export const dispatchStandardPointerEventAtPos = (
   }
 };
 
-export const reclaimCustomFocusAtPos = (
+export const reclaimFocusAtPosForward = (
   x: number,
   y: number,
   forwardFn?: (target: HTMLIFrameElement, x: number, y: number) => void,
@@ -106,7 +106,7 @@ export const reclaimCustomFocusAtPos = (
   return focusElement(target);
 };
 
-export const focusElement = (el: HTMLElement): boolean => {
+const focusElement = (el: HTMLElement): boolean => {
   // Identify the current truly active element across all Shadow Roots
   // 识别当前页面中真正获得焦点的最深层元素（跨越所有 Shadow Root）
   if (getDeepActiveElement() === el) return false;

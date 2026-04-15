@@ -1,9 +1,9 @@
-import {
-  dispatchCustomKeyboardEvent,
-  dispatchCustomPointerEventAtPos,
-  reclaimCustomFocusAtPos,
-} from './dispatch';
 import { IframeManager } from '../singletons/IFrameManager';
+import {
+  dispatchKeyboardEventForward,
+  dispatchPointerEventAtPosForward,
+  reclaimFocusAtPosForward,
+} from './dispatch';
 
 /**
  * Dispatches a synthetic KeyboardEvent to the window object.
@@ -15,7 +15,7 @@ export const dispatchKeyboardEvent = (
   type: string,
   payload: { key: string; code: string; keyCode: number },
 ): boolean => {
-  return dispatchCustomKeyboardEvent(type, payload, (a, b, c) => {
+  return dispatchKeyboardEventForward(type, payload, (a, b, c) => {
     IframeManager.getInstance().forwardKeyboardEvent(a, b, c);
   });
 };
@@ -35,7 +35,7 @@ export const dispatchPointerEventAtPos = (
   y: number,
   opts: { button: number; buttons: number; pressure: number },
 ) => {
-  return dispatchCustomPointerEventAtPos(type, x, y, opts, (a, b, c, d, e) => {
+  return dispatchPointerEventAtPosForward(type, x, y, opts, (a, b, c, d, e) => {
     IframeManager.getInstance().forwardPointerEvent(a, b, c, d, e);
   });
 };
@@ -51,7 +51,7 @@ export const dispatchPointerEventAtPos = (
  * @param y - The vertical coordinate relative to the viewport.
  */
 export const reclaimFocusAtPos = (x: number, y: number): boolean => {
-  return reclaimCustomFocusAtPos(x, y, (a, b, c) => {
+  return reclaimFocusAtPosForward(x, y, (a, b, c) => {
     IframeManager.getInstance().forwardFocusReclaim(a, b, c);
   });
 };

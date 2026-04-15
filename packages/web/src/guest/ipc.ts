@@ -1,7 +1,7 @@
 import {
-  dispatchCustomKeyboardEvent,
-  dispatchCustomPointerEventAtPos,
-  reclaimCustomFocusAtPos,
+  dispatchKeyboardEventForward,
+  dispatchPointerEventAtPosForward,
+  reclaimFocusAtPosForward,
 } from '../dom/dispatch';
 
 /**
@@ -148,7 +148,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
           return;
         }
 
-        reclaimCustomFocusAtPos(x, y, (a, b, c) => {
+        reclaimFocusAtPosForward(x, y, (a, b, c) => {
           // Focus logic is executed before each discrete operation.
           // Thus, clear the cache to prepare for the next operation.
           _targetCacheMap.delete(a);
@@ -178,7 +178,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
         }
 
         // The x and y coordinates are already translated to local pixels by the Host
-        dispatchCustomPointerEventAtPos(data.action, x, y, opts, (a, b, c, d, e) => {
+        dispatchPointerEventAtPosForward(data.action, x, y, opts, (a, b, c, d, e) => {
           const { rect, origin } = getOrUpdateTargetInfo(a);
           const localX = c - rect.left;
           const localY = d - rect.top;
@@ -196,7 +196,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
         });
       } else if (data.type === 'keyboard') {
         // Handle globally broadcasted keyboard signals
-        dispatchCustomKeyboardEvent(data.action, data.payload, (a, b, c) => {
+        dispatchKeyboardEventForward(data.action, data.payload, (a, b, c) => {
           const { origin } = getOrUpdateTargetInfo(a);
           a.contentWindow?.postMessage(
             {
