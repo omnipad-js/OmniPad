@@ -56,15 +56,43 @@ export interface ReceiverOptions {
   allowedOrigins: string[] | '*';
 }
 
-let _isInitialized = false;
-let _allowedOrigins: string[] | '*' = [];
-let _currentRect: DOMRect | null = null;
-
 const MAX_PENETRATION_DEPTH = 3;
 
-const getCurrentRect = (el: HTMLElement) => {
-  if (_currentRect == null) _currentRect = el.getBoundingClientRect();
-  return _currentRect;
+let _isInitialized = false;
+let _allowedOrigins: string[] | '*' = [];
+
+export function getIframeOrigin(el: HTMLIFrameElement): string {
+  try {
+    if (!el.src) return '*';
+
+    const url = new URL(el.src, window.location.href);
+
+    if (['about:', 'blob:', 'data:'].includes(url.protocol)) {
+      return '*';
+    }
+
+    return url.origin;
+  } catch (e) {
+    return '*';
+  }
+}
+
+interface IpcTargetInfo {
+  rect: DOMRect;
+  origin: string;
+}
+
+const _targetCacheMap = new WeakMap<HTMLElement, IpcTargetInfo>();
+
+const getOrUpdateTargetInfo = (el: HTMLIFrameElement): IpcTargetInfo => {
+  let info = _targetCacheMap.get(el);
+  if (!info) {
+    const r = el.getBoundingClientRect();
+    const o = getIframeOrigin(el);
+    info = { rect: r, origin: o };
+    _targetCacheMap.set(el, info);
+  }
+  return info;
 };
 
 /**
@@ -123,10 +151,12 @@ export function initIframeReceiver(options: ReceiverOptions): void {
         reclaimCustomFocusAtPos(x, y, (a, b, c) => {
           // Focus logic is executed before each discrete operation.
           // Thus, clear the cache to prepare for the next operation.
-          _currentRect = null;
+          _targetCacheMap.delete(a);
 
-          const localX = b - getCurrentRect(a).left;
-          const localY = c - getCurrentRect(a).top;
+          const { rect, origin } = getOrUpdateTargetInfo(a);
+
+          const localX = b - rect.left;
+          const localY = c - rect.top;
 
           a.contentWindow?.postMessage(
             {
@@ -137,7 +167,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
               depth: data.depth + 1,
             } as IpcMessage,
-            '*',
+            origin,
           );
         });
       } else if (data.type === 'pointer') {
@@ -149,8 +179,9 @@ export function initIframeReceiver(options: ReceiverOptions): void {
 
         // The x and y coordinates are already translated to local pixels by the Host
         dispatchCustomPointerEventAtPos(data.action, x, y, opts, (a, b, c, d, e) => {
-          const localX = c - getCurrentRect(a).left;
-          const localY = d - getCurrentRect(a).top;
+          const { rect, origin } = getOrUpdateTargetInfo(a);
+          const localX = c - rect.left;
+          const localY = d - rect.top;
 
           a.contentWindow?.postMessage(
             {
@@ -160,12 +191,13 @@ export function initIframeReceiver(options: ReceiverOptions): void {
               payload: { x: localX, y: localY, e },
               depth: data.depth + 1,
             } as IpcMessage,
-            '*',
+            origin,
           );
         });
       } else if (data.type === 'keyboard') {
         // Handle globally broadcasted keyboard signals
         dispatchCustomKeyboardEvent(data.action, data.payload, (a, b, c) => {
+          const { origin } = getOrUpdateTargetInfo(a);
           a.contentWindow?.postMessage(
             {
               signature: OMNIPAD_IPC_SIGNATURE,
@@ -174,7 +206,7 @@ export function initIframeReceiver(options: ReceiverOptions): void {
               payload: c,
               depth: data.depth + 1,
             } as IpcMessage,
-            '*',
+            origin,
           );
         });
       }
