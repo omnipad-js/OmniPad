@@ -11,50 +11,38 @@
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
 
-> **The "Wall-Breaker" for Cross-Platform Web Game Input: Revive PC web games on mobile devices with a single JSON configuration.**
+> **Add native-level touch controls and physical gamepad mapping to ANY web game, without touching the source code!**
 
-**OmniPad** is a **headless virtual input engine** specifically designed for **Web games** (HTML5 Canvas, Ruffle Flash emulator, Godot Web exports, etc.).
+OmniPad is a headless virtual input engine specifically built for **Web Games** (HTML5 Canvas, Ruffle Flash emulator, Godot web exports, etc.). It provides a complete translation system from "Screen Touch / Physical Gamepads" to "Native Browser Keyboard / Mouse Events."
 
-It is far more than just a UI library; it is a comprehensive **input protocol translation system**. It provides a complete dispatch layer that translates "screen touches and physical gamepads" into "native browser keyboard and mouse events." Without modifying the game's core source code, OmniPad empowers legacy web games with a native, mobile-grade control experience.
+> 🚨 **[Live Demo: Try it Now](https://omnipad-demo.coocoodaegap.com)** 🚨
+> <br> (⚠️ Mobile browser highly recommended / PC browser with Xbox gamepad)
 
-🚨 **[Live Demo: Try it on your Mobile Device](https://omnipad-demo.coocoodaegap.com)** 🚨
-
----
-
-## 🛠️ What Pain Points Does It Solve?
-
-| Pain Point                       | OmniPad Solution                                             |
-| :------------------------------- | :----------------------------------------------------------- |
-| **Shadow DOM Isolation**         | Recursive probing logic that penetrates the physical boundaries of WebComponents (e.g., Ruffle). |
-| **Cross-Origin Iframe Barriers** | Secure IPC via `postMessage` with automated coordinate transformation for multi-layered nested iframes. |
-| **Browser Focus Loss**           | An "Target Zone" focus-reclamation mechanism that prevents input failure caused by UI clicks or unexpected events. |
-| **Multi-touch Conflicts**        | State-locking based on the `Pointer Capture API`, ensuring joysticks and buttons never interfere during rapid combos. |
+> (Note: Currently supporting Vue 3; React and Vanilla JS versions are in development.)
 
 ---
 
-## ✨ Core Features
+## 🎯 OmniPad Use Cases
 
-### 🧠 Pure Headless Architecture
+If you are developing or operating web games, OmniPad helps you achieve the following:
 
-*   **Logic Engine (`@omnipad/core`)**: Implemented in pure TypeScript with **zero DOM dependencies**. Handles mathematical calculations, gesture recognition, entity communication, and signal dispatching.
-*   **Environment Drivers (`@omnipad/web`)**: Dynamically injects `rAF` timing, `Gamepad API` access, and `DOM side-effects` into the core. Runs anywhere: Mini-programs, Electron, or Browser Extensions.
-*   **Adapter Layer (`@omnipad/vue`)**: The official Vue 3 adapter, providing a UI base with 100% Slot-based customization.
+- **Revive Classic Web Games**: Bring Flash / H5 games that only support keyboard and mouse to mobile devices. Players can play normally via on-screen D-pads, joysticks, and buttons.
+- **Save "Mouse-Only" Games**: Provides rare **"Virtual Trackpad"** and **"Cursor-mode Joystick"** logic, making RTS or Tower Defense games that require precision aiming and hovering playable on touch screens.
+- **Overlay for Game Portals**: If you operate a game portal, use OmniPad as a universal overlay. Dynamically load key mappings for different games without interfering with the original game logic.
+- **Dynamic Key Mapping Config**: Save independent controller layouts for each game via a lightweight JSON system. Automatically hot-reload UI layouts and mapping logic when switching profiles.
+- **Hardware Gamepad Support**：Map physical controller (Xbox/PS) inputs directly to browser keyboard events, with real-time visual feedback on the virtual UI.
 
-### 📐 Declarative JSON-Driven
+---
 
-*   **LayoutBox System**: Native support for `px`, `%`, `vh`, and `vw`. Uses a flexible **Anchor** system to adapt a single configuration to any screen aspect ratio (from iPhone SE to iPad Pro).
-*   **Component-Level "Sticky"**: Bind virtual widgets to dynamic elements on a page via `stickySelector`. Automatically tracks movement and scaling—essential for browser extension overlays.
-*   **Flat Profile Forest**: An innovative JSON parsing engine that defines multiple independent root nodes in a single file, leveraging native CSS Flex/Grid for macro-responsive layouts.
+## 🛠️ Why OmniPad
 
-### ⚡ Extreme Performance Optimization
-
-*   **Touch-to-Spawn**: Dynamically generate joysticks or buttons at any touch point within an `InputZone` with seamless Pointer Capture handovers.
-*   **Zero-Reflow Rendering**: All displacement calculations are performed in memory; rendering is hardware-accelerated via forced GPU `translate3d` transforms.
-*   **Execution-Side Throttling**: Implements `rAF` throttling at the `TargetZone` layer to maintain ultra-low CPU usage even on high-polling rate (120Hz+) devices.
-
-### 🎮 Hardware-Grade Integration
-
-*   Seamlessly merges touch-screen, mouse-click, and **Physical Gamepad (Gamepad API)** inputs. Supports **multi-slot parallel mapping (Local Co-op)** with real-time visual feedback sync on the virtual UI, bringing a "Console-like" experience to the web.
+| Common Issues                                                                           | OmniPad Solutions                                                                                                                                                                                                                                   |
+| :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Game loses focus when touching UI or unexpected event occurred, causing stuck keys.** | **Focus Protection**: UI components never steal focus. Automatically reclaims focus to the game Canvas upon interaction to prevent input lag.                                                                                                       |
+| **Movement joystick cuts out when tapping buttons.**                                    | **Touch Isolation**: Locked via native Pointer Capture. Each finger is tracked independently and remains active even when sliding outside button boundaries.                                                                                        |
+| **Cannot control games inside cross-origin `<iframe>`.**                                | **Iframe Tunneling**: Include a lightweight **OmniPad Guest** script in the child page to enable cross-context input bridging via the secure `postMessage` protocol, thereby achieving high-precision coordinate mapping and native event delivery. |
+| **Synthetic cursor events fail to reach Shadow DOM targets.**                           | **Shadow DOM Support**: Designed for Web Components (like Ruffle). Recursively penetrates isolation boundaries to ensure hits on the actual Canvas.                                                                                                 |
+| **The page scrolls, and the target zone becomes misaligned.**                           | **Sticky Layout**: Locks the target zone to the game container via CSS selectors. Coordinates remain pixel-perfect regardless of scrolling, zooming, or fullscreen transitions.                                                                     |
 
 ---
 
@@ -313,7 +301,19 @@ The `OMNIPAD_IPC_SIGNATURE` (e.g., `__OMNIPAD_IPC_V1__`) acts as a **private key
 
 ---
 
-## 🛠️ Advanced Customization
+## 🧩 Widgets Overview
+
+- 🔘 **VirtualButton**: Supports taps and long-presses. Maps to keyboard or mouse buttons.
+- 🖱️ **VirtualTrackpad**: Relative displacement trackpad with a built-in gesture engine supporting Double-tap & Hold.
+- ➕ **VirtualDPad**: Authentic 8-way digital D-pad optimized for zero-latency in retro action games.
+- 🕹️ **VirtualJoystick**: 360° analog stick with L3 support. Dual engines for discrete key mapping and continuous cursor velocity.
+- 🎛️ **TargetZone**: The reception stage for events. Dispatches low-level DOM events and renders focus-return feedback.
+- 📥 **InputZone**: A logic container that defines interactive regions and handles the "Touch-to-Spawn" dynamic widget logic.
+- 🏗️ **RootLayer**: The pure entry point. Responsible for parsing the `OmniPadProfile` configuration tree and managing the lifecycle of all child entities.
+
+---
+
+## 🎨 Advanced Customization
 
 OmniPad’s core philosophy is **"Logic Closed, UI Open."**
 
@@ -347,18 +347,6 @@ registerComponent('custom-trackpad', CustomTrackpad);
 ```
 
 After registration, you can directly use `"type": "custom-trackpad"` in your JSON configuration. The engine will automatically instantiate and bind the Core logic for you.
-
----
-
-## 🧩 Widgets Overview
-
-- 🔘 **VirtualButton**: Supports taps and long-presses. Maps to keyboard or mouse buttons.
-- 🖱️ **VirtualTrackpad**: Relative displacement trackpad with a built-in gesture engine supporting Double-tap & Hold.
-- ➕ **VirtualDPad**: Authentic 8-way digital D-pad optimized for zero-latency in retro action games.
-- 🕹️ **VirtualJoystick**: 360° analog stick with L3 support. Dual engines for discrete key mapping and continuous cursor velocity.
-- 🎛️ **TargetZone**: The reception stage for events. Dispatches low-level DOM events and renders focus-return feedback.
-- 📥 **InputZone**: A logic container that defines interactive regions and handles the "Touch-to-Spawn" dynamic widget logic.
-- 🏗️ **RootLayer**: The entry point. Manages the lifecycle of entities and provides the dependency injection context.
 
 ---
 
