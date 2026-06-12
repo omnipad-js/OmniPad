@@ -12,6 +12,7 @@
     "@omnipad/core": "workspace:*",
     "@omnipad/web": "workspace:*",
     "@omnipad/vue": "workspace:*",
+    "@omnipad/vanilla": "workspace:*",
     "vue": "^3.5.27"
   },
   "devDependencies": {

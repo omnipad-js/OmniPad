@@ -1,6 +1,6 @@
-import { defineConfig } from 'tsup';
+import { defineConfig, type Options } from 'tsup';
 
-export default defineConfig({
+export default defineConfig((options: Options) => ({
   entry: {
     index: 'src/index.ts',
     'utils/index': 'src/utils/index.ts',
@@ -12,12 +12,12 @@ export default defineConfig({
       js: format === 'esm' ? '.mjs' : '.cjs',
     };
   },
-  clean: true,
+  clean: !options.watch,
+  minify: !options.watch,
   dts: true,
-  minify: true,
   sourcemap: false,
   splitting: true,
   treeshake: true,
   outDir: 'dist',
   external: [],
-});
+}));

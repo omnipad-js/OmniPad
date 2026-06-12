@@ -58,6 +58,22 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@22.19.7)(jsdom@27.4.0)
 
+  packages/vanilla:
+    dependencies:
+      '@omnipad/core':
+        specifier: workspace:*
+        version: link:../core
+      '@omnipad/web':
+        specifier: workspace:*
+        version: link:../web
+    devDependencies:
+      tsup:
+        specifier: ^8.0.0
+        version: 8.5.1(@microsoft/api-extractor@7.55.2(@types/node@22.19.7))(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   packages/vue:
     dependencies:
       '@omnipad/core':
@@ -107,6 +123,9 @@ importers:
       '@omnipad/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@omnipad/vanilla':
+        specifier: workspace:*
+        version: link:../packages/vanilla
       '@omnipad/vue':
         specifier: workspace:*
         version: link:../packages/vue
