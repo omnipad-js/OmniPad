@@ -1,29 +1,37 @@
-import { generateUID } from '@omnipad/core/utils';
+import './style.css';
 
-export class TestWidget {
-  private el: HTMLElement;
+import { OmniPad } from '@omnipad/core/const';
+import { registerComponent } from './component-registry';
+import { InputZone } from './input-zone';
+import { RootLayer } from './root-layer';
+import { TargetZone } from './target-zone';
+import { VirtualButton } from './button';
+import { VirtualDPad } from './dpad';
+import { VirtualJoystick } from './joystick';
+import { VirtualTrackpad } from './trackpad';
 
-  constructor(container: HTMLElement, label: string) {
-    this.el = document.createElement('div');
-    this.el.id = generateUID('test')
-    this.el.innerText = `${label} (ID: ${this.el.id})`;
-    Object.assign(this.el.style, {
-      padding: '12px 20px',
-      background: 'rgba(255, 186, 67, 0.1)',
-      border: '2px solid #ffba43',
-      color: '#ffba43',
-      borderRadius: '8px',
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      marginTop: '10px',
-      display: 'inline-block'
-    });
-    container.appendChild(this.el);
-    console.log('[Vanilla-Test] Widget mounted successfully.');
-  }
+registerComponent(OmniPad.Types.BUTTON, VirtualButton);
+registerComponent(OmniPad.Types.INPUT_ZONE, InputZone);
+registerComponent(OmniPad.Types.ROOT_LAYER, RootLayer);
+registerComponent(OmniPad.Types.TARGET_ZONE, TargetZone);
+registerComponent(OmniPad.Types.TRACKPAD, VirtualTrackpad);
+registerComponent(OmniPad.Types.D_PAD, VirtualDPad);
+registerComponent(OmniPad.Types.JOYSTICK, VirtualJoystick);
 
-  public destroy() {
-    this.el.remove();
-    console.log('[Vanilla-Test] Widget destroyed.');
-  }
-}
+export { InputZone } from './input-zone';
+export { RootLayer } from './root-layer';
+export { TargetZone } from './target-zone';
+export { Button, VirtualButton } from './button';
+export { DPad, VirtualDPad } from './dpad';
+export { Joystick, VirtualJoystick } from './joystick';
+export { Trackpad, VirtualTrackpad } from './trackpad';
+export { VirtualLayerBase } from './virtual-layer';
+export { ButtonBaseView } from './button-base';
+export {
+  registerComponent,
+  getComponent,
+  getComponentSafe,
+  hasRegisteredComponent,
+  createWidgetFromNode,
+} from './component-registry';
+export type * from './types';
