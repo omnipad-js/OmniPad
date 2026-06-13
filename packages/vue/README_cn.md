@@ -1,15 +1,9 @@
-# 🎮 OmniPad (Web Virtual Gamepad)
+# 🎮 OmniPad/Vue
 
 <div align="center">
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README.md">English</a> |
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README_cn.md">简体中文</a>
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vue/README.md">English</a> |
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vue/README_cn.md">简体中文</a>
 </div>
-<br/>
-
-![npm version](https://img.shields.io/npm/v/@omnipad/core?color=orange&label=@omnipad/core)
-![npm version](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&label=@omnipad/vue)
-![license](https://img.shields.io/badge/license-MIT-blue)
-![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
 
 > **为任何网页游戏赋予原生级的移动端触控与物理手柄映射能力，无需修改游戏源码！**
 
@@ -17,8 +11,6 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 
 > 🚨 **[Live Demo: 立即体验](https://omnipad-demo.coocoodaegap.com)** 🚨
 > <br> (⚠️ 强烈建议使用手机浏览器打开以获得最佳触控体验；PC 端可直接连接实体手柄体验)
-
-> (注：目前仅提供 Vanilla JS 和 Vue 3 适配层，React 适配层开发中。)
 
 ---
 
@@ -50,11 +42,13 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 
 ## 📦 安装 (Installation)
 
+确保您的项目中已安装 Vue 3 (`peerDependencies`)。
+
 ```bash
-npm install @omnipad/vanilla
+npm install @omnipad/core @omnipad/web @omnipad/vue
 ```
 
-> ⚠️ **注意**：别忘了在您的入口文件 (如 `main.ts` 或 `App.vue`) 中引入基础样式：`import '@omnipad/vanilla/style.css';`
+> ⚠️ **注意**：别忘了在您的入口文件 (如 `main.ts` 或 `App.vue`) 中引入基础样式：`import '@omnipad/vue/style.css';`
 
 ---
 
@@ -64,81 +58,39 @@ npm install @omnipad/vanilla
 
 适用于在页面角落快速添加固定按钮的简单场景。无需复杂配置，直接作为 UI 组件引入。
 
-**1. HTML 结构 `index.html`**
+```vue
+<script setup>
+import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vue';
+import '@omnipad/vue/style.css';
+</script>
 
-```html
-<div id="app">
-  <!-- 游戏/播放器容器 -->
-  <canvas id="my-game"></canvas>
-  <!-- 提供一个充当相对定位坐标系的容器 -->
-  <div class="omnipad-container"></div>
-</div>
+<template>
+  <div class="game-container">
+    <!-- 部署一个绑定了W键的动作按钮，处于文档流中 -->
+    <VirtualButton
+      label="JUMP"
+      target-stage-id="$stage"
+      :mapping="{ code: 'ArrowUp' }"
+      style="width: 80px; height: 80px; z-index: 100;"
+    />
 
-<style>
-  #app,
-  #my-game,
-  .omnipad-container {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-  }
-</style>
-```
+    <!-- 部署一个支持 360 度绝对光标位移的模拟摇杆，脱离文档流 -->
+    <VirtualJoystick
+      :cursor-mode="true"
+      :cursor-sensitivity="1.2"
+      target-stage-id="$stage"
+      :mapping="{ stick: { type: 'mouse', button: 0 } }"
+      :layout="{ bottom: '120px', left: '120px', width: '150px', height: '150px', zIndex: 100 }"
+    />
 
-**2. 逻辑装配 `main.ts / main.js`**
-
-```typescript
-import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
-
-const container = document.getElementById('omnipad-container');
-
-if (container) {
-  // 部署一个铺满全屏的靶区，开启光标显示，在底层部署游戏播放器即可被靶区接管
-  const stage = new TargetZone(container, {
-    widgetId: '$stage',
-    cursorEnabled: true,
-    layout: {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    },
-  });
-
-  // 部署一个绑定了 W 键的动作按钮
-  const jumpButton = new VirtualButton(container, {
-    label: 'JUMP',
-    targetStageId: '$stage',
-    mapping: { code: 'KeyW' },
-    layout: {
-      width: '80px',
-      height: '80px',
-      zIndex: 100,
-      right: '40px',
-      bottom: '40px',
-      anchor: 'center',
-    },
-  });
-
-  // 部署一个支持 360 度绝对光标位移的模拟摇杆
-  const joystick = new VirtualJoystick(container, {
-    cursorMode: true,
-    cursorSensitivity: 1.2,
-    targetStageId: '$stage',
-    mapping: {
-      stick: { type: 'mouse', button: 0 },
-    },
-    layout: {
-      bottom: '120px',
-      left: '120px',
-      width: '150px',
-      height: '150px',
-      zIndex: 100,
-    },
-  });
-}
+    <!-- 部署一个铺满全屏的靶区，开启光标显示，在底层部署游戏播放器即可被靶区接管 -->
+    <TargetZone
+      widget-id="$stage"
+      cursor-enabled
+      :layout="{ left: 0, top: 0, height: '100%', width: '100%' }"
+    />
+  </div>
+</template>
 ```
 
 ### 模式二：数据驱动模式 (Data-Driven Mode)
@@ -195,22 +147,40 @@ if (container) {
 
 **2. 在 RootLayer 中一键解析与渲染:**
 
-```typescript
-import { parseProfileForest, RootLayer } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
+```vue
+<script setup>
+import { computed, onMounted } from 'vue';
+import { parseProfileForest } from '@omnipad/core';
+import { RootLayer } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // 解析扁平配置并构建运行时组件森林
-const forest = parseProfileForest(profileRaw);
+const forest = computed(() => parseProfileForest(profileRaw));
+</script>
 
-// 提取根节点并直接实例化 RootLayer 进行挂载
-const rootNode = forest.roots['$ui-layer'];
-if (rootNode) {
-  const container = document.getElementById('omnipad-container');
-  if (container) {
-    new RootLayer(container, { treeNode: rootNode });
-  }
+<template>
+  <div class="viewport">
+    <!-- 播放器元素，可替换为 Ruffle / H5 播放器 -->
+    <canvas id="my-game"></canvas>
+    <!-- 传入根节点，引擎将自动递归生成整套交互界面 -->
+    <RootLayer
+      class="ui-layer"
+      v-if="forest.roots['$ui-layer']"
+      :tree-node="forest.roots['$ui-layer']"
+    />
+  </div>
+</template>
+
+<style>
+.viewport,
+#my-game,
+.ui-layer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
 }
+</style>
 ```
 
 ---
@@ -220,7 +190,7 @@ if (rootNode) {
 想在网页里使用 Xbox 或 PlayStation 手柄？只需在配置中添加映射表，OmniPad 将自动接管手柄轮询。当你在实体手柄上按下按键时，屏幕上对应的虚拟按钮将**同步触发**按下动画，提供完美的交互回馈。
 
 ```typescript
-import { GamepadManager } from '@omnipad/vanilla';
+import { GamepadManager } from '@omnipad/core';
 
 // 启动全局实体手柄监控
 GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
@@ -253,7 +223,7 @@ OmniPad 引入了强大的跨域 Iframe 穿透能力。为了防止恶意脚本�
 主文档是存放虚拟手柄 UI 的页面。出于安全考虑，`IframeManager` **不会**向未经授权的域名发送任何坐标或按键信号。
 
 ```typescript
-import { IframeManager } from '@omnipad/vanilla';
+import { IframeManager } from '@omnipad/web';
 
 const iframeMgr = IframeManager.getInstance();
 
@@ -270,7 +240,7 @@ iframeMgr.addTrustedOrigin('https://game-provider.com');
 
 ```typescript
 // 在 Iframe 内部运行的脚本
-import { initIframeReceiver } from '@omnipad/vanilla/guest';
+import { initIframeReceiver } from '@omnipad/web/guest';
 
 initIframeReceiver({
   // 核心安全：只接收来自你主站点的信号，拒绝其他任何来源的 postMessage
@@ -337,21 +307,40 @@ initIframeReceiver({
 
 ---
 
-## 🗺️ 项目状态与未来愿景 (Status & Vision)
+## 🎨 高度定制化 (Advanced Customization)
 
-> **📢 当前状态：维护模式 (Maintenance Mode)** \
-> OmniPad (v0.7) 的核心已经完全达成了设计初衷，提供了极其稳固的底层输入状态机。由于个人精力有限，**目前我将主要负责核心 Bug 修复与稳定性维护，短期内暂无大规模新功能开发计划。**
->
-> 然而，OmniPad 的底层架构（Headless Core）天生具备无限的扩展可能。以下是我们认为非常有价值的演进方向，**非常欢迎社区通过 PR 参与共建**：
+OmniPad 的核心设计理念是**“逻辑闭环，UI 开放”**。
 
-- [ ] **高阶宏指令系统 (Macro & Combo System)**
-  - 连发模式 (Turbo) 与 开关模式 (Toggle) 支持。
-  - **自定义按键序列**：支持录制或配置“一键连招”（如按键间隔、顺序触发）。
-  - **自定义事件钩子 (Custom Hooks)**：允许在按键生命周期的不同阶段插入业务代码（如触发特定的音频播放或 API 调用）。
-- [ ] **可视化配置编辑器 (OmniPad Studio)**
-  - 打造一个独立的 Web 拖拽编辑工作台。用户可以直接在可视化的画布上拖拽、缩放控件，调整死区参数，并一键导出 `profile.json` 配置文件。
-- [ ] **万能浏览器插件版 (Browser Extension)**
-  - 将 OmniPad 封装为 Chrome/Edge 扩展。让玩家可以在访问 Poki、Newgrounds 等任意传统游戏网站时，一键呼出虚拟手柄或接管实体手柄。
+### 1. 全局与局部换肤 (CSS Theming)
+
+组件库采用“样式与布局分离”。`layout` 属性仅控制物理坐标，视觉表现均由 CSS 变量接管。
+
+```css
+/* 修改全局主题 */
+:root {
+  --omnipad-btn-bg: rgba(0, 255, 100, 0.2);
+  --omnipad-btn-border: 2px solid #00ff6a;
+}
+
+/* 结合 config 中的 className 字段实现特定按钮变色 */
+.danger-btn {
+  --omnipad-btn-bg: rgba(255, 0, 0, 0.4);
+}
+```
+
+### 2. 注册自定义组件 (Factory Extension)
+
+你可以基于 `VirtualButton` 等基础组件，编写完全属于自己的特效组件（如发光的赛博朋克触摸板），并将其**无缝注册进解析引擎**中。
+
+```typescript
+import { registerComponent } from '@omnipad/vue';
+import CustomTrackpad from './components/CustomTrackpad.vue';
+
+// 将自定义组件注册为 'custom-trackpad'
+registerComponent('custom-trackpad', CustomTrackpad);
+```
+
+注册后，你即可在 JSON 配置中直接使用 `"type": "fancy-trackpad"`，引擎会自动为你实例化并绑定 Core 逻辑。
 
 ---
 

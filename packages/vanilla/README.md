@@ -1,15 +1,9 @@
-# 🎮 OmniPad (Web Virtual Gamepad)
+# 🎮 OmniPad/Vanilla-JS
 
 <div align="center">
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README.md">English</a> |
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README_cn.md">简体中文</a>
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vanilla/README.md">English</a> |
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vanilla/README_cn.md">简体中文</a>
 </div>
-<br/>
-
-![npm version](https://img.shields.io/npm/v/@omnipad/core?color=orange&label=@omnipad/core)
-![npm version](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&label=@omnipad/vue)
-![license](https://img.shields.io/badge/license-MIT-blue)
-![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
 
 > **Add native-level touch controls and physical gamepad mapping to ANY web game, without touching the source code!**
 
@@ -17,8 +11,6 @@ OmniPad is a headless virtual input engine specifically built for **Web Games** 
 
 > 🚨 **[Live Demo: Try it Now](https://omnipad-demo.coocoodaegap.com)** 🚨
 > <br> (⚠️ Mobile browser highly recommended / PC browser with Xbox gamepad)
-
-> (Note: Currently supporting Vanilla JS & Vue 3; React version is in development.)
 
 ---
 
@@ -335,20 +327,41 @@ The `OMNIPAD_IPC_SIGNATURE` (e.g., `__OMNIPAD_IPC_V1__`) acts as a **private key
 
 ---
 
-## 🗺️ Status & Vision
+## 🎨 Advanced Customization
 
-> **📢 Current Status: Maintenance Mode** \
-> The core of OmniPad (v0.7) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
->
-> However, OmniPad's underlying architecture (Headless Core) inherently possesses limitless scalability potential. Below are evolutionary directions we consider highly valuable, and **we warmly welcome community participation through PRs to build together**:
+OmniPad’s core philosophy is **"Logic Closed, UI Open."**
 
-- [ ] **Advanced Macro & Combo System**
-  - Turbo (Auto-fire) and Toggle mode support.
-  - Custom sequences for "One-tap combos."
-- [ ] **OmniPad Studio**
-  - A visual drag-and-drop editor for creating and exporting `profile.json` files.
-- [ ] **Universal Browser Extension**
-  - A Chrome/Edge extension to bring OmniPad to any gaming site (Poki, Newgrounds, etc.) instantly.
+### 1. CSS Theming
+
+The library separates layout from style. The `layout` property handles physical coordinates, while visual aesthetics are managed by CSS variables.
+
+```css
+/* Modify the global theme */
+:root {
+  --omnipad-btn-bg: rgba(0, 255, 100, 0.2);
+  --omnipad-btn-border: 2px solid #00ff6a;
+}
+
+/* Use the className field in config for specific button styles */
+.danger-btn {
+  --omnipad-btn-bg: rgba(255, 0, 0, 0.4);
+}
+```
+
+### 2. Factory Extension
+
+You can write your own custom components and **register them into the parsing engine** seamlessly.
+
+```typescript
+import { registerComponent } from '@omnipad/vanilla';
+import CustomTrackpad from './components/CustomTrackpad.ts';
+import './styles/custom-trackpad.css';
+
+// Register the custom component as 'custom-trackpad'
+registerComponent('custom-trackpad', CustomTrackpad);
+```
+
+After registration, you can directly use `"type": "custom-trackpad"` in your JSON configuration. The engine will automatically instantiate and bind the Core logic for you.
 
 ---
 

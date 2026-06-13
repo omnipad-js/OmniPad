@@ -1,15 +1,9 @@
-# 🎮 OmniPad (Web Virtual Gamepad)
+# 🎮 OmniPad/Vue
 
 <div align="center">
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README.md">English</a> |
-<a href="https://github.com/omnipad-js/omnipad/blob/main/README_cn.md">简体中文</a>
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vue/README.md">English</a> |
+<a href="https://github.com/omnipad-js/omnipad/blob/main/packages/vue/README_cn.md">简体中文</a>
 </div>
-<br/>
-
-![npm version](https://img.shields.io/npm/v/@omnipad/core?color=orange&label=@omnipad/core)
-![npm version](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&label=@omnipad/vue)
-![license](https://img.shields.io/badge/license-MIT-blue)
-![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
 
 > **Add native-level touch controls and physical gamepad mapping to ANY web game, without touching the source code!**
 
@@ -18,7 +12,7 @@ OmniPad is a headless virtual input engine specifically built for **Web Games** 
 > 🚨 **[Live Demo: Try it Now](https://omnipad-demo.coocoodaegap.com)** 🚨
 > <br> (⚠️ Mobile browser highly recommended / PC browser with Xbox gamepad)
 
-> (Note: Currently supporting Vanilla JS & Vue 3; React version is in development.)
+> (Note: Currently supporting Vue 3; React and Vanilla JS versions are in development.)
 
 ---
 
@@ -48,11 +42,13 @@ If you are developing or operating web games, OmniPad helps you achieve the foll
 
 ## 📦 Installation
 
+Ensure you have Vue 3 installed in your project (`peerDependencies`).
+
 ```bash
-npm install @omnipad/vanilla
+npm install @omnipad/core @omnipad/web @omnipad/vue
 ```
 
-> ⚠️ **Note**: Don't forget to import the base styles in your entry file (e.g., `main.ts` or `App.vue`): `import '@omnipad/vanilla/style.css';`
+> ⚠️ **Note**: Don't forget to import the base styles in your entry file (e.g., `main.ts` or `App.vue`): `import '@omnipad/vue/style.css';`
 
 ---
 
@@ -62,81 +58,39 @@ npm install @omnipad/vanilla
 
 Ideal for simple scenarios where you need to add fixed buttons to specific corners. No complex configuration required; just use them as standard UI components.
 
-**1. HTML Structure `index.html`**
+```vue
+<script setup>
+import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vue';
+import '@omnipad/vue/style.css';
+</script>
 
-```html
-<div id="app">
-  <!-- game/player container -->
-  <canvas id="my-game"></canvas>
-  <!-- Provide a container that serves as a coordinate system for relative positioning -->
-  <div class="omnipad-container"></div>
-</div>
+<template>
+  <div class="game-container">
+    <!-- Deploy an action button mapped to the W key -->
+    <VirtualButton
+      label="JUMP"
+      target-stage-id="$stage"
+      :mapping="{ code: 'KeyW' }"
+      style="width: 80px; height: 80px; z-index: 100;"
+    />
 
-<style>
-  #app,
-  #my-game,
-  .omnipad-container {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-  }
-</style>
-```
+    <!-- Deploy an analog stick with 360° cursor displacement -->
+    <VirtualJoystick
+      :cursor-mode="true"
+      :cursor-sensitivity="1.2"
+      target-stage-id="$stage"
+      :mapping="{ stick: { type: 'mouse', button: 0 } }"
+      :layout="{ bottom: '120px', left: '120px', width: '150px', height: '150px', zIndex: 100 }"
+    />
 
-**2. Logic Assembly `main.ts / main.js`**
-
-```typescript
-import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
-
-const container = document.getElementById('omnipad-container');
-
-if (container) {
-  // Deploy a full-screen reception zone to handle simulated events
-  const stage = new TargetZone(container, {
-    widgetId: '$stage',
-    cursorEnabled: true,
-    layout: {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    },
-  });
-
-  // Deploy an action button mapped to the W key
-  const jumpButton = new VirtualButton(container, {
-    label: 'JUMP',
-    targetStageId: '$stage',
-    mapping: { code: 'KeyW' },
-    layout: {
-      width: '80px',
-      height: '80px',
-      zIndex: 100,
-      right: '40px',
-      bottom: '40px',
-      anchor: 'center',
-    },
-  });
-
-  // Deploy an analog stick with 360° cursor displacement
-  const joystick = new VirtualJoystick(container, {
-    cursorMode: true,
-    cursorSensitivity: 1.2,
-    targetStageId: '$stage',
-    mapping: {
-      stick: { type: 'mouse', button: 0 },
-    },
-    layout: {
-      bottom: '120px',
-      left: '120px',
-      width: '150px',
-      height: '150px',
-      zIndex: 100,
-    },
-  });
-}
+    <!-- Deploy a full-screen reception zone to handle simulated events -->
+    <TargetZone
+      widget-id="$stage"
+      cursor-enabled
+      :layout="{ left: 0, top: 0, height: '100%', width: '100%' }"
+    />
+  </div>
+</template>
 ```
 
 ### Pattern 2: Data-Driven Mode
@@ -192,22 +146,40 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
 
 **2. Parse and Render in RootLayer:**
 
-```typescript
-import { parseProfileForest, RootLayer } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
+```vue
+<script setup>
+import { computed } from 'vue';
+import { parseProfileForest } from '@omnipad/core';
+import { RootLayer } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // Analyze flat configuration and build the runtime component forest
-const forest = parseProfileForest(profileRaw);
+const forest = computed(() => parseProfileForest(profileRaw));
+</script>
 
-// Retrieve the root node and directly instantiate a RootLayer for mounting
-const rootNode = forest.roots['$ui-layer'];
-if (rootNode) {
-  const container = document.getElementById('omnipad-container');
-  if (container) {
-    new RootLayer(container, { treeNode: rootNode });
-  }
+<template>
+  <div class="viewport">
+    <!-- Player element, replace with Ruffle / H5 player -->
+    <canvas id="my-game"></canvas>
+    <!-- Upon receiving the root node, the engine will automatically generate the entire interactive interface through recursion. -->
+    <RootLayer
+      class="ui-layer"
+      v-if="forest.roots['$ui-layer']"
+      :tree-node="forest.roots['$ui-layer']"
+    />
+  </div>
+</template>
+
+<style>
+.viewport,
+#my-game,
+.ui-layer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
 }
+</style>
 ```
 
 ---
@@ -217,7 +189,7 @@ if (rootNode) {
 Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniPad automatically handles controller polling. When you press a physical button, the corresponding virtual button on the screen will **synchronously trigger** its press animation, providing perfect haptic feedback.
 
 ```typescript
-import { GamepadManager } from '@omnipad/vanilla';
+import { GamepadManager } from '@omnipad/core';
 
 // Start global physical gamepad monitoring
 GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
@@ -250,7 +222,7 @@ OmniPad provides robust cross-origin iframe penetration capabilities. To prevent
 The **Host** is the main page where your virtual gamepad UI resides. For security reasons, the `IframeManager` will **NOT** send coordinates or key signals to unauthorized domains.
 
 ```typescript
-import { IframeManager } from '@omnipad/vanilla';
+import { IframeManager } from '@omnipad/web';
 
 const iframeMgr = IframeManager.getInstance();
 
@@ -267,7 +239,7 @@ You must inject a lightweight receiver script into the environment where the gam
 
 ```typescript
 // Script running INSIDE the game Iframe
-import { initIframeReceiver } from '@omnipad/vanilla/guest';
+import { initIframeReceiver } from '@omnipad/web/guest';
 
 initIframeReceiver({
   // CORE SECURITY: Only accept signals from your main site.
@@ -335,20 +307,40 @@ The `OMNIPAD_IPC_SIGNATURE` (e.g., `__OMNIPAD_IPC_V1__`) acts as a **private key
 
 ---
 
-## 🗺️ Status & Vision
+## 🎨 Advanced Customization
 
-> **📢 Current Status: Maintenance Mode** \
-> The core of OmniPad (v0.7) has fully achieved its design objectives, delivering an exceptionally robust underlying input state machine. Due to limited personal capacity, **we will primarily focus on core bug fixes and stability maintenance at this time, with no plans for large-scale new feature development in the near future.**
->
-> However, OmniPad's underlying architecture (Headless Core) inherently possesses limitless scalability potential. Below are evolutionary directions we consider highly valuable, and **we warmly welcome community participation through PRs to build together**:
+OmniPad’s core philosophy is **"Logic Closed, UI Open."**
 
-- [ ] **Advanced Macro & Combo System**
-  - Turbo (Auto-fire) and Toggle mode support.
-  - Custom sequences for "One-tap combos."
-- [ ] **OmniPad Studio**
-  - A visual drag-and-drop editor for creating and exporting `profile.json` files.
-- [ ] **Universal Browser Extension**
-  - A Chrome/Edge extension to bring OmniPad to any gaming site (Poki, Newgrounds, etc.) instantly.
+### 1. CSS Theming
+
+The library separates layout from style. The `layout` property handles physical coordinates, while visual aesthetics are managed by CSS variables.
+
+```css
+/* Modify the global theme */
+:root {
+  --omnipad-btn-bg: rgba(0, 255, 100, 0.2);
+  --omnipad-btn-border: 2px solid #00ff6a;
+}
+
+/* Use the className field in config for specific button styles */
+.danger-btn {
+  --omnipad-btn-bg: rgba(255, 0, 0, 0.4);
+}
+```
+
+### 2. Factory Extension
+
+You can write your own custom components and **register them into the parsing engine** seamlessly.
+
+```typescript
+import { registerComponent } from '@omnipad/vue';
+import CustomTrackpad from './components/CustomTrackpad.vue';
+
+// Register the custom component as 'custom-trackpad'
+registerComponent('custom-trackpad', CustomTrackpad);
+```
+
+After registration, you can directly use `"type": "custom-trackpad"` in your JSON configuration. The engine will automatically instantiate and bind the Core logic for you.
 
 ---
 
