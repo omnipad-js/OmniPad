@@ -11,7 +11,7 @@ import { filterObjectByKeys, mergeObjects } from '../utils/object';
 export function bindEntityDelegates(entity: any, delegates?: Record<string, AnyFunction>): void {
   if (!entity || !delegates) return;
 
-  // 检查实体是否实现了 IDependencyBindable 接口
+  // Check if the entity implements the IDependencyBindable interface
   if ('bindDelegate' in entity && typeof entity.bindDelegate === 'function') {
     const entries = Object.entries(delegates);
 
