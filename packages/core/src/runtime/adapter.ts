@@ -86,8 +86,8 @@ export function mergeWidgetConfig<T extends BaseConfig>(
   merged.baseType = requiredType;
   merged.parentId = parentId;
 
-  // 3. 特殊处理：Layout 深度合并
-  // 即使 businessProps 只传了 { width: 100 }，也要确保不会丢失 treeConfig 里的 { left: '10%' }
+  // 3. Special handling: Deep merge for Layout
+  // Ensure that even if businessProps only passes { width: 100 }, we don't lose { left: '10%' } from treeConfig
   merged.layout = mergeObjects(defaultProps.layout, treeConfig.layout, overrideProps.layout);
 
   return merged;
