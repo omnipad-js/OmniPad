@@ -120,7 +120,7 @@ export function resolveDynamicWidget<T>(
   const configTemplate = children?.find((child) => child.uid === dynamicId);
   const hasSlot = slotNodes.length > 0;
 
-  // 冲突与唯一性处理策略 / Conflict and Uniqueness Strategy:
+  // Conflict and uniqueness handling strategy:
 
   // 1. 若 Slot 内部有多个组件，只取第一个 / If multiple nodes exist in slot, take the first one only
   if (slotNodes.length > 1) {
