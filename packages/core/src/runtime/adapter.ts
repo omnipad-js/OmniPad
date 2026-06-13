@@ -18,7 +18,7 @@ export function bindEntityDelegates(entity: any, delegates?: Record<string, AnyF
     for (let i = 0; i < entries.length; i++) {
       const [key, fn] = entries[i];
 
-      // 严格校验：确保只绑定函数
+      // Strict validation: ensure only functions are bound
       if (typeof fn === 'function') {
         entity.bindDelegate(key, fn);
       }
@@ -81,7 +81,7 @@ export function mergeWidgetConfig<T extends BaseConfig>(
   // 1. 先进行整体扁平属性的合并
   const merged = mergeObjects<T>(defaultProps, treeConfig, overrideProps);
 
-  // 2. 注入固定身份信息
+  // 2. Inject fixed identity information
   merged.id = uid;
   merged.baseType = requiredType;
   merged.parentId = parentId;
