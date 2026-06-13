@@ -116,20 +116,20 @@ export function resolveDynamicWidget<T>(
   nodeToRender: T | ConfigTreeNode | null;
   isFromSlot: boolean;
 } {
-  // 从配置子项中查找对应的动态模板节点 / Search for the dynamic template node in config children
+  // Search for the dynamic template node in config children
   const configTemplate = children?.find((child) => child.uid === dynamicId);
   const hasSlot = slotNodes.length > 0;
 
   // Conflict and uniqueness handling strategy:
 
-  // 1. 若 Slot 内部有多个组件，只取第一个 / If multiple nodes exist in slot, take the first one only
+  // 1. If multiple nodes exist in slot, take the first one only
   if (slotNodes.length > 1) {
     console.error(
       `[OmniPad-Validation] InputZone ${dynamicId} has multiple dynamic widgets in slot. Only the first one will be activated.`,
     );
   }
 
-  // 2. 若 Slot 和 Config 同时存在，Slot 胜出，Config 被忽略 / Slot takes precedence over Config template
+  // 2. Slot takes precedence over Config template
   if (hasSlot && configTemplate) {
     console.warn(
       `[OmniPad-Validation] InputZone ${dynamicId} has both Slot and Config dynamic widgets. Config ignored.`,
@@ -137,7 +137,7 @@ export function resolveDynamicWidget<T>(
   }
 
   return {
-    // 优先级判断 / Priority resolution
+    // Priority resolution
     nodeToRender: hasSlot ? slotNodes[0] : configTemplate || null,
     isFromSlot: hasSlot,
   };
