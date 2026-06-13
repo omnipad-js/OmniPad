@@ -78,7 +78,7 @@ export function mergeWidgetConfig<T extends BaseConfig>(
   treeConfig: Record<string, any>,
   overrideProps: Record<string, any>,
 ): T {
-  // 1. 先进行整体扁平属性的合并
+  // 1. First perform the overall flat property merge
   const merged = mergeObjects<T>(defaultProps, treeConfig, overrideProps);
 
   // 2. Inject fixed identity information
