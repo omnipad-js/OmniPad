@@ -11,7 +11,7 @@ import { filterObjectByKeys, mergeObjects } from '../utils/object';
 export function bindEntityDelegates(entity: any, delegates?: Record<string, AnyFunction>): void {
   if (!entity || !delegates) return;
 
-  // 检查实体是否实现了 IDependencyBindable 接口
+  // Check if the entity implements the IDependencyBindable interface
   if ('bindDelegate' in entity && typeof entity.bindDelegate === 'function') {
     const entries = Object.entries(delegates);
 
@@ -78,7 +78,7 @@ export function mergeWidgetConfig<T extends BaseConfig>(
   treeConfig: Record<string, any>,
   overrideProps: Record<string, any>,
 ): T {
-  // 1. 先进行整体扁平属性的合并
+  // 1. First perform the overall flat property merge
   const merged = mergeObjects<T>(defaultProps, treeConfig, overrideProps);
 
   // 2. Inject fixed identity information
@@ -86,8 +86,8 @@ export function mergeWidgetConfig<T extends BaseConfig>(
   merged.baseType = requiredType;
   merged.parentId = parentId;
 
-  // 3. 特殊处理：Layout 深度合并
-  // 即使 businessProps 只传了 { width: 100 }，也要确保不会丢失 treeConfig 里的 { left: '10%' }
+  // 3. Special handling: Deep merge for Layout
+  // Ensure that even if businessProps only passes { width: 100 }, we don't lose { left: '10%' } from treeConfig
   merged.layout = mergeObjects(defaultProps.layout, treeConfig.layout, overrideProps.layout);
 
   return merged;
@@ -120,7 +120,7 @@ export function resolveDynamicWidget<T>(
   const configTemplate = children?.find((child) => child.uid === dynamicId);
   const hasSlot = slotNodes.length > 0;
 
-  // 冲突与唯一性处理策略 / Conflict and Uniqueness Strategy:
+  // Conflict and uniqueness handling strategy:
 
   // 1. 若 Slot 内部有多个组件，只取第一个 / If multiple nodes exist in slot, take the first one only
   if (slotNodes.length > 1) {
