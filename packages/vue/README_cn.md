@@ -340,7 +340,7 @@ import CustomTrackpad from './components/CustomTrackpad.vue';
 registerComponent('custom-trackpad', CustomTrackpad);
 ```
 
-注册后，你即可在 JSON 配置中直接使用 `"type": "fancy-trackpad"`，引擎会自动为你实例化并绑定 Core 逻辑。
+注册后，你即可在 JSON 配置中直接使用 `"type": "custom-trackpad"`，引擎会自动为你实例化并绑定 Core 逻辑。
 
 ---
 
