@@ -11,6 +11,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 
 > 🚨 **[Live Demo: 立即体验](https://omnipad-demo.coocoodaegap.com)** 🚨
 > <br> (⚠️ 强烈建议使用手机浏览器打开以获得最佳触控体验；PC 端可直接连接实体手柄体验)
+> <br> （提示：若 Demo 链接无法访问，请核对该域名是否为最新官方地址，并以仓库文档为准。）
 
 ---
 
