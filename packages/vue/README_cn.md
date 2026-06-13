@@ -49,7 +49,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 npm install @omnipad/core @omnipad/web @omnipad/vue
 ```
 
-> ⚠️ **注意**：别忘了在您的入口文件 (如 `main.ts` 或 `App.vue`) 中引入基础样式：`import '@omnipad/vue/style.css';`
+> ⚠️ **注意**：请确保在入口文件（如 `main.ts` 或 `App.vue`）中引入基础样式，具体写法见下方“快速上手”示例。
 
 ---
 
