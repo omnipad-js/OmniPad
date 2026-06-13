@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, watch, nextTick } from 'vue';
+import { ref, computed, onUnmounted, watch, nextTick, onBeforeMount } from 'vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import IFramePlayer from './components/IFramePlayer.vue';
-import { GamepadManager, WindowManager, parseProfileForest, exportProfile, createWidgetFromNode } from '@omnipad/vanilla';
+import { GamepadManager, WindowManager, parseProfileForest, exportProfile, createWidgetFromNode, registerComponent } from '@omnipad/vanilla';
 import '@omnipad/vanilla/style.css';
 
-// import CustomTrackpad from './components/CustomTrackpad';
+import CustomTrackpad from './components/CustomTrackpad.ts';
+import './styles/custom-trackpad.css';
 
 const jsonText = ref('{}');
 const forest = ref<any>(null);
@@ -87,17 +88,17 @@ const mountVanillagamepad = async () => {
       leftInstance.el.appendChild(wrapper); // 挂载到左侧图层的 DOM 内部
 
       // 实例化手写的原生触摸板
-      // staticTrackpadInstance = new CustomTrackpad(wrapper, {
-      //   treeNode: { uid: 'manual_1', type: 'random-trackpad' },
-      //   layout: {
-      //     top: 0,
-      //     left: 0,
-      //     height: '100%',
-      //     width: '100%',
-      //   },
-      //   targetStageId: '$ruffle-player',
-      //   label: 'STATIC TRACKPAD (1x sensitivity)',
-      // });
+      staticTrackpadInstance = new CustomTrackpad(wrapper, {
+        treeNode: { uid: 'manual_1', type: 'random-trackpad' },
+        layout: {
+          top: 0,
+          left: 0,
+          height: '100%',
+          width: '100%',
+        },
+        targetStageId: '$ruffle-player',
+        label: 'STATIC TRACKPAD (1x sensitivity)',
+      });
     }
   }
 
@@ -148,9 +149,9 @@ const renderRightPad = computed(() => forest.value?.['$right-pad']);
 const renderPlayer = computed(() => forest.value?.['$ruffle-player']);
 
 // 注册自定义触摸板 (确保 CustomTrackpad 已经是一个 Vanilla Class)
-// onBeforeMount(() => {
-//   registerComponent('random-trackpad', CustomTrackpad);
-// });
+onBeforeMount(() => {
+  registerComponent('random-trackpad', CustomTrackpad);
+});
 
 // 组件卸载时，进行终极清理
 onUnmounted(() => {
