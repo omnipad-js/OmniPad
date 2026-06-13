@@ -21,7 +21,7 @@ export const getDeepElement = (
   if (!target) return null;
 
   // Drill down into shadowRoot if the current element is a host
-  while (target && target.shadowRoot) {
+  while (target.shadowRoot) {
     const nestedElements = target.shadowRoot.elementsFromPoint(x, y);
     const nestedTarget = nestedElements.find((el) => !el.classList.contains(ignoreClass));
 
