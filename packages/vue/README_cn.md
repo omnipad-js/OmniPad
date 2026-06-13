@@ -66,7 +66,7 @@ import '@omnipad/vue/style.css';
 
 <template>
   <div class="game-container">
-    <!-- 部署一个绑定了W键的动作按钮，处于文档流中 -->
+    <!-- 部署一个绑定了上方向键（ArrowUp）的动作按钮，处于文档流中 -->
     <VirtualButton
       label="JUMP"
       target-stage-id="$stage"
