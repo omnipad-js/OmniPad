@@ -66,7 +66,7 @@ import '@omnipad/vue/style.css';
 
 <template>
   <div class="game-container">
-    <!-- 部署一个绑定了W键的动作按钮，处于文档流中 -->
+    <!-- 部署一个绑定了上方向键（ArrowUp）的动作按钮，处于文档流中 -->
     <VirtualButton
       label="JUMP"
       target-stage-id="$stage"
@@ -340,7 +340,7 @@ import CustomTrackpad from './components/CustomTrackpad.vue';
 registerComponent('custom-trackpad', CustomTrackpad);
 ```
 
-注册后，你即可在 JSON 配置中直接使用 `"type": "fancy-trackpad"`，引擎会自动为你实例化并绑定 Core 逻辑。
+注册后，你即可在 JSON 配置中直接使用 `"type": "custom-trackpad"`，引擎会自动为你实例化并绑定 Core 逻辑。
 
 ---
 
