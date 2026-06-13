@@ -18,7 +18,7 @@ export function bindEntityDelegates(entity: any, delegates?: Record<string, AnyF
     for (let i = 0; i < entries.length; i++) {
       const [key, fn] = entries[i];
 
-      // 严格校验：确保只绑定函数
+      // Strict validation: ensure only functions are bound
       if (typeof fn === 'function') {
         entity.bindDelegate(key, fn);
       }
