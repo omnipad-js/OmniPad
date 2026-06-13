@@ -49,7 +49,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 npm install @omnipad/core @omnipad/web @omnipad/vue
 ```
 
-> ⚠️ **注意**：别忘了在您的入口文件 (如 `main.ts` 或 `App.vue`) 中引入基础样式：`import '@omnipad/vue/style.css';`
+> ⚠️ **注意**：请确保在入口文件（如 `main.ts` 或 `App.vue`）中引入基础样式，具体写法见下方“快速上手”示例。
 
 ---
 
@@ -223,13 +223,14 @@ OmniPad 引入了强大的跨域 Iframe 穿透能力。为了防止恶意脚本�
 
 主文档是存放虚拟手柄 UI 的页面。出于安全考虑，`IframeManager` **不会**向未经授权的域名发送任何坐标或按键信号。
 
+**默认安全行为说明：** `IframeManager` 会默认信任当前页面源（`window.location.origin`）。这意味着同源场景开箱即用；若游戏运行在其他域名，必须通过白名单显式授权。
+
 ```typescript
 import { IframeManager } from '@omnipad/web';
 
 const iframeMgr = IframeManager.getInstance();
 
-// 1. 默认情况下，IframeManager 已经信任了当前域名 (window.location.origin)
-// 2. 如果游戏运行在其他域名，请显式添加信任：
+// 当前源默认已被信任；跨域目标请显式添加信任：
 iframeMgr.addTrustedOrigin('https://game-provider.com');
 
 // ⚠️ 警告：在生产环境中，禁止使用 '*' 通配符。(会被 IframeManager 直接拒绝)
