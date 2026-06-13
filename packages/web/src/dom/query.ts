@@ -16,16 +16,14 @@ export const getDeepElement = (
   const elements = document.elementsFromPoint(x, y);
 
   // Find the first element without ignoreClass (To skip elements like TargetZone)
-  let target = elements.find((el) => !(el.classList && el.classList.contains(ignoreClass)));
+  let target = elements.find((el) => !el.classList.contains(ignoreClass));
 
   if (!target) return null;
 
   // Drill down into shadowRoot if the current element is a host
   while (target.shadowRoot) {
     const nestedElements = target.shadowRoot.elementsFromPoint(x, y);
-    const nestedTarget = nestedElements.find(
-      (el) => !(el.classList && el.classList.contains(ignoreClass)),
-    );
+    const nestedTarget = nestedElements.find((el) => !el.classList.contains(ignoreClass));
 
     // If no nested element found or the same element returned, break recursion
     if (!nestedTarget || nestedTarget === target) break;
