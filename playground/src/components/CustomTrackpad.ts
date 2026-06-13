@@ -1,8 +1,8 @@
-import { 
-  VirtualTrackpad, 
-  type ButtonRenderContext, 
-  type ConfigTreeNode, 
-  type LayoutBox 
+import {
+  VirtualTrackpad,
+  type ButtonRenderContext,
+  type ConfigTreeNode,
+  type LayoutBox,
 } from '@omnipad/vanilla';
 
 // 声明我们自定义组件接收的参数类型
@@ -24,7 +24,7 @@ export class CustomTrackpad extends VirtualTrackpad {
     // 核心：利用我们设计的 RenderElement 机制，平替 Vue 的 #base 和默认插槽
     const customOptions = {
       ...options,
-      
+
       // 1. [平替 #base slot] 重写底座
       renderBase: (ctx: ButtonRenderContext) => {
         const glowBox = document.createElement('div');
@@ -46,7 +46,7 @@ export class CustomTrackpad extends VirtualTrackpad {
         labelSpan.className = 'custom-label';
         labelSpan.innerText = ctx.label || 'TRACKPAD';
         return labelSpan;
-      }
+      },
     };
 
     // 运行父类构造，完成装配

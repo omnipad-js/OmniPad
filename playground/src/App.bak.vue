@@ -1,117 +1,30 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, watch, nextTick, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import ConfigConsole from './components/ConfigConsole.vue';
+import { registerComponent, RootLayer, TargetZone } from '@omnipad/vue';
+import { GamepadManager, Registry, parseProfileForest, exportProfile } from '@omnipad/core';
+import { WindowManager } from '@omnipad/web';
+import CustomTrackpad from './components/CustomTrackpad.vue';
 import IFramePlayer from './components/IFramePlayer.vue';
-import {
-  GamepadManager,
-  WindowManager,
-  parseProfileForest,
-  exportProfile,
-  createWidgetFromNode,
-  registerComponent,
-} from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
 
-import CustomTrackpad from './components/CustomTrackpad.ts';
-import './styles/custom-trackpad.css';
-
-const jsonText = ref('{}');
-const forest = ref<any>(null);
-const currentMeta = ref<any>(null);
-const loadCount = ref(0);
+const jsonText = ref('{}'); // 文本框内容
+const forest = ref<any>(null); // 当前运行时的森林
+const currentMeta = ref<any>(null); // 当前运行时的森林信息
+const loadCount = ref(0); // 加载计数器，配合 vue 的 key 实现强制重载
 const showConfig = ref(false);
 
 const currentSwf = ref<string | null>(null);
 
-// --- 声明物理 DOM 挂载点的引用 ---
-const leftContainerRef = ref<HTMLElement>();
-const rightContainerRef = ref<HTMLElement>();
-const playerContainerRef = ref<HTMLElement>();
-
-// --- 维护当前活跃的原生组件实例引用，用于安全销毁 ---
-let leftInstance: any = null;
-let rightInstance: any = null;
-let playerInstance: any = null;
-let staticTrackpadInstance: any = null;
-
+// 处理文件选择
 const onFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (file) {
+    // 释放之前的内存 URL (如果有)
     if (currentSwf.value?.startsWith('blob:')) {
       URL.revokeObjectURL(currentSwf.value);
     }
+    // 创建本地预览 URL
     currentSwf.value = URL.createObjectURL(file);
-  }
-};
-
-/**
- * 清理函数
- * 在重新加载配置前，强行注销并销毁所有 DOM 和 Core 实例，杜绝内存泄漏
- */
-const cleanupVanillaInstances = () => {
-  if (leftInstance) {
-    leftInstance.destroy(); // 内部会自动调用 reset()、stateEmitter.clear() 和 unregister()
-    leftInstance = null;
-  }
-  if (rightInstance) {
-    rightInstance.destroy();
-    rightInstance = null;
-  }
-  if (playerInstance) {
-    playerInstance.destroy();
-    playerInstance = null;
-  }
-  if (staticTrackpadInstance) {
-    staticTrackpadInstance.destroy();
-    staticTrackpadInstance = null;
-  }
-};
-
-/**
- * 原生地铁式挂载
- * 替代原本 Vue 的声明式渲染，由代码强行驱动生成
- */
-const mountVanillagamepad = async () => {
-  // 1. 先安全清理上一次的所有实体
-  cleanupVanillaInstances();
-
-  // 2. 等待 DOM 在当前事件循环里彻底腾空、重排完毕
-  await nextTick();
-
-  // 3. 挂载中间的游戏焦点 Stage
-  if (playerContainerRef.value && renderPlayer.value) {
-    playerInstance = createWidgetFromNode(playerContainerRef.value, renderPlayer.value);
-  }
-
-  // 4. 挂载左侧输入图层
-  if (leftContainerRef.value && renderLeftPad.value) {
-    leftInstance = createWidgetFromNode(leftContainerRef.value, renderLeftPad.value);
-
-    // [进阶] 处理原本写在 Vue 插槽里的“手动部署组件”
-    if (renderLeftPad.value?.config?.hasStaticTrackpad) {
-      // 在左侧图层容器内手动创建一个包装层，应用你之前的 CSS 类
-      const wrapper = document.createElement('div');
-      wrapper.className = 'static-trackpad show-static-trackpad';
-      leftInstance.el.appendChild(wrapper); // 挂载到左侧图层的 DOM 内部
-
-      // 实例化手写的原生触摸板
-      staticTrackpadInstance = new CustomTrackpad(wrapper, {
-        treeNode: { uid: 'manual_1', type: 'random-trackpad' },
-        layout: {
-          top: 0,
-          left: 0,
-          height: '100%',
-          width: '100%',
-        },
-        targetStageId: '$ruffle-player',
-        label: 'STATIC TRACKPAD (1x sensitivity)',
-      });
-    }
-  }
-
-  // 5. 挂载右侧输入图层
-  if (rightContainerRef.value && renderRightPad.value) {
-    rightInstance = createWidgetFromNode(rightContainerRef.value, renderRightPad.value);
   }
 };
 
@@ -121,7 +34,11 @@ const loadConfig = () => {
 
     forest.value = roots;
     currentMeta.value = meta;
-    loadCount.value++; // 累加计数器，触发下面的监听器重新挂载
+    loadCount.value++;
+    console.log(
+      '[Playground] Config Loaded into TreeNode.',
+      Registry.getInstance().getAllEntities().length,
+    );
 
     if (runtimeGamepadMappings) {
       GamepadManager.getInstance().setConfig(runtimeGamepadMappings);
@@ -133,16 +50,14 @@ const loadConfig = () => {
     alert('读取失败: ' + e.message);
   }
 };
-
-// --- 监听加载计数器，驱动物理重新挂载 ---
-watch(loadCount, () => {
-  mountVanillagamepad();
-});
-
+// --- 导出逻辑：同时指定多个根 ---
 const saveConfig = (selectedRoots: string[]) => {
   const runtimeGamepadMappings = GamepadManager.getInstance().getConfig();
   const exported = exportProfile(currentMeta.value, selectedRoots, runtimeGamepadMappings ?? []);
+
+  // 回填到文本框
   jsonText.value = JSON.stringify(exported, null, 2);
+  console.log('[Playground] Profile Serialized from Registry.');
 };
 
 const closeConfig = () => (showConfig.value = false);
@@ -151,19 +66,21 @@ const toggleFullscreen = () => {
   WindowManager.getInstance().toggleFullscreen();
 };
 
-const renderLeftPad = computed(() => forest.value?.['$left-pad']);
-const renderRightPad = computed(() => forest.value?.['$right-pad']);
-const renderPlayer = computed(() => forest.value?.['$ruffle-player']);
-
-// 注册自定义触摸板 (确保 CustomTrackpad 已经是一个 Vanilla Class)
-onBeforeMount(() => {
-  registerComponent('random-trackpad', CustomTrackpad);
+const renderLeftPad = computed(() => {
+  return forest.value ? forest.value['$left-pad'] : {};
 });
 
-// 组件卸载时，进行终极清理
-onUnmounted(() => {
-  cleanupVanillaInstances();
-  GamepadManager.getInstance().stop();
+const renderRightPad = computed(() => {
+  return forest.value ? forest.value['$right-pad'] : {};
+});
+
+const renderPlayer = computed(() => {
+  return forest.value ? forest.value['$ruffle-player'] : {};
+});
+
+// 注册自定义触摸板
+onBeforeMount(() => {
+  registerComponent('random-trackpad', CustomTrackpad);
 });
 </script>
 
@@ -172,7 +89,7 @@ onUnmounted(() => {
     <!-- 顶部工具栏 -->
     <header class="toolbar">
       <div class="logo">
-        OmniPad Playground (Vanilla Power)
+        OmniPad Playground
         <a href="https://github.com/omnipad-js/omnipad" class="github-tag" target="_blank">
           &nbsp;<img
             src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"
@@ -187,21 +104,48 @@ onUnmounted(() => {
         <button class="upload-btn" @pointerdown="toggleFullscreen">Fullscreen</button>
       </div>
     </header>
-
-    <!-- 主交互区域：彻底净化为原生挂载容器 -->
+    <!-- 主交互区域：这是 Flex 布局的战场 -->
     <main class="game-flex-container">
-      <!-- [左侧] 输入分区容器 -->
-      <section class="flex-item side-panel left" ref="leftContainerRef"></section>
-
-      <!-- [中间] 游戏核心区 -->
-      <section class="flex-item-two main-stage">
-        <IFramePlayer :swf-url="currentSwf"></IFramePlayer>
-        <!-- 覆盖在模拟器上的 TargetZone 容器 -->
-        <div class="player-overlay" ref="playerContainerRef"></div>
+      <!-- [左侧/下方左半] 输入分区 -->
+      <section class="flex-item side-panel left">
+        <RootLayer v-if="renderLeftPad" :tree-node="renderLeftPad" :key="`left-${loadCount}`">
+          <div v-if="renderLeftPad?.config?.hasStaticTrackpad" class="static-trackpad">
+            <CustomTrackpad
+              :tree-node="{ uid: 'manual_1', type: 'random-trackpad' }"
+              :layout="{
+                top: 0,
+                left: 0,
+                height: '100%',
+                width: '100%',
+              }"
+              target-stage-id="$ruffle-player"
+              label="STATIC TRACKPAD (1x sensitivity)"
+            ></CustomTrackpad>
+          </div>
+        </RootLayer>
       </section>
 
-      <!-- [右侧] 输入分区容器 -->
-      <section class="flex-item side-panel right" ref="rightContainerRef"></section>
+      <!-- [中间/上方全宽] 游戏核心区 -->
+      <section class="flex-item-two main-stage">
+        <!-- <RufflePlayer
+          :swf-url="currentSwf"
+          widget-id="$ruffle-player"
+          cursor-enabled
+          :tree-node="renderPlayer"
+          :load-count="loadCount"
+        /> -->
+        <IFramePlayer :swf-url="currentSwf"></IFramePlayer>
+        <TargetZone
+          v-if="renderPlayer"
+          :tree-node="renderPlayer"
+          :key="`player-${loadCount}`"
+        ></TargetZone>
+      </section>
+
+      <!-- [右侧/下方右半] 输入分区 -->
+      <section class="flex-item side-panel right">
+        <RootLayer v-if="renderRightPad" :tree-node="renderRightPad" :key="`right-${loadCount}`" />
+      </section>
     </main>
 
     <!-- 底部控制台 -->
@@ -274,8 +218,7 @@ body,
 }
 
 .flex-item {
-  position: relative;
-  /* 必须为 relative，让内部组件的 LayoutBox 生效 */
+  position: relative; /* 必须为 relative，让内部组件的 LayoutBox 生效 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -289,11 +232,9 @@ body,
   .game-flex-container {
     flex-direction: row;
   }
-
   .flex-item {
     flex: 1;
   }
-
   .flex-item-two {
     flex: 2;
   }
@@ -311,8 +252,7 @@ body,
   }
 
   .main-stage {
-    flex: 1;
-    /* 占据上半部分 */
+    flex: 1; /* 占据上半部分 */
     width: 100%;
   }
 
@@ -320,15 +260,13 @@ body,
   .side-panel {
     position: absolute;
     bottom: 0;
-    height: 50%;
-    /* 占据下半部分 */
+    height: 50%; /* 占据下半部分 */
     width: 50%;
   }
 
   .side-panel.left {
     left: 0;
   }
-
   .side-panel.right {
     right: 0;
   }
@@ -339,7 +277,6 @@ body,
   background: rgba(255, 255, 255, 0.02);
   z-index: 100;
 }
-
 .main-stage {
   background: #000;
 }
