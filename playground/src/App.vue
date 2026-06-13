@@ -2,10 +2,8 @@
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue';
 import ConfigConsole from './components/ConfigConsole.vue';
 import IFramePlayer from './components/IFramePlayer.vue';
-import { createWidgetFromNode } from '@omnipad/vanilla';
+import { GamepadManager, WindowManager, parseProfileForest, exportProfile, createWidgetFromNode } from '@omnipad/vanilla';
 import '@omnipad/vanilla/style.css';
-import { GamepadManager, parseProfileForest, exportProfile } from '@omnipad/core';
-import { WindowManager } from '@omnipad/web';
 
 // import CustomTrackpad from './components/CustomTrackpad';
 
@@ -168,10 +166,8 @@ onUnmounted(() => {
       <div class="logo">
         OmniPad Playground (Vanilla Power)
         <a href="https://github.com/omnipad-js/omnipad" class="github-tag" target="_blank">
-          &nbsp;<img
-            src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"
-            alt="GitHub"
-          />
+          &nbsp;<img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"
+            alt="GitHub" />
         </a>
       </div>
       <div class="file-input">
@@ -199,14 +195,8 @@ onUnmounted(() => {
     </main>
 
     <!-- 底部控制台 -->
-    <ConfigConsole
-      v-model="jsonText"
-      v-show="showConfig"
-      @load="loadConfig"
-      @save="saveConfig"
-      @close="closeConfig"
-      style="position: absolute; top: 0; right: 0; bottom: 0"
-    />
+    <ConfigConsole v-model="jsonText" v-show="showConfig" @load="loadConfig" @save="saveConfig" @close="closeConfig"
+      style="position: absolute; top: 0; right: 0; bottom: 0" />
   </div>
 </template>
 
@@ -268,7 +258,8 @@ body,
 }
 
 .flex-item {
-  position: relative; /* 必须为 relative，让内部组件的 LayoutBox 生效 */
+  position: relative;
+  /* 必须为 relative，让内部组件的 LayoutBox 生效 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -282,9 +273,11 @@ body,
   .game-flex-container {
     flex-direction: row;
   }
+
   .flex-item {
     flex: 1;
   }
+
   .flex-item-two {
     flex: 2;
   }
@@ -302,7 +295,8 @@ body,
   }
 
   .main-stage {
-    flex: 1; /* 占据上半部分 */
+    flex: 1;
+    /* 占据上半部分 */
     width: 100%;
   }
 
@@ -310,13 +304,15 @@ body,
   .side-panel {
     position: absolute;
     bottom: 0;
-    height: 50%; /* 占据下半部分 */
+    height: 50%;
+    /* 占据下半部分 */
     width: 50%;
   }
 
   .side-panel.left {
     left: 0;
   }
+
   .side-panel.right {
     right: 0;
   }
@@ -327,6 +323,7 @@ body,
   background: rgba(255, 255, 255, 0.02);
   z-index: 100;
 }
+
 .main-stage {
   background: #000;
 }

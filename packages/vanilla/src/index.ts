@@ -1,5 +1,8 @@
 import './style.css';
 
+export * from '@omnipad/core';
+export * from '@omnipad/web';
+
 import { OmniPad } from '@omnipad/core/const';
 import { registerComponent } from './component-registry';
 import { InputZone } from './input-zone';
