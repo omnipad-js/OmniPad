@@ -13,8 +13,31 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },    
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.js"
+    },
+    "./const": {
+      "types": "./dist/const.d.ts",
+      "import": "./dist/const.mjs",
+      "require": "./dist/const.js"
+    },
+    "./guest": {
+      "types": "./dist/guest.d.ts",
+      "import": "./dist/guest.mjs",
+      "require": "./dist/guest.js"
     },
     "./style.css": "./dist/index.css"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./dist/index.d.ts"],
+      "utils": ["./dist/utils.d.ts"],
+      "const": ["./dist/const.d.ts"],
+      "guest": ["./dist/guest.d.ts"]
+    }
   },
   "dependencies": {
     "@omnipad/core": "workspace:*",

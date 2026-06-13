@@ -1,7 +1,7 @@
 import { defineConfig, type Options } from 'tsup';
 
 export default defineConfig((options: Options) => ({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/utils.ts', 'src/const.ts', 'src/guest.ts'],
   format: ['cjs', 'esm', 'iife'],
   globalName: 'OmniPad',
   clean: !options.watch,
