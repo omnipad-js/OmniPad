@@ -158,7 +158,7 @@ export function validateWidgetNode(
   node: ConfigTreeNode | undefined,
   requiredType: EntityType,
 ): ConfigTreeNode | undefined {
-  if (!node || Object.keys(node ?? {}).length === 0) return undefined;
+  if (!node || Object.keys(node).length === 0) return undefined;
 
   const isValid = node.config?.baseType === requiredType || node.type === requiredType;
 
