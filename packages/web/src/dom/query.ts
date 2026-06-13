@@ -53,7 +53,6 @@ export const getDeepActiveElement = (): Element | null => {
 /**
  * A robust wrapper for selecting a single DOM element.
  *
- *
  * @param selector - A string containing one or more selectors to match.
  * @returns The first {@link Element} that matches the specified selector, or `null` if no matches are found or the selector is invalid.
  *
