@@ -9,7 +9,7 @@
 
 OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器、Godot Web 导出等）打造的虚拟输入引擎。它提供了一整套从“屏幕触控/实体手柄”到“浏览器原生键盘/鼠标事件”的翻译系统。
 
-> 🚨 **[Live Demo: 立即体验](https://omnipad-demo.coocoodaegap.com)** 🚨
+> 🚨 **[Live Demo: 立即体验](https://github.com/omnipad-js/omnipad/blob/main/packages/vue/README.md)** 🚨
 > <br> (⚠️ 强烈建议使用手机浏览器打开以获得最佳触控体验；PC 端可直接连接实体手柄体验)
 > <br> （提示：若 Demo 链接无法访问，请核对该域名是否为最新官方地址，并以仓库文档为准。）
 
