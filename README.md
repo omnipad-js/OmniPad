@@ -6,10 +6,11 @@
 </div>
 <br/>
 
-![npm version](https://img.shields.io/npm/v/@omnipad/core?color=orange&label=@omnipad/core)
-![npm version](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&label=@omnipad/vue)
-![license](https://img.shields.io/badge/license-MIT-blue)
+[![npm](https://img.shields.io/npm/v/@omnipad/core?color=ffba43&logo=npm&logoColor=ffba43)](https://www.npmjs.com/package/@omnipad/core)
+[![npm](https://img.shields.io/npm/v/@omnipad/vanilla?color=f7df1e&logo=javascript&logoColor=f7df1e)](https://www.npmjs.com/package/@omnipad/vanilla)
+[![npm](https://img.shields.io/npm/v/@omnipad/vue?color=4caf50&logo=vue.js&logoColor=4caf50)](https://www.npmjs.com/package/@omnipad/vue)
 ![Vue3](https://img.shields.io/badge/Vue-3.x-4fc08d?logo=vue.js)
+![license](https://img.shields.io/badge/license-MIT-blue)
 
 > **Add native-level touch controls and physical gamepad mapping to ANY web game, without touching the source code!**
 
@@ -69,13 +70,13 @@ Ideal for simple scenarios where you need to add fixed buttons to specific corne
   <!-- game/player container -->
   <canvas id="my-game"></canvas>
   <!-- Provide a container that serves as a coordinate system for relative positioning -->
-  <div class="omnipad-container"></div>
+  <div id="omnipad-container"></div>
 </div>
 
 <style>
   #app,
   #my-game,
-  .omnipad-container {
+  #omnipad-container {
     position: absolute;
     inset: 0;
     height: 100%;
@@ -220,7 +221,7 @@ Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniP
 import { GamepadManager } from '@omnipad/vanilla';
 
 // Start global physical gamepad monitoring
-GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
+GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
 GamepadManager.getInstance().start();
 ```
 

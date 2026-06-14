@@ -63,13 +63,13 @@ npm install @omnipad/vanilla
   <!-- 游戏/播放器容器 -->
   <canvas id="my-game"></canvas>
   <!-- 提供一个充当相对定位坐标系的容器 -->
-  <div class="omnipad-container"></div>
+  <div id="omnipad-container"></div>
 </div>
 
 <style>
   #app,
   #my-game,
-  .omnipad-container {
+  #omnipad-container {
     position: absolute;
     inset: 0;
     height: 100%;
@@ -215,7 +215,7 @@ if (rootNode) {
 import { GamepadManager } from '@omnipad/vanilla';
 
 // 启动全局实体手柄监控
-GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
+GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
 GamepadManager.getInstance().start();
 ```
 

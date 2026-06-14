@@ -61,13 +61,13 @@ Ideal for simple scenarios where you need to add fixed buttons to specific corne
   <!-- game/player container -->
   <canvas id="my-game"></canvas>
   <!-- Provide a container that serves as a coordinate system for relative positioning -->
-  <div class="omnipad-container"></div>
+  <div id="omnipad-container"></div>
 </div>
 
 <style>
   #app,
   #my-game,
-  .omnipad-container {
+  #omnipad-container {
     position: absolute;
     inset: 0;
     height: 100%;
@@ -212,7 +212,7 @@ Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniP
 import { GamepadManager } from '@omnipad/vanilla';
 
 // Start global physical gamepad monitoring
-GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
+GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
 GamepadManager.getInstance().start();
 ```
 
