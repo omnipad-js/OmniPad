@@ -1,7 +1,7 @@
 import { ACTION_TYPES } from '../constants/basic';
 import { STANDARD_KEYS } from '../constants/keys';
 import { Registry } from '../singletons/Registry';
-import { ActionMapping } from '../types';
+import { ActionMapping, ICoreEntity, ISignalReceiver } from '../types';
 import { KeyMapping } from '../types/keys';
 import { delayFrames } from './performance';
 
@@ -18,6 +18,7 @@ export class ActionEmitter {
   private isPressed = false;
   private mapping?: KeyMapping;
   private targetId?: string;
+  private _cachedTarget: ISignalReceiver | null = null;
 
   constructor(targetId?: string, action?: ActionMapping) {
     this.update(targetId, action);
@@ -42,6 +43,8 @@ export class ActionEmitter {
       typeof mapping === 'string'
         ? (STANDARD_KEYS[mapping as keyof typeof STANDARD_KEYS] ?? undefined)
         : this.hydrate(mapping);
+
+    this._cachedTarget = null;
   }
 
   /**
@@ -149,6 +152,8 @@ export class ActionEmitter {
    * Forcefully resets the emitter state and cuts off active signals.
    */
   public reset(): void {
+    this._cachedTarget = null;
+
     if (this.isPressed) {
       this.release(false);
     }
@@ -175,21 +180,36 @@ export class ActionEmitter {
   private emitSignal(signalType: string, extraPayload: any = {}): void {
     if (!this.mapping) return;
 
+    let target = this._cachedTarget;
+
+    if (!target) {
+      // 第一次发送时从注册表查找，后续直接复用
+      target = Registry.getInstance().getEntity<ICoreEntity & ISignalReceiver>(
+        this.targetId || '',
+      ) as unknown as ISignalReceiver;
+      if (target && 'handleSignal' in target) {
+        this._cachedTarget = target;
+      }
+    }
+
     // 让注册表发送信号至目标
-    Registry.getInstance().broadcastSignal({
-      targetStageId: this.targetId || '',
-      type: signalType,
-      payload: {
-        // 键盘字段
-        key: this.mapping.key,
-        code: this.mapping.code,
-        keyCode: this.mapping.keyCode,
-        // 鼠标字段
-        button: this.mapping.button,
-        point: this.mapping.fixedPoint,
-        // 额外透传 (如 delta)
-        ...extraPayload,
+    Registry.getInstance().broadcastSignal(
+      {
+        targetStageId: this.targetId || '',
+        type: signalType,
+        payload: {
+          // 键盘字段
+          key: this.mapping.key,
+          code: this.mapping.code,
+          keyCode: this.mapping.keyCode,
+          // 鼠标字段
+          button: this.mapping.button,
+          point: this.mapping.fixedPoint,
+          // 额外透传 (如 delta)
+          ...extraPayload,
+        },
       },
-    });
+      target,
+    );
   }
 }

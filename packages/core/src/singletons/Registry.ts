@@ -1,6 +1,6 @@
 import { InputActionSignal } from '../types';
 import { IRegistry } from '../types/registry';
-import { ICoreEntity } from '../types/traits';
+import { ICoreEntity, ISignalReceiver } from '../types/traits';
 
 /**
  * Unique symbol key for the global registry instance to ensure singleton
@@ -191,16 +191,23 @@ export class Registry implements IRegistry {
     });
   }
 
-  public broadcastSignal(signal: InputActionSignal) {
-    const target = this.getEntity<ICoreEntity>(signal.targetStageId);
-
-    if (target && 'handleSignal' in target) {
-      // A. 发送给具体的 TargetZone
-      (target as any).handleSignal(signal);
-    } else if (globalSignalHandler) {
-      // B. 如果找不到目标，且有全局处理器，则交给全局处理器
-      // 这里的全局处理器就是派发给 window 的逻辑
-      globalSignalHandler(signal);
+  public broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | null = null) {
+    if (receiver && 'handleSignal' in receiver) {
+      if (receiver && 'handleSignal' in receiver) {
+        // A. 发送给具体的 TargetZone
+        (receiver as any).handleSignal(signal);
+      } else if (globalSignalHandler) {
+        // B. 如果找不到目标，且有全局处理器，则交给全局处理器
+        // 这里的全局处理器就是派发给 window 的逻辑
+        globalSignalHandler(signal);
+      }
+    } else {
+      const target = this.getEntity<ICoreEntity & ISignalReceiver>(signal.targetStageId);
+      if (target && 'handleSignal' in target) {
+        (target as any).handleSignal(signal);
+      } else if (globalSignalHandler) {
+        globalSignalHandler(signal);
+      }
     }
   }
 }

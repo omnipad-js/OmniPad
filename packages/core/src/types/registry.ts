@@ -1,5 +1,5 @@
 import { InputActionSignal } from '.';
-import { ICoreEntity } from './traits';
+import { ICoreEntity, ISignalReceiver } from './traits';
 
 /**
  * Interface for the global Registry singleton.
@@ -78,10 +78,12 @@ export interface IRegistry {
    * Dispatches an input action signal to a specific target entity or a global handler.
    *
    * @param signal - The action signal object containing the target ID and payload data.
+   * @param receiver - The target signal receiver object.
+   *
    * @example
    * ```typescript
    * dispatcher.broadcastSignal({ targetStageId: 'player_1', type: 'KEYDOWN' });
    * ```
    */
-  broadcastSignal(signal: InputActionSignal): void;
+  broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | null): void;
 }
