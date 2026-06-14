@@ -215,7 +215,8 @@ if (container) {
           "left": "ArrowLeft",
           "right": "ArrowRight"
         },
-        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
+        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true },
+        "targetStageId": "$game-canvas"
       }
     },
     {
@@ -225,7 +226,8 @@ if (container) {
       "config": {
         "label": "FIRE",
         "mapping": "Space",
-        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
+        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true },
+        "targetStageId": "$game-canvas"
       }
     }
   ]

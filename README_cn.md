@@ -323,6 +323,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
                 right: 'ArrowRight',
               },
               layout: { left: '10%', bottom: '20%', height: '20%', isSquare: true },
+              targetStageId: "$game-canvas"
             },
           },
           {
@@ -333,6 +334,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
               label: 'FIRE',
               mapping: 'Space',
               layout: { right: '10%', bottom: '20%', height: '10%', isSquare: true },
+              targetStageId: "$game-canvas"
             },
           },
         ],

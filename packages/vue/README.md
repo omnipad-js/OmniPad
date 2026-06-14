@@ -130,7 +130,8 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
           "left": "ArrowLeft",
           "right": "ArrowRight"
         },
-        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
+        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true },
+        "targetStageId": "$game-canvas"
       }
     },
     {
@@ -140,7 +141,8 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
       "config": {
         "label": "FIRE",
         "mapping": "Space",
-        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
+        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true },
+        "targetStageId": "$game-canvas"
       }
     }
   ]
