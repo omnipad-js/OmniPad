@@ -49,11 +49,22 @@ If you are developing or operating web games, OmniPad helps you achieve the foll
 
 ## 📦 Installation
 
-```bash
-npm install @omnipad/vanilla
-```
+This document focuses on the **direct integration mode without build tools (via tag import)**. If you are developing a standard modern web application (such as one using build tools like Vite or Webpack) or using a specific frontend framework, please follow the links below to read the corresponding instructions:
 
-> ⚠️ **Note**: Don't forget to import the base styles in your entry file (e.g., `main.ts` or `App.vue`): `import '@omnipad/vanilla/style.css';`
+- **Guide to Modern Web Modular Development (Vite / ESM)**：[👉 <code>@omnipad/vanilla</code> Instruction](./packages/vanilla)
+- **Guide to Native Integration with the Vue 3 Framework**：[👉 <code>@omnipad/vue</code> Instruction](./packages/vue)
+
+### Tag Import (Zero-Build Mode)
+
+In your HTML file, simply include the fully compiled UMD resource directly via free global CDN:
+
+```html
+<!-- 1. Import OmniPad Style file -->
+<link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+
+<!-- 2. Import OmniPad Logic and Component Packages (to be mounted on the global variable `window.OmniPad`) -->
+<script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
+```
 
 ---
 
@@ -63,152 +74,281 @@ npm install @omnipad/vanilla
 
 Ideal for simple scenarios where you need to add fixed buttons to specific corners. No complex configuration required; just use them as standard UI components.
 
-**1. HTML Structure `index.html`**
-
 ```html
-<div id="app">
-  <!-- game/player container -->
-  <canvas id="my-game"></canvas>
-  <!-- Provide a container that serves as a coordinate system for relative positioning -->
-  <div id="omnipad-container"></div>
-</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>OmniPad - Standalone Mode Demo</title>
 
-<style>
-  #app,
-  #my-game,
-  #omnipad-container {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-  }
-</style>
-```
+    <link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+    <script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
 
-**2. Logic Assembly `main.ts / main.js`**
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
+      }
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+      /* Mock game/player container */
+      #mock-game-canvas {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 550px;
+        height: 400px;
+        background: #000;
+        border: 4px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-family: sans-serif;
+      }
+      /* Provide a container that serves as a coordinate system for relative positioning */
+      #omnipad-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* Pass through the blank area */
+      }
+      /* Responsive Design for Small Mobile Screens */
+      @media (max-width: 600px) {
+        #mock-game-canvas {
+          width: 100%;
+          height: 50%;
+          top: 0;
+          left: 0;
+          transform: none;
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Mock game/player container -->
+      <div id="mock-game-canvas">
+        <span>GAME CANVAS PLACEHOLDER</span>
+      </div>
 
-```typescript
-import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
+      <!-- Provide a container that serves as a coordinate system for relative positioning -->
+      <div id="omnipad-container"></div>
+    </div>
 
-const container = document.getElementById('omnipad-container');
+    <script>
+      // Destructuring components from the global namespace
+      const { TargetZone, VirtualButton, VirtualJoystick } = window.OmniPad;
 
-if (container) {
-  // Deploy a full-screen reception zone to handle simulated events
-  const stage = new TargetZone(container, {
-    widgetId: '$stage',
-    cursorEnabled: true,
-    layout: {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    },
-  });
+      const container = document.getElementById('omnipad-container');
 
-  // Deploy an action button mapped to the W key
-  const jumpButton = new VirtualButton(container, {
-    label: 'JUMP',
-    targetStageId: '$stage',
-    mapping: { code: 'KeyW' },
-    layout: {
-      width: '80px',
-      height: '80px',
-      zIndex: 100,
-      right: '40px',
-      bottom: '40px',
-      anchor: 'center',
-    },
-  });
+      if (container) {
+        // Deploy a full-screen reception zone to handle simulated events
+        const stage = new TargetZone(container, {
+          widgetId: '$stage',
+          cursorEnabled: true,
+          layout: {
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+          },
+        });
 
-  // Deploy an analog stick with 360° cursor displacement
-  const joystick = new VirtualJoystick(container, {
-    cursorMode: true,
-    cursorSensitivity: 1.2,
-    targetStageId: '$stage',
-    mapping: {
-      stick: { type: 'mouse', button: 0 },
-    },
-    layout: {
-      bottom: '120px',
-      left: '120px',
-      width: '150px',
-      height: '150px',
-      zIndex: 100,
-    },
-  });
-}
+        // Deploy an action button mapped to the W key
+        const jumpButton = new VirtualButton(container, {
+          label: 'JUMP',
+          targetStageId: '$stage',
+          mapping: { code: 'KeyW' },
+          layout: {
+            width: '80px',
+            height: '80px',
+            zIndex: 100,
+            right: '40px',
+            bottom: '40px',
+            anchor: 'center',
+          },
+        });
+
+        // Deploy an analog stick with 360° cursor displacement
+        const joystick = new VirtualJoystick(container, {
+          cursorMode: true,
+          cursorSensitivity: 1.2,
+          targetStageId: '$stage',
+          mapping: {
+            stick: { type: 'mouse', button: 0 },
+          },
+          layout: {
+            bottom: '120px',
+            left: '120px',
+            width: '150px',
+            height: '150px',
+            zIndex: 100,
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
 ```
 
 ### Pattern 2: Data-Driven Mode
 
 Recommended for complex applications. Define screen partitions (Zones) and all key mappings via a flat JSON profile. Use **RootLayer (or any OmniPad component)** as the root node to carry the parsed `ConfigTreeNode`.
 
-**1. Define `profile.json`:**
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>OmniPad - Data-Driven Mode Demo</title>
 
-```json
-{
-  "meta": { "name": "Action Layout" },
-  "items": [
-    {
-      "id": "$ui-layer",
-      "type": "root-layer"
-    },
-    {
-      "id": "$game-canvas",
-      "type": "target-zone",
-      "parentId": "$ui-layer",
-      "config": {
-        "cursorEnabled": true,
-        "layout": { "left": 0, "top": 0, "height": "100%", "width": "100%" }
+    <link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+    <script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
       }
-    },
-    {
-      "id": "movement",
-      "type": "d-pad",
-      "parentId": "$ui-layer",
-      "config": {
-        "mapping": {
-          "up": "ArrowUp",
-          "down": "ArrowDown",
-          "left": "ArrowLeft",
-          "right": "ArrowRight"
-        },
-        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
       }
-    },
-    {
-      "id": "btn-fire",
-      "type": "button",
-      "parentId": "$ui-layer",
-      "config": {
-        "label": "FIRE",
-        "mapping": "Space",
-        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
+      #mock-game-canvas {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 550px;
+        height: 400px;
+        background: #000;
+        border: 4px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-family: sans-serif;
       }
-    }
-  ]
-}
-```
+      #omnipad-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      @media (max-width: 600px) {
+        #mock-game-canvas {
+          width: 100%;
+          height: 50%;
+          top: 0;
+          left: 0;
+          transform: none;
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Mock game/player container -->
+      <div id="mock-game-canvas">
+        <span>GAME CANVAS PLACEHOLDER</span>
+      </div>
 
-**2. Parse and Render in RootLayer:**
+      <!-- Provide a container that serves as a coordinate system for relative positioning -->
+      <div id="omnipad-container"></div>
+    </div>
 
-```typescript
-import { parseProfileForest, RootLayer } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
-import profileRaw from './profile.json';
+    <script>
+      const { parseProfileForest, RootLayer } = window.OmniPad;
 
-// Analyze flat configuration and build the runtime component forest
-const forest = parseProfileForest(profileRaw);
+      // 1. Define flat configuration
+      const profileRaw = {
+        meta: { name: 'Action Layout' },
+        items: [
+          {
+            id: '$ui-layer',
+            type: 'root-layer',
+            config: {
+              layout: { width: '100%', height: '100%' },
+            },
+          },
+          {
+            id: '$game-canvas',
+            type: 'target-zone',
+            parentId: '$ui-layer',
+            config: {
+              cursorEnabled: true,
+              layout: { stickySelector: '#mock-game-canvas' }, // Stuck to the player canvas
+            },
+          },
+          {
+            id: 'movement',
+            type: 'd-pad',
+            parentId: '$ui-layer',
+            config: {
+              mapping: {
+                up: 'ArrowUp',
+                down: 'ArrowDown',
+                left: 'ArrowLeft',
+                right: 'ArrowRight',
+              },
+              layout: { left: '10%', bottom: '20%', height: '20%', isSquare: true },
+            },
+          },
+          {
+            id: 'btn-fire',
+            type: 'button',
+            parentId: '$ui-layer',
+            config: {
+              label: 'FIRE',
+              mapping: 'Space',
+              layout: { right: '10%', bottom: '20%', height: '10%', isSquare: true },
+            },
+          },
+        ],
+      };
 
-// Retrieve the root node and directly instantiate a RootLayer for mounting
-const rootNode = forest.roots['$ui-layer'];
-if (rootNode) {
-  const container = document.getElementById('omnipad-container');
-  if (container) {
-    new RootLayer(container, { treeNode: rootNode });
-  }
-}
+      // 2. Analyze flat configuration and build the runtime component forest
+      const forest = parseProfileForest(profileRaw);
+
+      // 3. Retrieve the root node and directly instantiate a RootLayer for mounting
+      const rootNode = forest.roots['$ui-layer'];
+      const container = document.getElementById('omnipad-container');
+
+      if (rootNode && container) {
+        // This will recursively generate the entire D-pad, fire button, and TargetZone!
+        new RootLayer(container, { treeNode: rootNode });
+      }
+    </script>
+  </body>
+</html>
 ```
 
 ---
@@ -217,16 +357,18 @@ if (rootNode) {
 
 Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniPad automatically handles controller polling. When you press a physical button, the corresponding virtual button on the screen will **synchronously trigger** its press animation, providing perfect haptic feedback.
 
-```typescript
-import { GamepadManager } from '@omnipad/vanilla';
+```html
+<script>
+  const { GamepadManager } = window.OmniPad;
 
-// Start global physical gamepad monitoring
-GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
-GamepadManager.getInstance().start();
+  // Start global physical gamepad monitoring
+  GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
+  GamepadManager.getInstance().start();
+</script>
 ```
 
 ```json
-// Add a mapping array at the root of profile.json:
+// Add a mapping array at the root of `profileRaw`:
 "gamepadMappings": [
   {
     "buttons": { "RT": "btn-fire" }
@@ -250,31 +392,36 @@ OmniPad provides robust cross-origin iframe penetration capabilities. To prevent
 
 The **Host** is the main page where your virtual gamepad UI resides. For security reasons, the `IframeManager` will **NOT** send coordinates or key signals to unauthorized domains.
 
-```typescript
-import { IframeManager } from '@omnipad/vanilla';
+```html
+<script>
+  const { IframeManager } = window.OmniPad;
+  const iframeMgr = IframeManager.getInstance();
 
-const iframeMgr = IframeManager.getInstance();
+  // 1. By default, IframeManager trusts the current origin (window.location.origin).
+  // 2. If the game runs on a different domain, explicitly add it to the whitelist:
+  iframeMgr.addTrustedOrigin('https://game-provider.com');
 
-// 1. By default, IframeManager trusts the current origin (window.location.origin).
-// 2. If the game runs on a different domain, explicitly add it to the whitelist:
-iframeMgr.addTrustedOrigin('https://game-provider.com');
-
-// ⚠️ WARNING: Using '*' (wildcard) in production is strongly discouraged. (Will be Rejected by IframeManager)
+  // ⚠️ WARNING: Using '*' (wildcard) in production is strongly discouraged. (Will be Rejected by IframeManager)
+</script>
 ```
 
 ### Step 2: Initialize the Receiver in the Guest (Iframe)
 
 You must inject a lightweight receiver script into the environment where the game (Iframe) is running. To prevent unauthorized sites from controlling the game, the receiver also requires a whitelist.
 
-```typescript
-// Script running INSIDE the game Iframe
-import { initIframeReceiver } from '@omnipad/vanilla/guest';
+```html
+<!-- Within the Iframe page running the game/emulator -->
+<head>
+  <!-- 1. Introducing an ultra-lightweight custom guest receiver script -->
+  <script src="https://unpkg.com/@omnipad/vanilla/dist/guest.global.js"></script>
 
-initIframeReceiver({
-  // CORE SECURITY: Only accept signals from your main site.
-  // Reject postMessage from any other sources.
-  allowedOrigins: ['https://your-main-site.com'],
-});
+  <script>
+    // 2. Start the listener and configure it to accept only messages from your main site, rejecting any `postMessage` requests from other sources.
+    OmniPad.initIframeReceiver({
+      allowedOrigins: ['https://your-main-site.com'],
+    });
+  </script>
+</head>
 ```
 
 ### Step 3: Configure CSP (Content Security Policy)

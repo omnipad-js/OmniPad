@@ -107,7 +107,10 @@ import '@omnipad/vue/style.css';
   "items": [
     {
       "id": "$ui-layer",
-      "type": "root-layer"
+      "type": "root-layer",
+      "config": {
+        "layout": { "width": "100%", "height": "100%" }
+      }
     },
     {
       "id": "$game-canvas",

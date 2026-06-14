@@ -60,20 +60,64 @@ npm install @omnipad/vanilla
 
 ```html
 <div id="app">
-  <!-- 游戏/播放器容器 -->
-  <canvas id="my-game"></canvas>
-  <!-- 提供一个充当相对定位坐标系的容器 -->
+  <!-- 模拟的游戏区域 -->
+  <div id="mock-game-canvas">
+    <span>GAME CANVAS PLACEHOLDER</span>
+  </div>
+
+  <!-- 虚拟手柄图层 -->
   <div id="omnipad-container"></div>
 </div>
 
 <style>
-  #app,
-  #my-game,
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+  }
+  #app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  /* 模拟的游戏/播放器容器 */
+  #mock-game-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 550px;
+    height: 400px;
+    background: #000;
+    border: 4px solid #333;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-family: sans-serif;
+  }
+  /* 虚拟手柄挂载容器 */
   #omnipad-container {
     position: absolute;
     inset: 0;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    pointer-events: none; /* 穿透空白区域 */
+  }
+  /* 针对移动端小屏幕的自适应适配 */
+  @media (max-width: 600px) {
+    #mock-game-canvas {
+      width: 100%;
+      height: 50%;
+      top: 0;
+      left: 0;
+      transform: none;
+      border: none;
+    }
   }
 </style>
 ```
@@ -146,7 +190,10 @@ if (container) {
   "items": [
     {
       "id": "$ui-layer",
-      "type": "root-layer"
+      "type": "root-layer",
+      "config": {
+        "layout": { "width": "100%", "height": "100%" }
+      }
     },
     {
       "id": "$game-canvas",
@@ -154,7 +201,7 @@ if (container) {
       "parentId": "$ui-layer",
       "config": {
         "cursorEnabled": true,
-        "layout": { "left": 0, "top": 0, "height": "100%", "width": "100%" }
+        "layout": { "stickySelector": "#mock-game-canvas" }
       }
     },
     {

@@ -51,11 +51,22 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 
 ## 📦 安装 (Installation)
 
-```bash
-npm install @omnipad/vanilla
-```
+本主文档专注于**无构建工具的直接集成模式 (标签引入)**。如果您正在开发一个标准的现代 Web 应用（如使用 Vite/Webpack 等构建工具），或者使用特定的前端框架，请通过以下传送门阅读对应的说明：
 
-> ⚠️ **注意**：别忘了在您的入口文件 (如 `main.ts` 或 `App.vue`) 中引入基础样式：`import '@omnipad/vanilla/style.css';`
+- **现代 Web 模块化构建 (Vite / ESM) 指南**：[👉 <code>@omnipad/vanilla</code> 模块说明](./packages/vanilla)
+- **Vue 3 框架原生适配集成指南**：[👉 <code>@omnipad/vue</code> 模块说明](./packages/vue)
+
+### 标签引入（零构建模式）
+
+在您的 HTML 文件中，通过免费的全球 CDN 直接引入编译好的完全体 UMD 资源即可：
+
+```html
+<!-- 1. 引入 OmniPad 物理样式文件 -->
+<link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+
+<!-- 2. 引入 OmniPad 原生逻辑与组件包 (将挂载到全局变量 window.OmniPad 上) -->
+<script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
+```
 
 ---
 
@@ -65,81 +76,137 @@ npm install @omnipad/vanilla
 
 适用于在页面角落快速添加固定按钮的简单场景。无需复杂配置，直接作为 UI 组件引入。
 
-**1. HTML 结构 `index.html`**
-
 ```html
-<div id="app">
-  <!-- 游戏/播放器容器 -->
-  <canvas id="my-game"></canvas>
-  <!-- 提供一个充当相对定位坐标系的容器 -->
-  <div id="omnipad-container"></div>
-</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>OmniPad - Standalone Mode Demo</title>
 
-<style>
-  #app,
-  #my-game,
-  #omnipad-container {
-    position: absolute;
-    inset: 0;
-    height: 100%;
-    width: 100%;
-  }
-</style>
-```
+    <link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+    <script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
 
-**2. 逻辑装配 `main.ts / main.js`**
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
+      }
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+      /* 模拟的游戏/播放器容器 */
+      #mock-game-canvas {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 550px;
+        height: 400px;
+        background: #000;
+        border: 4px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-family: sans-serif;
+      }
+      /* 虚拟手柄挂载容器 */
+      #omnipad-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none; /* 穿透空白区域 */
+      }
+      /* 针对移动端小屏幕的自适应适配 */
+      @media (max-width: 600px) {
+        #mock-game-canvas {
+          width: 100%;
+          height: 50%;
+          top: 0;
+          left: 0;
+          transform: none;
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- 模拟的游戏区域 -->
+      <div id="mock-game-canvas">
+        <span>GAME CANVAS PLACEHOLDER</span>
+      </div>
 
-```typescript
-import { TargetZone, VirtualButton, VirtualJoystick } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
+      <!-- 虚拟手柄图层 -->
+      <div id="omnipad-container"></div>
+    </div>
 
-const container = document.getElementById('omnipad-container');
+    <script>
+      // 从全局命名空间中解构组件
+      const { TargetZone, VirtualButton, VirtualJoystick } = window.OmniPad;
 
-if (container) {
-  // 部署一个铺满全屏的靶区，开启光标显示，在底层部署游戏播放器即可被靶区接管
-  const stage = new TargetZone(container, {
-    widgetId: '$stage',
-    cursorEnabled: true,
-    layout: {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    },
-  });
+      const container = document.getElementById('omnipad-container');
 
-  // 部署一个绑定了 W 键的动作按钮
-  const jumpButton = new VirtualButton(container, {
-    label: 'JUMP',
-    targetStageId: '$stage',
-    mapping: { code: 'KeyW' },
-    layout: {
-      width: '80px',
-      height: '80px',
-      zIndex: 100,
-      right: '40px',
-      bottom: '40px',
-      anchor: 'center',
-    },
-  });
+      if (container) {
+        // 部署一个铺满全屏的靶区，开启光标显示
+        const stage = new TargetZone(container, {
+          widgetId: '$stage',
+          cursorEnabled: true,
+          layout: {
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+          },
+        });
 
-  // 部署一个支持 360 度绝对光标位移的模拟摇杆
-  const joystick = new VirtualJoystick(container, {
-    cursorMode: true,
-    cursorSensitivity: 1.2,
-    targetStageId: '$stage',
-    mapping: {
-      stick: { type: 'mouse', button: 0 },
-    },
-    layout: {
-      bottom: '120px',
-      left: '120px',
-      width: '150px',
-      height: '150px',
-      zIndex: 100,
-    },
-  });
-}
+        // 部署一个绑定了 W 键的动作按钮
+        const jumpButton = new VirtualButton(container, {
+          label: 'JUMP',
+          targetStageId: '$stage',
+          mapping: { code: 'KeyW' },
+          layout: {
+            width: '80px',
+            height: '80px',
+            zIndex: 100,
+            right: '40px',
+            bottom: '40px',
+            anchor: 'center',
+          },
+        });
+
+        // 部署一个支持 360 度绝对光标位移的模拟摇杆
+        const joystick = new VirtualJoystick(container, {
+          cursorMode: true,
+          cursorSensitivity: 1.2,
+          targetStageId: '$stage',
+          mapping: {
+            stick: { type: 'mouse', button: 0 },
+          },
+          layout: {
+            bottom: '120px',
+            left: '120px',
+            width: '150px',
+            height: '150px',
+            zIndex: 100,
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
 ```
 
 ### 模式二：数据驱动模式 (Data-Driven Mode)
@@ -147,71 +214,144 @@ if (container) {
 推荐在复杂应用中使用。通过一份扁平化的 JSON 描述屏幕分区（Zones）和所有按键的映射关系。
 让 **RootLayer 或者任意 OmniPad 组件**作为根节点，承载解析后的 ConfigTreeNode。你可以将复杂的游戏 UI 拆分为多个独立逻辑块，由 CSS 决定它们的物理分布。
 
-**1. 定义 `profile.json`:**
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>OmniPad - Data-Driven Mode Demo</title>
 
-```json
-{
-  "meta": { "name": "Action Layout" },
-  "items": [
-    {
-      "id": "$ui-layer",
-      "type": "root-layer"
-    },
-    {
-      "id": "$game-canvas",
-      "type": "target-zone",
-      "parentId": "$ui-layer",
-      "config": {
-        "cursorEnabled": true,
-        "layout": { "left": 0, "top": 0, "height": "100%", "width": "100%" }
+    <link rel="stylesheet" href="https://unpkg.com/@omnipad/vanilla/dist/index.css" />
+    <script src="https://unpkg.com/@omnipad/vanilla/dist/index.global.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
       }
-    },
-    {
-      "id": "movement",
-      "type": "d-pad",
-      "parentId": "$ui-layer",
-      "config": {
-        "mapping": {
-          "up": "ArrowUp",
-          "down": "ArrowDown",
-          "left": "ArrowLeft",
-          "right": "ArrowRight"
-        },
-        "layout": { "left": "10%", "bottom": "20%", "height": "20%", "isSquare": true }
+      #app {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
       }
-    },
-    {
-      "id": "btn-fire",
-      "type": "button",
-      "parentId": "$ui-layer",
-      "config": {
-        "label": "FIRE",
-        "mapping": "Space",
-        "layout": { "right": "10%", "bottom": "20%", "height": "10%", "isSquare": true }
+      #mock-game-canvas {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 550px;
+        height: 400px;
+        background: #000;
+        border: 4px solid #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-family: sans-serif;
       }
-    }
-  ]
-}
-```
+      #omnipad-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      @media (max-width: 600px) {
+        #mock-game-canvas {
+          width: 100%;
+          height: 50%;
+          top: 0;
+          left: 0;
+          transform: none;
+          border: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- 模拟的游戏区域 -->
+      <div id="mock-game-canvas">
+        <span>GAME CANVAS PLACEHOLDER</span>
+      </div>
 
-**2. 在 RootLayer 中一键解析与渲染:**
+      <!-- 虚拟手柄图层 (容器) -->
+      <div id="omnipad-container"></div>
+    </div>
 
-```typescript
-import { parseProfileForest, RootLayer } from '@omnipad/vanilla';
-import '@omnipad/vanilla/style.css';
-import profileRaw from './profile.json';
+    <script>
+      const { parseProfileForest, RootLayer } = window.OmniPad;
 
-// 解析扁平配置并构建运行时组件森林
-const forest = parseProfileForest(profileRaw);
+      // 1. 定义扁平化配置数据
+      const profileRaw = {
+        meta: { name: 'Action Layout' },
+        items: [
+          {
+            id: '$ui-layer',
+            type: 'root-layer',
+            config: {
+              layout: { width: '100%', height: '100%' },
+            },
+          },
+          {
+            id: '$game-canvas',
+            type: 'target-zone',
+            parentId: '$ui-layer',
+            config: {
+              cursorEnabled: true,
+              layout: { stickySelector: '#mock-game-canvas' }, // 吸附在游戏区域上
+            },
+          },
+          {
+            id: 'movement',
+            type: 'd-pad',
+            parentId: '$ui-layer',
+            config: {
+              mapping: {
+                up: 'ArrowUp',
+                down: 'ArrowDown',
+                left: 'ArrowLeft',
+                right: 'ArrowRight',
+              },
+              layout: { left: '10%', bottom: '20%', height: '20%', isSquare: true },
+            },
+          },
+          {
+            id: 'btn-fire',
+            type: 'button',
+            parentId: '$ui-layer',
+            config: {
+              label: 'FIRE',
+              mapping: 'Space',
+              layout: { right: '10%', bottom: '20%', height: '10%', isSquare: true },
+            },
+          },
+        ],
+      };
 
-// 提取根节点并直接实例化 RootLayer 进行挂载
-const rootNode = forest.roots['$ui-layer'];
-if (rootNode) {
-  const container = document.getElementById('omnipad-container');
-  if (container) {
-    new RootLayer(container, { treeNode: rootNode });
-  }
-}
+      // 2. 解析扁平配置并构建运行时组件森林
+      const forest = parseProfileForest(profileRaw);
+
+      // 3. 提取根节点并直接实例化 RootLayer 进行挂载
+      const rootNode = forest.roots['$ui-layer'];
+      const container = document.getElementById('omnipad-container');
+
+      if (rootNode && container) {
+        // 这一行代码会递归生成整个 D-Pad、开火键和 TargetZone！
+        new RootLayer(container, { treeNode: rootNode });
+      }
+    </script>
+  </body>
+</html>
 ```
 
 ---
@@ -220,12 +360,14 @@ if (rootNode) {
 
 想在网页里使用 Xbox 或 PlayStation 手柄？只需在配置中添加映射表，OmniPad 将自动接管手柄轮询。当你在实体手柄上按下按键时，屏幕上对应的虚拟按钮将**同步触发**按下动画，提供完美的交互回馈。
 
-```typescript
-import { GamepadManager } from '@omnipad/vanilla';
+```html
+<script>
+  const { GamepadManager } = window.OmniPad;
 
-// 启动全局实体手柄监控
-GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
-GamepadManager.getInstance().start();
+  // 启动全局实体手柄监控
+  GamepadManager.getInstance().setConfig(forest.runtimeGamepadMappings);
+  GamepadManager.getInstance().start();
+</script>
 ```
 
 ```json
@@ -253,30 +395,36 @@ OmniPad 引入了强大的跨域 Iframe 穿透能力。为了防止恶意脚本�
 
 主文档是存放虚拟手柄 UI 的页面。出于安全考虑，`IframeManager` **不会**向未经授权的域名发送任何坐标或按键信号。
 
-```typescript
-import { IframeManager } from '@omnipad/vanilla';
+```html
+<script>
+  const { IframeManager } = window.OmniPad;
+  const iframeMgr = IframeManager.getInstance();
 
-const iframeMgr = IframeManager.getInstance();
+  // 1. 默认情况下，IframeManager 已经信任了当前域名 (window.location.origin)
+  // 2. 如果游戏运行在其他域名，请显式添加信任：
+  iframeMgr.addTrustedOrigin('https://game-provider.com');
 
-// 1. 默认情况下，IframeManager 已经信任了当前域名 (window.location.origin)
-// 2. 如果游戏运行在其他域名，请显式添加信任：
-iframeMgr.addTrustedOrigin('https://game-provider.com');
-
-// ⚠️ 警告：在生产环境中，禁止使用 '*' 通配符。(会被 IframeManager 直接拒绝)
+  // ⚠️ 警告：在生产环境中，禁止使用 '*' 通配符。(会被 IframeManager 直接拒绝)
+</script>
 ```
 
 ### 步骤 2：在 Iframe 内部（Guest）初始化接收器
 
 你需要将一段轻量的接收器脚本注入到游戏所在的 Iframe 环境中。为了防止恶意网站通过 Iframe 控制游戏，接收器也需要配置白名单。
 
-```typescript
-// 在 Iframe 内部运行的脚本
-import { initIframeReceiver } from '@omnipad/vanilla/guest';
+```html
+<!-- 在运行游戏/模拟器的 Iframe 页面内部 -->
+<head>
+  <!-- 1. 引入极轻量的专属 Guest 接收器脚本 -->
+  <script src="https://unpkg.com/@omnipad/vanilla/dist/guest.global.js"></script>
 
-initIframeReceiver({
-  // 核心安全：只接收来自你主站点的信号，拒绝其他任何来源的 postMessage
-  allowedOrigins: ['https://your-main-site.com'],
-});
+  <script>
+    // 2. 启动接收器并限制只接收来自你主站点的信号，拒绝其他任何来源的 postMessage
+    OmniPad.initIframeReceiver({
+      allowedOrigins: ['https://your-main-site.com'],
+    });
+  </script>
+</head>
 ```
 
 ### 步骤 3：配置 CSP（内容安全策略）
