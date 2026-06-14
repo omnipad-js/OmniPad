@@ -85,5 +85,5 @@ export interface IRegistry {
    * dispatcher.broadcastSignal({ targetStageId: 'player_1', type: 'KEYDOWN' });
    * ```
    */
-  broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | null): void;
+  broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver): void;
 }

@@ -191,23 +191,25 @@ export class Registry implements IRegistry {
     });
   }
 
-  public broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | null = null) {
+  public broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | any = null) {
+    // A. receiver 可能是一个具体的 ISignalReceiver
     if (receiver && 'handleSignal' in receiver) {
-      if (receiver && 'handleSignal' in receiver) {
-        // A. 发送给具体的 TargetZone
-        (receiver as any).handleSignal(signal);
-      } else if (globalSignalHandler) {
-        // B. 如果找不到目标，且有全局处理器，则交给全局处理器
-        // 这里的全局处理器就是派发给 window 的逻辑
-        globalSignalHandler(signal);
-      }
-    } else {
+      // 发送给具体的 TargetZone
+      (receiver as any).handleSignal(signal);
+      return;
+    }
+    // B. signal 里可能指定了信号发送目标
+    if (signal.targetStageId) {
       const target = this.getEntity<ICoreEntity & ISignalReceiver>(signal.targetStageId);
       if (target && 'handleSignal' in target) {
         (target as any).handleSignal(signal);
-      } else if (globalSignalHandler) {
-        globalSignalHandler(signal);
+        return;
       }
+    }
+    // C. 如果找不到目标，且有全局处理器，则交给全局处理器
+    if (globalSignalHandler) {
+      // 这里的全局处理器就是派发给 window 的逻辑
+      globalSignalHandler(signal);
     }
   }
 }

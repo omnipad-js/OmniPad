@@ -7,6 +7,7 @@ import { delayFrames } from './performance';
 
 const MAX_STR_LEN = 32; // 键名通常不会超过这个长度
 const MAX_KEY_CODE = 255; // 标准键盘码范围
+const NO_TARGET_MARK = '__NO_TARGET__';
 
 /**
  * Action Emitter Utility.
@@ -18,7 +19,7 @@ export class ActionEmitter {
   private isPressed = false;
   private mapping?: KeyMapping;
   private targetId?: string;
-  private _cachedTarget: ISignalReceiver | null = null;
+  private _cachedTarget: ISignalReceiver | typeof NO_TARGET_MARK | null = null;
 
   constructor(targetId?: string, action?: ActionMapping) {
     this.update(targetId, action);
@@ -189,13 +190,16 @@ export class ActionEmitter {
       ) as unknown as ISignalReceiver;
       if (target && 'handleSignal' in target) {
         this._cachedTarget = target;
+      } else {
+        this._cachedTarget = NO_TARGET_MARK;
       }
     }
 
     // 让注册表发送信号至目标
     Registry.getInstance().broadcastSignal(
       {
-        targetStageId: this.targetId || '',
+        // 确定无目标则取空
+        targetStageId: this.targetId === NO_TARGET_MARK ? '' : this.targetId || '',
         type: signalType,
         payload: {
           // 键盘字段
