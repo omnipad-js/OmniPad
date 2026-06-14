@@ -46,7 +46,7 @@ OmniPad 是一个专为 **Web 游戏**（HTML5 Canvas、Ruffle Flash 模拟器�
 确保您的项目中已安装 Vue 3 (`peerDependencies`)。
 
 ```bash
-npm install @omnipad/core @omnipad/web @omnipad/vue
+npm install @omnipad/vue
 ```
 
 > ⚠️ **注意**：请确保在入口文件（如 `main.ts` 或 `App.vue`）中引入基础样式，具体写法见下方“快速上手”示例。
@@ -151,8 +151,7 @@ import '@omnipad/vue/style.css';
 ```vue
 <script setup>
 import { computed, onMounted } from 'vue';
-import { parseProfileForest } from '@omnipad/core';
-import { RootLayer } from '@omnipad/vue';
+import { RootLayer, parseProfileForest } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // 解析扁平配置并构建运行时组件森林
@@ -191,7 +190,7 @@ const forest = computed(() => parseProfileForest(profileRaw));
 想在网页里使用 Xbox 或 PlayStation 手柄？只需在配置中添加映射表，OmniPad 将自动接管手柄轮询。当你在实体手柄上按下按键时，屏幕上对应的虚拟按钮将**同步触发**按下动画，提供完美的交互回馈。
 
 ```typescript
-import { GamepadManager } from '@omnipad/core';
+import { GamepadManager } from '@omnipad/vue';
 
 // 启动全局实体手柄监控
 GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
@@ -226,7 +225,7 @@ OmniPad 引入了强大的跨域 Iframe 穿透能力。为了防止恶意脚本�
 **默认安全行为说明：** `IframeManager` 会默认信任当前页面源（`window.location.origin`）。这意味着同源场景开箱即用；若游戏运行在其他域名，必须通过白名单显式授权。
 
 ```typescript
-import { IframeManager } from '@omnipad/web';
+import { IframeManager } from '@omnipad/vue';
 
 const iframeMgr = IframeManager.getInstance();
 

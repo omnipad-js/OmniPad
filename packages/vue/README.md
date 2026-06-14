@@ -45,7 +45,7 @@ If you are developing or operating web games, OmniPad helps you achieve the foll
 Ensure you have Vue 3 installed in your project (`peerDependencies`).
 
 ```bash
-npm install @omnipad/core @omnipad/web @omnipad/vue
+npm install @omnipad/vue
 ```
 
 > ⚠️ **Note**: Don't forget to import the base styles in your entry file (e.g., `main.ts` or `App.vue`): `import '@omnipad/vue/style.css';`
@@ -149,8 +149,7 @@ Recommended for complex applications. Define screen partitions (Zones) and all k
 ```vue
 <script setup>
 import { computed } from 'vue';
-import { parseProfileForest } from '@omnipad/core';
-import { RootLayer } from '@omnipad/vue';
+import { RootLayer, parseProfileForest } from '@omnipad/vue';
 import profileRaw from './profile.json';
 
 // Analyze flat configuration and build the runtime component forest
@@ -189,7 +188,7 @@ const forest = computed(() => parseProfileForest(profileRaw));
 Want to use an Xbox or PlayStation controller? Simply add a mapping table. OmniPad automatically handles controller polling. When you press a physical button, the corresponding virtual button on the screen will **synchronously trigger** its press animation, providing perfect haptic feedback.
 
 ```typescript
-import { GamepadManager } from '@omnipad/core';
+import { GamepadManager } from '@omnipad/vue';
 
 // Start global physical gamepad monitoring
 GamepadManager.getInstance().setConfig(forest.value.runtimeGamepadMappings);
@@ -222,7 +221,7 @@ OmniPad provides robust cross-origin iframe penetration capabilities. To prevent
 The **Host** is the main page where your virtual gamepad UI resides. For security reasons, the `IframeManager` will **NOT** send coordinates or key signals to unauthorized domains.
 
 ```typescript
-import { IframeManager } from '@omnipad/web';
+import { IframeManager } from '@omnipad/vue';
 
 const iframeMgr = IframeManager.getInstance();
 
