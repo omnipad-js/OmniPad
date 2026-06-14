@@ -1,7 +1,7 @@
 {
   "name": "@omnipad/vanilla",
-  "version": "0.7.0",
-  "description": "",
+  "version": "0.7.1",
+  "description": "Vanilla JS adapter and component library for OmniPad. Build highly customizable virtual gamepads for web-based games with ease.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -62,5 +62,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.28.2"
+  "packageManager": "pnpm@10.28.2",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omnipad-js/omnipad.git"
+  }
 }
