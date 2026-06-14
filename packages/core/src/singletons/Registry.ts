@@ -191,7 +191,7 @@ export class Registry implements IRegistry {
     });
   }
 
-  public broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | any = null) {
+  public broadcastSignal(signal: InputActionSignal, receiver: ISignalReceiver | null = null) {
     // A. receiver 可能是一个具体的 ISignalReceiver
     if (receiver && 'handleSignal' in receiver) {
       // 发送给具体的 TargetZone

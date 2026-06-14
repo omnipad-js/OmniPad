@@ -199,7 +199,7 @@ export class ActionEmitter {
     Registry.getInstance().broadcastSignal(
       {
         // 确定无目标则取空
-        targetStageId: this.targetId === NO_TARGET_MARK ? '' : this.targetId || '',
+        targetStageId: target === NO_TARGET_MARK ? '' : (this.targetId || ''),
         type: signalType,
         payload: {
           // 键盘字段
@@ -213,7 +213,7 @@ export class ActionEmitter {
           ...extraPayload,
         },
       },
-      target,
+      target === NO_TARGET_MARK ? null : target,
     );
   }
 }
