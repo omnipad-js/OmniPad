@@ -1,5 +1,8 @@
 import './styles/index.css';
 
+export * from '@omnipad/core';
+export * from '@omnipad/web';
+
 import { registerComponent } from './utils/componentRegistry';
 
 import InputZone from './components/InputZone.vue';
