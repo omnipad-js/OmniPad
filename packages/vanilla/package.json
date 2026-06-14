@@ -1,6 +1,6 @@
 {
   "name": "@omnipad/vanilla",
-  "version": "0.7.1",
+  "version": "0.7.3",
   "description": "Vanilla JS adapter and component library for OmniPad. Build highly customizable virtual gamepads for web-based games with ease.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

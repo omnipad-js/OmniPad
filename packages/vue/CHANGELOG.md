@@ -1,5 +1,23 @@
 # @omnipad/vue
 
+## 0.7.3
+
+### Patch Changes
+
+- rebuild
+- Updated dependencies
+  - @omnipad/core@0.7.3
+  - @omnipad/web@0.7.3
+
+## 0.7.2
+
+### Patch Changes
+
+- fix action broadcast error
+- Updated dependencies
+  - @omnipad/core@0.7.2
+  - @omnipad/web@0.7.2
+
 ## 0.7.1
 
 ### Patch Changes
