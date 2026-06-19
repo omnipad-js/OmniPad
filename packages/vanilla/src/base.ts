@@ -180,7 +180,6 @@ export abstract class VanillaCoreWidget<
   }
 
   protected syncLayout(config: TConfig): void {
-    // this.syncSticky(config);
     applyLayout(this.el, this.getEffectiveLayout(config));
   }
 
@@ -195,9 +194,8 @@ export abstract class VanillaCoreWidget<
       const unsubscribe = (this.core as unknown as IConfigurable<TConfig>).subscribeConfig(
         (newConfig) => {
           this.config = newConfig;
-          this.renderConfig(newConfig);
           this.syncSticky(newConfig);
-          this.syncLayout(newConfig);
+          this.renderConfig(newConfig);
         },
       );
       this.disposers.push(unsubscribe);
