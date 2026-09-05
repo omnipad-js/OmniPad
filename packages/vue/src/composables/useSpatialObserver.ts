@@ -37,7 +37,7 @@ export function useSpatialObserver(
         instance,
         domEl,
         (el) => distillRect(el.getBoundingClientRect()),
-        stickyProvider?.value,
+        () => stickyProvider?.value || null,
       );
     }
   });

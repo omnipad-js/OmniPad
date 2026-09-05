@@ -17,6 +17,8 @@ export class WindowManager {
   private _isListening = false;
   /** A throttled version of the reset logic */
   private throttledReset: (e: any) => void;
+  /** Callbacks that need a DOM layout refresh after global geometry changes. */
+  private layoutInvalidationListeners = new Set<() => void>();
 
   private constructor() {
     this.throttledReset = createRafThrottler(() => {
@@ -48,7 +50,29 @@ export class WindowManager {
     Registry.getInstance().resetAll();
     Registry.getInstance().markAllRectDirty();
     IframeManager.getInstance().markAllRectDirty();
+    this.notifyLayoutInvalidation();
   };
+
+  /**
+   * Lets an adapter refresh rendered layout after globally invalidating cached rects.
+   *
+   * Core entities deliberately know nothing about concrete views, so cache invalidation
+   * alone cannot update an imperative adapter such as Vanilla JS.
+   */
+  public subscribeLayoutInvalidation(listener: () => void): () => void {
+    this.layoutInvalidationListeners.add(listener);
+    return () => this.layoutInvalidationListeners.delete(listener);
+  }
+
+  private notifyLayoutInvalidation(): void {
+    for (const listener of this.layoutInvalidationListeners) {
+      try {
+        listener();
+      } catch (error) {
+        console.error('[OmniPad-DOM] Layout invalidation listener failed:', error);
+      }
+    }
+  }
 
   private handleResizeReset = (): void => {
     this.throttledReset(null);

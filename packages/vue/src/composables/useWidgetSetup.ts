@@ -1,11 +1,11 @@
-import { computed } from 'vue';
+import { computed, onUnmounted } from 'vue';
 import { type ICoreEntity, type BaseConfig, type EntityType, type LayoutBox } from '@omnipad/core';
 import { getCoreClass } from '../utils/getCoreClasses';
 import { useWidgetConfig } from './useWidgetConfig';
 import { useCoreEntity } from './useCoreEntity';
 import { useStickyLayout } from './useStickyLayout';
 import { createManualTrigger } from '../utils/createManualTrigger';
-import { flattenToHostLayout } from '@omnipad/web';
+import { flattenToHostLayout, WindowManager } from '@omnipad/web';
 import { useSpatialObserver } from './useSpatialObserver';
 
 /**
@@ -54,6 +54,10 @@ export function useWidgetSetup<T extends ICoreEntity, S, C extends BaseConfig>(
   // 3. [布局层] 解析 Layout 来生成 UI 并绑定空间观察器
   // 初始化吸附驱动器
   const layoutUpdateTicker = createManualTrigger();
+  const unsubscribeLayoutInvalidation = WindowManager.getInstance().subscribeLayoutInvalidation(
+    layoutUpdateTicker.notify,
+  );
+  onUnmounted(unsubscribeLayoutInvalidation);
   const { stickyProvider } = useStickyLayout(
     core as any,
     effectiveConfig as any,

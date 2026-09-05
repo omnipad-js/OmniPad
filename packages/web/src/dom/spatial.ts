@@ -101,6 +101,15 @@ export class StickyController<T> {
           this.onUpdate();
         });
 
+        // ResizeObserver intentionally ignores same-size position changes. Track
+        // sticky targets separately so scrolling, transforms, and parent reflow
+        // can still refresh their flattened fixed layout.
+        observer.observePosition(this.uid, target as any, () => {
+          provider?.markDirty();
+          this.instance.markRectDirty();
+          this.onUpdate();
+        });
+
         // 2. Monitor visibility status
         observer.observeIntersect(this.uid, target as any, (isVisible) => {
           // Safety: Cut off input signals if the target element disappears (e.g., hidden by game logic)
@@ -141,7 +150,7 @@ export function setupSpatialLogic<T extends Element>(
   entity: any,
   element: T,
   getRect: (el: T) => AbstractRect,
-  stickyProvider?: StickyProvider<T> | null,
+  stickyProvider?: StickyProvider<Element> | null | (() => StickyProvider<Element> | null),
 ) {
   if (!entity.uid) return () => {};
   const uid = entity.uid;
@@ -158,9 +167,8 @@ export function setupSpatialLogic<T extends Element>(
     spatialCore.bindRectProvider(cached.get, () => {
       cached.markDirty();
       // 联动清理吸附目标的缓存 / Link invalidation to sticky provider
-      if (stickyProvider) {
-        stickyProvider.markDirty();
-      }
+      const provider = typeof stickyProvider === 'function' ? stickyProvider() : stickyProvider;
+      provider?.markDirty();
     });
 
     // 注册尺寸监听 / Register ResizeObserver

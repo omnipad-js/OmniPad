@@ -61,6 +61,7 @@ export abstract class VanillaCoreWidget<
   private readonly eventDisposers: Array<() => void> = [];
   private customClasses: string[] = [];
   private spatialCleanup: (() => void) | null = null;
+  private layoutInvalidationCleanup: (() => void) | null = null;
   private stickyController: StickyController<Element> | null = null;
   private stickyProvider: StickyProvider<Element> | null = null;
   private pointerHandlers: PointerHandlers | null = null;
@@ -100,12 +101,18 @@ export abstract class VanillaCoreWidget<
 
     Registry.getInstance().register(this.core);
     this.subscribeCore();
-    WindowManager.getInstance().init();
+    const windowManager = WindowManager.getInstance();
+    windowManager.init();
+    this.layoutInvalidationCleanup = windowManager.subscribeLayoutInvalidation(() => {
+      if (this.stickyProvider) {
+        this.syncLayout(this.config);
+      }
+    });
     this.spatialCleanup = setupSpatialLogic(
       this.core,
       this.el,
       (el) => distillRect(el.getBoundingClientRect()),
-      this.stickyProvider,
+      () => this.stickyProvider,
     );
   }
 
@@ -135,6 +142,9 @@ export abstract class VanillaCoreWidget<
     if ('markRectDirty' in this.core) {
       (this.core as { markRectDirty: () => void }).markRectDirty();
     }
+    if (this.stickyProvider) {
+      this.syncLayout(this.config);
+    }
   }
 
   public onPointerDown(event: Parameters<IPointerHandler['onPointerDown']>[0]): void {
@@ -156,6 +166,8 @@ export abstract class VanillaCoreWidget<
   public destroy(): void {
     for (const dispose of this.eventDisposers.splice(0)) dispose();
     for (const dispose of this.disposers.splice(0)) dispose();
+    this.layoutInvalidationCleanup?.();
+    this.layoutInvalidationCleanup = null;
     this.spatialCleanup?.();
     this.stickyController?.onCleanUp();
     this.core.destroy();
