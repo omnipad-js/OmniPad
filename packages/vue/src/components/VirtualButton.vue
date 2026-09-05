@@ -52,7 +52,7 @@ defineExpose({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
-  markRectDirty: () => core.value?.markRectDirty,
+  markRectDirty: () => core.value?.markRectDirty(),
 });
 </script>
 

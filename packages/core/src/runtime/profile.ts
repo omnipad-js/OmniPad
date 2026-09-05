@@ -414,21 +414,27 @@ export function exportProfile(
         exportedMapping.buttons = {};
         for (const [btn, uid] of Object.entries(mapping.buttons)) {
           // 只有当这个 UID 对应的组件也在本次导出的 items 范围内时才保留
-          if (eidToCidMap.has(uid)) {
-            exportedMapping.buttons[btn as StandardButton] = eidToCidMap.get(uid)!;
+          if (isGlobalID(uid) || eidToCidMap.has(uid)) {
+            exportedMapping.buttons[btn as StandardButton] = getNewCid(uid);
           }
         }
       }
 
       // 转换摇杆指向
-      if (mapping.dpad && eidToCidMap.has(mapping.dpad)) {
-        exportedMapping.dpad = eidToCidMap.get(mapping.dpad);
+      if (mapping.dpad && (isGlobalID(mapping.dpad) || eidToCidMap.has(mapping.dpad))) {
+        exportedMapping.dpad = getNewCid(mapping.dpad);
       }
-      if (mapping.leftStick && eidToCidMap.has(mapping.leftStick)) {
-        exportedMapping.leftStick = eidToCidMap.get(mapping.leftStick);
+      if (
+        mapping.leftStick &&
+        (isGlobalID(mapping.leftStick) || eidToCidMap.has(mapping.leftStick))
+      ) {
+        exportedMapping.leftStick = getNewCid(mapping.leftStick);
       }
-      if (mapping.rightStick && eidToCidMap.has(mapping.rightStick)) {
-        exportedMapping.rightStick = eidToCidMap.get(mapping.rightStick);
+      if (
+        mapping.rightStick &&
+        (isGlobalID(mapping.rightStick) || eidToCidMap.has(mapping.rightStick))
+      ) {
+        exportedMapping.rightStick = getNewCid(mapping.rightStick);
       }
 
       if (Object.keys(exportedMapping).length > 0) {

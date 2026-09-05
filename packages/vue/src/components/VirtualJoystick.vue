@@ -30,10 +30,7 @@ interface VirtualJoystickProps {
   threshold?: number;
 
   /** Whether enable cursor displacement simulation. */
-  cursorMode?: {
-    type: boolean;
-    default: undefined;
-  };
+  cursorMode?: boolean;
 
   /** Determines the mapping velocity between the physical displacement of the joystick and the movement of the screen cursor. */
   cursorSensitivity?: number;
@@ -45,7 +42,10 @@ interface VirtualJoystickProps {
   layout?: LayoutBox;
 }
 
-const props = defineProps<VirtualJoystickProps>();
+const props = withDefaults(defineProps<VirtualJoystickProps>(), {
+  // Preserve the tree configuration when this optional Boolean prop is absent.
+  cursorMode: undefined,
+});
 
 const defaultProps = {
   label: 'PUSH',
@@ -83,7 +83,7 @@ defineExpose({
   onPointerMove,
   onPointerUp,
   onPointerCancel,
-  markRectDirty: () => core.value?.markRectDirty,
+  markRectDirty: () => core.value?.markRectDirty(),
 });
 </script>
 

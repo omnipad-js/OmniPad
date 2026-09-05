@@ -44,7 +44,7 @@ export class CustomTrackpad extends VirtualTrackpad {
       renderContent: (ctx: ButtonRenderContext) => {
         const labelSpan = document.createElement('span');
         labelSpan.className = 'custom-label';
-        labelSpan.innerText = ctx.label || 'TRACKPAD';
+        labelSpan.textContent = ctx.label || 'TRACKPAD';
         return labelSpan;
       },
     };

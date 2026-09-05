@@ -26,12 +26,12 @@ interface InputZoneProps {
   layout?: LayoutBox;
 
   /** If true, prevents the browser focus from leaving the game area when touching this zone. */
-  preventFocusLoss?: {
-    type: boolean;
-    default: undefined; // 防止自动赋值为 false
-  };
+  preventFocusLoss?: boolean;
 }
-const props = defineProps<InputZoneProps>();
+const props = withDefaults(defineProps<InputZoneProps>(), {
+  // `undefined` must survive so it does not override treeNode with `false`.
+  preventFocusLoss: undefined,
+});
 
 const slots = useSlots() as {
   default?: () => VNode[];

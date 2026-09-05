@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StickyProvider } from '../ts/spatial';
 import { ElementObserver } from '../singletons/ElementObserver';
-import { StickyController } from './spatial';
+import { setupSpatialLogic, StickyController } from './spatial';
 
 class MockResizeObserver {
   public constructor(_callback: ResizeObserverCallback) {}
@@ -135,5 +135,44 @@ describe('StickyController delayed target discovery', () => {
     expect(result.provider?.getTarget()).toBe(replacement);
 
     controller.onCleanUp();
+  });
+
+  it('binds cached rect, resize, visibility, and sticky invalidation logic for ordinary widgets', () => {
+    const element = document.createElement('div');
+    document.body.append(element);
+    let getRect: (() => any) | undefined;
+    let onDirty: (() => void) | undefined;
+    const stickyProvider = createProvider('[data-sticky-target]');
+    const stickyDirty = vi.spyOn(stickyProvider, 'markDirty');
+    const entity = {
+      uid: 'spatial-widget',
+      bindRectProvider: vi.fn((provider: () => any, callback: () => void) => {
+        getRect = provider;
+        onDirty = callback;
+      }),
+      markRectDirty: vi.fn(() => onDirty?.()),
+      reset: vi.fn(),
+    };
+
+    const cleanup = setupSpatialLogic(
+      entity,
+      element,
+      () => ({ left: 1, top: 2, right: 3, bottom: 4, width: 2, height: 2 }),
+      () => stickyProvider,
+    );
+    const observer = ElementObserver.getInstance() as any;
+    const resizeCallback = observer._elToRoCbs.get(element).get('spatial-widget');
+    const intersectCallback = observer._elToIoCbs.get(element).get('spatial-widget');
+
+    expect(getRect?.()).toMatchObject({ left: 1, width: 2 });
+    resizeCallback();
+    intersectCallback(false);
+    expect(entity.markRectDirty).toHaveBeenCalledOnce();
+    expect(stickyDirty).toHaveBeenCalledOnce();
+    expect(entity.reset).toHaveBeenCalledOnce();
+
+    cleanup();
+    expect(observer._roRegistry.has('spatial-widget')).toBe(false);
+    expect(observer._ioRegistry.has('spatial-widget')).toBe(false);
   });
 });

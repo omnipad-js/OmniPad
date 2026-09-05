@@ -38,16 +38,17 @@ interface VirtualDPadProps {
    * Controls the visibility of the internal floating feedback handle (stick).
    * @default false
    */
-  showStick?: {
-    type: boolean;
-    default: undefined;
-  };
+  showStick?: boolean;
 
   /** Spatial layout configuration relative to its parent zone. */
   layout?: LayoutBox;
 }
 
-const props = defineProps<VirtualDPadProps>();
+const props = withDefaults(defineProps<VirtualDPadProps>(), {
+  // Keep an absent Boolean prop as `undefined`: otherwise Vue casts it to
+  // `false` and would overwrite a `showStick: true` value from treeNode.
+  showStick: undefined,
+});
 const defaultProps = {
   showStick: false,
   threshold: 0.3,

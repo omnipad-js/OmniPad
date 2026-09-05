@@ -52,6 +52,8 @@ export class GestureRecognizer {
   private startTime = 0;
   private startPos: Vec2 = { x: 0, y: 0 };
   private lastTapTime = 0;
+  private isDoubleTapCandidate = false;
+  private holdTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Whether the pointer has moved beyond the tap threshold / 指针是否已移动超出轻点阈值 */
   public hasMoved = false;
@@ -87,11 +89,19 @@ export class GestureRecognizer {
     this.hasMoved = false;
 
     // Determine if this starts a double-tap hold (drag mode) / 判断是否触发双击拖拽开始
-    if (now - this.lastTapTime < this.options.doubleTapGap) {
-      this.isDoubleTapHolding = true;
-      this.options.onDoubleTapHoldStart?.();
-    } else {
-      this.isDoubleTapHolding = false;
+    this.clearHoldTimer();
+    this.isDoubleTapCandidate =
+      this.lastTapTime > 0 && now - this.lastTapTime < this.options.doubleTapGap;
+    this.isDoubleTapHolding = false;
+
+    // A second press begins as a candidate. Starting drag immediately makes
+    // onDoubleTap unreachable because every second tap becomes a hold.
+    if (this.isDoubleTapCandidate) {
+      this.holdTimer = setTimeout(() => {
+        if (!this.isDoubleTapCandidate) return;
+        this.isDoubleTapHolding = true;
+        this.options.onDoubleTapHoldStart?.();
+      }, this.options.tapTime);
     }
   }
 
@@ -118,7 +128,22 @@ export class GestureRecognizer {
     const now = Date.now();
     const duration = now - this.startTime;
 
-    if (this.isDoubleTapHolding) {
+    const isValidTap = duration <= this.options.tapTime && !this.hasMoved;
+
+    if (this.isDoubleTapCandidate) {
+      this.clearHoldTimer();
+      this.isDoubleTapCandidate = false;
+
+      if (this.isDoubleTapHolding) {
+        this.isDoubleTapHolding = false;
+        this.options.onDoubleTapHoldEnd?.();
+      } else if (isValidTap) {
+        this.options.onTap?.();
+        this.options.onDoubleTap?.();
+      }
+
+      this.lastTapTime = 0;
+    } else if (this.isDoubleTapHolding) {
       // End drag mode / 结束拖拽模式
       this.isDoubleTapHolding = false;
       this.options.onDoubleTapHoldEnd?.();
@@ -126,7 +151,7 @@ export class GestureRecognizer {
       this.lastTapTime = 0;
     } else {
       // Evaluate if this was a valid tap / 评估这是否为一次有效的轻点
-      if (duration <= this.options.tapTime && !this.hasMoved) {
+      if (isValidTap) {
         this.options.onTap?.();
 
         // Check for double-tap sequence / 检查双击序列
@@ -145,12 +170,21 @@ export class GestureRecognizer {
    * Used to clear "stuck" gestures during window blur or layout resets.
    */
   public reset(): void {
+    this.clearHoldTimer();
     if (this.isDoubleTapHolding) {
       this.options.onDoubleTapHoldEnd?.();
     }
     this.isDoubleTapHolding = false;
+    this.isDoubleTapCandidate = false;
     this.hasMoved = false;
     this.startTime = 0;
     this.lastTapTime = 0;
+  }
+
+  private clearHoldTimer(): void {
+    if (this.holdTimer !== null) {
+      clearTimeout(this.holdTimer);
+      this.holdTimer = null;
+    }
   }
 }

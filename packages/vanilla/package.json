@@ -52,12 +52,18 @@
     "@omnipad/web": "workspace:*"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.11",
+    "jsdom": "^27.4.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",

@@ -19,10 +19,7 @@ interface TargetZoneProps {
   widgetId?: string;
 
   /** Whether to render a visual virtual cursor. */
-  cursorEnabled?: {
-    type: boolean;
-    default: undefined;
-  };
+  cursorEnabled?: boolean;
 
   /** Delay in milliseconds before the virtual cursor auto-hides after inactivity (0 to disable). */
   cursorAutoDelay?: number;
@@ -30,7 +27,10 @@ interface TargetZoneProps {
   /** Spatial layout configuration. Usually set to cover the entire game container. */
   layout?: LayoutBox;
 }
-const props = defineProps<TargetZoneProps>();
+const props = withDefaults(defineProps<TargetZoneProps>(), {
+  // `undefined` must survive so it does not override treeNode with `false`.
+  cursorEnabled: undefined,
+});
 const defaultProps = {
   cursorAutoDelay: 2500,
 };

@@ -24,12 +24,15 @@
  * ```
  */
 export function createCachedProvider<T>(provider: () => T) {
-  let cache: T | null = null;
+  // `isDirty` is the sole initialization sentinel. Keeping the cache typed as
+  // `T` lets providers legitimately cache `null`, `false`, or `0` without
+  // widening every consumer's return type to `T | null`.
+  let cache!: T;
   let isDirty = true;
 
   return {
     get: () => {
-      if (isDirty || !cache) {
+      if (isDirty) {
         cache = provider();
         isDirty = false;
       }
