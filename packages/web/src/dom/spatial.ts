@@ -30,6 +30,12 @@ export const createWebStickyProvider = (selector: string) => {
  * @template T - The type of the physical element (usually HTMLElement or Element).
  */
 export class StickyController<T> {
+  // A restored profile can be mounted before an SPA has rendered its game
+  // canvas. Keep a DOM observer only while the selector resolves to nothing,
+  // then switch to the regular spatial observers.
+  private targetDiscoveryObserver: MutationObserver | null = null;
+  private targetDiscoveryProvider: StickyProvider<T> | null = null;
+
   /**
    * Creates an instance of StickyController.
    *
@@ -71,6 +77,7 @@ export class StickyController<T> {
 
     // Case 1: Sticky mode disabled
     if (!newSelector) {
+      this.stopTargetDiscovery();
       observer.disconnect(this.uid);
       return { provider: null, updated: true };
     }
@@ -88,39 +95,7 @@ export class StickyController<T> {
     }
 
     if (updated) {
-      const target = provider.getTarget();
-      if (target) {
-        // Bind spatial observers to the physical target
-        // Core only commands the "observation"; the implementation is delegated to the observer pool.
-
-        // 1. Monitor size/position changes
-        observer.observeResize(this.uid, target as any, () => {
-          // Invalidate caches in both provider and core logic
-          provider?.markDirty();
-          this.instance.markRectDirty();
-          this.onUpdate();
-        });
-
-        // ResizeObserver intentionally ignores same-size position changes. Track
-        // sticky targets separately so scrolling, transforms, and parent reflow
-        // can still refresh their flattened fixed layout.
-        observer.observePosition(this.uid, target as any, () => {
-          provider?.markDirty();
-          this.instance.markRectDirty();
-          this.onUpdate();
-        });
-
-        // 2. Monitor visibility status
-        observer.observeIntersect(this.uid, target as any, (isVisible) => {
-          // Safety: Cut off input signals if the target element disappears (e.g., hidden by game logic)
-          if (!isVisible) {
-            this.instance.reset();
-          }
-        });
-
-        // Notify the adapter to perform an immediate sync
-        this.onUpdate();
-      }
+      this.bindOrWatchTarget(provider, observer);
     }
 
     return { provider, updated };
@@ -131,7 +106,100 @@ export class StickyController<T> {
    * Should be called when the host component is unmounted.
    */
   public onCleanUp(): void {
+    this.stopTargetDiscovery();
     ElementObserver.getInstance().disconnect(this.uid);
+  }
+
+  /**
+   * Binds the active target, or waits for it when the page has not rendered it
+   * yet. This matters for restored standalone profiles: their configuration is
+   * available at document_end, while many games create their canvas later.
+   */
+  private bindOrWatchTarget(provider: StickyProvider<T>, observer: ElementObserver): void {
+    // A selector change may leave observers attached to its old target. Tear
+    // them down before either binding the new one or beginning discovery.
+    observer.disconnect(this.uid);
+
+    const target = provider.getTarget();
+    if (!target) {
+      this.watchForTarget(provider, observer);
+      return;
+    }
+
+    this.stopTargetDiscovery();
+    provider.markDirty();
+    this.instance.markRectDirty();
+
+    const handleSpatialChange = () => {
+      // The framework may replace a canvas node without a selector change. A
+      // disconnected target is detected by ElementObserver's position loop;
+      // resolve and bind the replacement before syncing layout again.
+      if (provider.getTarget() !== target) {
+        this.bindOrWatchTarget(provider, observer);
+        return;
+      }
+
+      provider.markDirty();
+      this.instance.markRectDirty();
+      this.onUpdate();
+    };
+
+    // Bind spatial observers to the physical target. Core only commands the
+    // observation; ElementObserver owns the underlying browser observers.
+    observer.observeResize(this.uid, target as any, handleSpatialChange);
+
+    // ResizeObserver intentionally ignores same-size position changes. Track
+    // sticky targets separately so scrolling, transforms, and parent reflow
+    // can still refresh their flattened fixed layout.
+    observer.observePosition(this.uid, target as any, handleSpatialChange);
+
+    observer.observeIntersect(this.uid, target as any, (isVisible) => {
+      if (provider.getTarget() !== target) {
+        this.bindOrWatchTarget(provider, observer);
+        return;
+      }
+
+      // Safety: Cut off input signals if the target element disappears (e.g.,
+      // hidden by game logic).
+      if (!isVisible) {
+        this.instance.reset();
+      }
+    });
+
+    // Notify the adapter to perform an immediate sync. provider.markDirty()
+    // above is essential when its first cached rect was null during discovery.
+    this.onUpdate();
+  }
+
+  private watchForTarget(provider: StickyProvider<T>, observer: ElementObserver): void {
+    if (this.targetDiscoveryProvider === provider && this.targetDiscoveryObserver) return;
+
+    this.stopTargetDiscovery();
+    if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
+
+    const root = document.documentElement;
+    if (!root) return;
+
+    this.targetDiscoveryProvider = provider;
+    this.targetDiscoveryObserver = new MutationObserver(() => {
+      // disconnect() can race with an already-queued mutation callback.
+      if (this.targetDiscoveryProvider !== provider) return;
+      this.bindOrWatchTarget(provider, observer);
+    });
+    this.targetDiscoveryObserver.observe(root, { childList: true, subtree: true });
+
+    // JavaScript normally runs this setup atomically, but a custom finder can
+    // synchronously cause DOM work. Re-check after observe() so that narrow
+    // setup race cannot leave a now-present target unbound.
+    if (provider.getTarget()) {
+      this.bindOrWatchTarget(provider, observer);
+    }
+  }
+
+  private stopTargetDiscovery(): void {
+    this.targetDiscoveryObserver?.disconnect();
+    this.targetDiscoveryObserver = null;
+    this.targetDiscoveryProvider = null;
   }
 }
 

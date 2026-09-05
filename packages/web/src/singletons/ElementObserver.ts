@@ -3,6 +3,7 @@ import { createRafThrottler } from '@omnipad/core';
 interface PositionObservation {
   left: number;
   top: number;
+  connected: boolean;
   callbacks: Map<string, () => void>;
 }
 
@@ -165,6 +166,7 @@ export class ElementObserver {
       observation = {
         left: rect.left,
         top: rect.top,
+        connected: el.isConnected,
         callbacks: new Map(),
       };
       this._positionRegistry.set(el, observation);
@@ -216,8 +218,22 @@ export class ElementObserver {
 
   private handlePositionFrame = (): void => {
     for (const [element, observation] of this._positionRegistry) {
+      const wasConnected = observation.connected;
+      observation.connected = element.isConnected;
+
+      // A framework can replace an element while preserving its selector. Let
+      // sticky consumers resolve the replacement even if the detached node's
+      // final rect happens to be unchanged.
+      if (wasConnected && !observation.connected) {
+        for (const callback of Array.from(observation.callbacks.values())) {
+          callback();
+        }
+        continue;
+      }
+
       const rect = element.getBoundingClientRect();
-      if (rect.left === observation.left && rect.top === observation.top) continue;
+      const reconnected = !wasConnected && observation.connected;
+      if (!reconnected && rect.left === observation.left && rect.top === observation.top) continue;
 
       observation.left = rect.left;
       observation.top = rect.top;
